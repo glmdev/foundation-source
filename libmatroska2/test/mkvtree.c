@@ -30,7 +30,6 @@
 
 #define CONFIG_EBML_UNICODE
 #include "matroska/matroska.h"
-#include "mkvtree_stdafx.h"
 
 static int ShowPos = 0;
 
@@ -301,7 +300,7 @@ int main(int argc, const char *argv[])
 #else
     NodeContext_Init(&p,NULL,NULL,NULL);
 #endif
-	StdAfx_Init((nodemodule*)&p);
+	CoreC_Init((nodemodule*)&p);
     // EBML & Matroska Init
     MATROSKA_Init((nodecontext*)&p);
 
@@ -320,7 +319,7 @@ int main(int argc, const char *argv[])
     // EBML & Matroska ending
     MATROSKA_Done((nodecontext*)&p);
     // Core-C ending
-	StdAfx_Done((nodemodule*)&p);
+    CoreC_Done((nodemodule*)&p);
 #if defined(CONFIG_EBML_UNICODE)
     ParserContext_Done(&p);
 #else

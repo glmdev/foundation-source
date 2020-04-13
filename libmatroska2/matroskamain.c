@@ -50,11 +50,15 @@ const ebml_semantic EBML_SemanticMatroska[] = {
 };
 const ebml_context MATROSKA_ContextStream = {FOURCC('M','K','X','_'), EBML_MASTER_CLASS, 0, 0, "Matroska Stream", EBML_SemanticMatroska, EBML_SemanticGlobals, NULL};
 
+extern const nodemeta Matroska_Class[];
+
 err_t MATROSKA_Init(nodecontext *p)
 {
 #if defined(MATROSKA_LIBRARY)
     tchar_t LibName[MAXPATH];
 #endif
+	NodeRegisterClassEx(p,Matroska_Class);
+
     err_t Err = EBML_Init(p);
     if (Err == ERR_NONE)
     {

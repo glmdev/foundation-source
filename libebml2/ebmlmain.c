@@ -35,17 +35,6 @@
 # endif
 #endif
 
-extern const nodemeta BufStream_Class[];
-extern const nodemeta MemStream_Class[];
-extern const nodemeta Streams_Class[];
-#if defined(CONFIG_EBML_UNICODE)
-extern const nodemeta LangStr_Class[];
-extern const nodemeta UrlPart_Class[];
-# if defined(CONFIG_STDIO)
-extern const nodemeta Stdio_Class[];
-# endif
-#endif
-
 extern const nodemeta EBMLElement_Class[];
 extern const nodemeta EBMLMaster_Class[];
 extern const nodemeta EBMLBinary_Class[];
@@ -62,17 +51,6 @@ err_t EBML_Init(nodecontext *p)
     tchar_t LibName[MAXPATH];
     tcscpy_s(LibName,TSIZEOF(LibName),PROJECT_NAME T(" v") PROJECT_VERSION);
     Node_SetData(p,CONTEXT_LIBEBML_VERSION,TYPE_STRING,LibName);
-#endif
-
-    NodeRegisterClassEx((nodemodule*)p,BufStream_Class);
-	NodeRegisterClassEx((nodemodule*)p,MemStream_Class);
-	NodeRegisterClassEx((nodemodule*)p,Streams_Class);
-#if defined(CONFIG_EBML_UNICODE)
-	NodeRegisterClassEx((nodemodule*)p,LangStr_Class);
-	NodeRegisterClassEx((nodemodule*)p,UrlPart_Class);
-# if defined(CONFIG_STDIO)
-	NodeRegisterClassEx((nodemodule*)p,Stdio_Class);
-# endif
 #endif
 
     NodeRegisterClassEx((nodemodule*)p,EBMLElement_Class);

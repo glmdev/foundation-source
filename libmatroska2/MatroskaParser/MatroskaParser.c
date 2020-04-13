@@ -1498,3 +1498,8 @@ META_CLASS(SIZE,sizeof(haali_stream))
 META_VMT(TYPE_FUNC,stream_vmt,Seek,Seek)
 META_VMT(TYPE_FUNC,stream_vmt,Read,Read)
 META_END(STREAM_CLASS)
+
+err_t mkv_Init(nodecontext*p)
+{
+	NodeRegisterClassEx((nodemodule*)p, HaaliStream_Class);
+}

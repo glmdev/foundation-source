@@ -900,7 +900,7 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
-	StdAfx_Init((nodemodule*)&p);
+    CoreC_Init((nodemodule*)&p);
     ProjectSettings((nodecontext*)&p);
 
     // EBML & Matroska Init
@@ -1453,7 +1453,7 @@ exit:
     MATROSKA_Done((nodecontext*)&p);
 
     // Core-C ending
-	StdAfx_Done((nodemodule*)&p);
+    CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
 
     return Result;

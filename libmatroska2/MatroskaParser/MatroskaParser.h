@@ -206,6 +206,8 @@ typedef struct MatroskaFile MatroskaFile;
 
 #define MKVF_AVOID_SEEKS    1 /* use sequential reading only */
 
+err_t mkv_Init(nodecontext*);
+
 MatroskaFile *mkv_Open(InputStream *io, char *err_msg, size_t err_msgSize);
 void mkv_Close(MatroskaFile *File);
 

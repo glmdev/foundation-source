@@ -102,7 +102,7 @@ int main(void)
     //tchar_t Element[MAXLINE], String[MAXLINE], Value[MAXLINE];
 
     ParserContext_Init(&p,NULL,NULL,NULL);
-    StdAfx_Init((nodemodule*)&p);
+    CoreC_Init((nodemodule*)&p);
 
     Input = StreamOpen(&p,T("spec.xml"),SFLAG_RDONLY/*|SFLAG_BUFFERED*/);
     Output = StreamOpen(&p,T("table_spec.xml"),SFLAG_WRONLY|SFLAG_CREATE);
@@ -127,7 +127,7 @@ int main(void)
     StreamClose(Input);
     StreamClose(Output);
 
-	StdAfx_Done((nodemodule*)&p);
+	CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
     return 0;
 }

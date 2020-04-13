@@ -516,7 +516,8 @@ int main(void)
     //tchar_t Element[MAXLINE], String[MAXLINE], Value[MAXLINE];
 
     ParserContext_Init(&p,NULL,NULL,NULL);
-    StdAfx_Init((nodemodule*)&p);
+    CoreC_Init((nodemodule*)&p);
+    NodeRegisterClassEx((nodemodule*)&p, SpecElement_Class);
 
     Input = StreamOpen(&p,T("ebml_matroska.xml"),SFLAG_RDONLY/*|SFLAG_BUFFERED*/);
     if (Input == NULL)
@@ -660,7 +661,7 @@ done:
     StreamClose(OutputC);
     StreamClose(OutputH);
 
-	StdAfx_Done((nodemodule*)&p);
+	CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
     return result;
 }

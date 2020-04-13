@@ -53,6 +53,9 @@ extern "C" {
 #include "nodetree.h"
 #include "nodetools.h"
 
+err_t CoreC_Init(nodemodule* Module);
+void CoreC_Done(nodemodule* Module);
+
 #ifdef __cplusplus
 }
 #endif

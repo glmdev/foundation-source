@@ -185,7 +185,7 @@ int main(int argc, const char *argv[])
 #else
     NodeContext_Init(&p,NULL,NULL,NULL);
 #endif
-	StdAfx_Init((nodemodule*)&p);
+    CoreC_Init((nodemodule*)&p);
     // EBML Init
     EBML_Init((nodecontext*)&p);
 
@@ -203,6 +203,7 @@ int main(int argc, const char *argv[])
     // EBML ending
     EBML_Done((nodecontext*)&p);
     // Core-C ending
+    CoreC_Done((nodemodule*)&p);
 #if defined(CONFIG_EBML_UNICODE)
     ParserContext_Done(&p);
 #else

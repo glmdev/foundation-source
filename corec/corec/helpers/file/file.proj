@@ -6,19 +6,19 @@ GROUP file
   HEADER file.h
   HEADER streams.h
 
-  SOURCE bufstream.c {class BufStream_Class:1}
-  SOURCE memstream.c {class MemStream_Class:1}
-  SOURCE streams.c {class Streams_Class:1}
+  SOURCE bufstream.c
+  SOURCE memstream.c
+  SOURCE streams.c
   SOURCE tools.c
 
-  SOURCE(TARGET_LINUX || TARGET_OSX || TARGET_ANDROID) file_libc.c {class File_Class:1}
-  SOURCE(TARGET_PALMOS) file_palmos.c {class File_Class:1}
-  SOURCE(TARGET_PALMOS) filedb_palmos.c {class FileDb_Class:1}
-  SOURCE(TARGET_PALMOS) filevfs_palmos.c {class VFS_Class:1}
-  SOURCE(TARGET_PS2SDK) file_ps2sdk.c {class File_Class:1 reg FileXio:2}
-  SOURCE(TARGET_SYMBIAN) file_symbian.cpp {class File_Class:1}
-  SOURCE(TARGET_WIN) file_win32.c {class File_Class:1}
-  SOURCE(CONFIG_STDIO && !TARGET_PALMOS) stream_stdio.c {class Stdio_Class:2}
+  SOURCE(TARGET_LINUX || TARGET_OSX || TARGET_ANDROID) file_libc.c
+  SOURCE(TARGET_PALMOS) file_palmos.c
+  SOURCE(TARGET_PALMOS) filedb_palmos.c
+  SOURCE(TARGET_PALMOS) filevfs_palmos.c
+  SOURCE(TARGET_PS2SDK) file_ps2sdk.c
+  SOURCE(TARGET_SYMBIAN) file_symbian.cpp
+  SOURCE(TARGET_WIN) file_win32.c
+  SOURCE(CONFIG_STDIO && !TARGET_PALMOS) stream_stdio.c
   
   LIBS(TARGET_WIN && !TARGET_WINCE) shell32.lib
 

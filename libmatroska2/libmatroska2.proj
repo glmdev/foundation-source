@@ -22,7 +22,7 @@ GROUP matroska2_group
   INCLUDE .
   EXPINCLUDE .
   
-  SOURCE matroskamain.c {class Matroska_Class}
+  SOURCE matroskamain.c
   SOURCE matroskablock.c
   SOURCE matroska_sem.c
   HEADER matroska/matroska.h
@@ -42,6 +42,6 @@ GROUP matroska2_haali
   USE(!COREMAKE_STATIC) matroska2
 
   INCLUDE MatroskaParser
-  SOURCE MatroskaParser/MatroskaParser.c {class HaaliStream_Class}
+  SOURCE MatroskaParser/MatroskaParser.c
   HEADER MatroskaParser/MatroskaParser.h
 }
