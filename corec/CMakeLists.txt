@@ -52,3 +52,15 @@ add_library("corec_parser"
 )
 target_link_libraries("corec_parser" PRIVATE "corec")
 target_include_directories("corec_parser" PUBLIC ".")
+
+add_library("ccsystem")
+if (WIN32)
+  target_sources("ccsystem" PRIVATE corec/helpers/system/ccsystem_win32.c)
+endif(WIN32)
+if (UNIX)
+  target_sources("ccsystem" PRIVATE corec/helpers/system/ccsystem_posix.c)
+endif(UNIX)
+target_include_directories("ccsystem" PUBLIC ".")
+
+add_library("md5" corec/helpers/md5/md5.c)
+target_include_directories("md5" PUBLIC ".")
