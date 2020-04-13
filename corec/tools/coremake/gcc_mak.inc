@@ -28,6 +28,18 @@ ELSE
   PRINTNL OUTPUT = %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT)
 ENDIF
 PRINTNL BUILD = %(!BUILDPATH)
+IFDEF TARGET_PALMOS
+  PRINTNL BUILD_M68K = %(!BUILDPATH)m68k/%(PATH)
+ENDIF
+IF defined(TARGET_PS2SDK) && %(IOP)
+  CC = %(iop_cc)
+  CXX = %(iop_cxx)
+  AR = %(iop_ar)
+  STRIP = %(iop_strip)
+  CCFLAGS = %(iop_ccflags)
+  SHFLAGS = %(iop_shflags)
+  LFLAGS = %(iop_lflags)
+ENDIF
 PRINTNL 
 
 IF ("%(CC)"!="")
@@ -95,6 +107,22 @@ IFDEF RESOURCE_COREC
   PRINTNL CORERCFLAGS += %(CORERCFLAGS)
 ENDIF
 
+IFDEF TARGET_PALMOS
+  PRINTNL CFLAGS_M68K = %(CFLAGS_M68K) %(DEFINE:%=-D '%') %(@CONFIG_INCLUDE:%=-I '%') %(@INCLUDE:%=-I '%') %(@SYSINCLUDE:%=-I '%') -D "PROJECT_OUTPUT=%(<OUTPUT)" -D "PROJECT_FOURCC=%(PROJECT_FOURCC)"
+  PRINTNL LFLAGS_M68K = %(LFLAGS_M68K)
+  PRINTNL 
+  PRINTNL PEAL = %(!BUILDPATH)peal-postlink
+  PRINTNL PFLAGS = %(EXPORT:%=-k %) -s 1000
+  PRINTNL PEALDIR = %(!ROOTPATH)tools/peal/
+  PRINTNL PEALSRC = $(PEALDIR)postlink/image.cc $(PEALDIR)postlink/postlinker.cc $(PEALDIR)postlink/relocation.cc $(PEALDIR)postlink/section.cc 
+  PRINTNL PEALSRC += $(PEALDIR)postlink/symbol.cc $(PEALDIR)postlink/symboltable.cc $(PEALDIR)postlink/complain.cc
+  PRINTNL 
+
+  FOR EACH INSTALL
+    PRINTNL RESOURCE_M68K += $(BUILD_M68K)%(¯!NAME).ro
+  ENDFOR
+ENDIF
+
 IF defined(TARGET_WIN) && %(TYPE)!=lib
   IF %(TYPE)==con
     PRINTNL LFLAGS += -mconsole
@@ -111,6 +139,10 @@ IF (%(TYPE)==lib)
   PRINTNL LFLAGS += -static
 ENDIF
 
+IF defined(TARGET_PALMOS) && (%(TYPE)!=lib) && !%(NOLIB)
+  PRINTNL LFLAGS += -Wl,--whole-archive
+ENDIF
+
 FOR EACH LINKFILE
   PRINTNL LFLAGS += -T%(!NAME)
 ENDFOR
@@ -124,7 +156,7 @@ IF %(DEF) && defined(TARGET_WIN32)
 ENDIF
 FOR EACH USE
   IF (!%(NOLIB))
-    IF (%(TYPE)==dll)
+    IF (%(TYPE)==dll) && !defined(TARGET_PALMOS)
       ../USEBUILT += %(NAME)
       FOR EACH LIBS
         ../../LIBS += %(NAME)
@@ -132,6 +164,10 @@ FOR EACH USE
       FOR EACH LIBINCLUDE
         ../../LIBINCLUDE += %(NAME)
       ENDFOR
+    ELSE
+      IF %(TYPE)!=GENERATE
+        PRINTNL LIBS += %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_LIB)
+      ENDIF
     ENDIF
   ENDIF
   FOR EACH USEBUILT
@@ -161,7 +197,7 @@ IF "%(CONFIG_QTOPIA_PREFIX)"!=""
   PRINTNL LFLAGS += -Wl,-rpath,%(CONFIG_QTOPIA_PREFIX)/lib
 ENDIF
 
-IF (defined(TARGET_ANDROID)) && (%(TYPE)!=lib) && !%(NOLIB)
+IF (defined(TARGET_PALMOS) || defined(TARGET_ANDROID)) && (%(TYPE)!=lib) && !%(NOLIB)
   PRINTNL LFLAGS += -Wl,--no-whole-archive
 ENDIF
 
@@ -184,7 +220,15 @@ FOR EACH SOURCE
       ENDFOR
     ENDIF
   ENDIF
+  IF defined(TARGET_PS2SDK) && (%(>NAME)==lst || %(>NAME)==tab)
+    PRINTNL SOURCE += %(!NAME)
+  ENDIF
 ENDFOR
+IFDEF TARGET_PS2SDK
+  IF %(ICON)
+    PRINTNL SOURCE += %(!ICON)_ps2.icn
+  ENDIF
+ENDIF
 FOR EACH RESOURCE_QT4
     PRINTNL SOURCE += $(BUILD)GeneratedFiles/qrc_%(~<!NAME).cpp
 ENDFOR
@@ -237,6 +281,16 @@ PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.nas=$(BUILD)%.%(NAME).o)
 PRINTNL OBJS:=$(OBJS:%.nas=$(BUILD)%.%(NAME).o)
 PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.asm=$(BUILD)%.%(NAME).o)
 PRINTNL OBJS:=$(OBJS:%.asm=$(BUILD)%.%(NAME).o)
+IF defined(TARGET_PS2SDK)
+  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.lst=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%.lst=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.tab=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%.tab=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.vsm=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%.vsm=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.icn=$(BUILD)%.%(NAME).o)
+  PRINTNL OBJS:=$(OBJS:%.icn=$(BUILD)%.%(NAME).o)
+ENDIF
 PRINTNL 
 
 PRINTNL DEPS:=$(SOURCE:%(!ROOTPATH)%.c=$(BUILD)%.%(NAME).o.d)
@@ -253,6 +307,16 @@ PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.nas=)
 PRINTNL DEPS:=$(DEPS:%.nas=)
 PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.asm=)
 PRINTNL DEPS:=$(DEPS:%.asm=)
+IF defined(TARGET_PS2SDK)
+  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.lst=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%.lst=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.tab=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%.tab=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.vsm=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%.vsm=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.icn=$(BUILD)%.%(NAME).o.d)
+  PRINTNL DEPS:=$(DEPS:%.icn=$(BUILD)%.%(NAME).o.d)
+ENDIF
 PRINTNL 
 
 IF "%(USEBUILT)"
@@ -267,6 +331,20 @@ IFDEF RESOURCE_COREC
     ENDFOR
     PRINTNL 
   ENDIF
+ENDIF
+
+IF defined(TARGET_PALMOS) && "%(SOURCE_M68K)"
+  OUTPUT_M68K = %(!BUILDPATH)%(NAME).m68k
+  FOR EACH SOURCE_M68K
+    IF (%(>NAME)==c)
+      PRINTNL SOURCE_M68K += %(!NAME)
+    ENDIF
+    IF (%(>NAME)==rcp)
+      PRINTNL RESOURCE_M68K += %(!NAME)
+    ENDIF
+  ENDFOR
+  PRINTNL OBJS_M68K=$(SOURCE_M68K:%.c=$(BUILD_M68K)%.%(NAME).o)
+  PRINTNL RES_M68K=$(RESOURCE_M68K:%.rcp=$(BUILD_M68K)%.ro)
 ENDIF
 
 PRINTNL .PHONY: all dependencies prebuild postbuild install clean distclean cleandep $(LIBS)
@@ -299,124 +377,194 @@ IF "%(DEP)"
   PRINTNL 
 ENDIF
 
-IFNDEF TARGET_QTOPIA
-  IF !defined(RESOURCE_COREC) && !defined(TARGET_ANDROID)
-    FOR EACH INSTALL
-      PRINTNL INSTALL += %(!RESOURCEPATH)%(<NAME).%(>NAME)
-    ENDFOR
-  ENDIF
-  IFDEF TARGET_IPHONE
-    IF %(ICON)
-      PRINTNL ICON = %(!RESOURCEPATH)icon.png
+IF defined(TARGET_PALMOS)
+  IF (%(TYPE)==lib)
+    PRINTNL $(OUTPUT): $(OBJS) 
+    PRINTNL 	$(hide)echo linking $@
+    PRINTNL 	$(hide)mkdir -p %(¯!OUTPUTPATH)%(OUTPUT_DIR)
+    PRINTNL 	$(hide)$(AR) rcs $@ $(OBJS)
+  ELSE
+    PRINTNL $(OUTPUT): %(!BUILDPATH)%(NAME)_arm.ro %(¯!PATH)%(NAME)_palmos.def %(OUTPUT_M68K) $(RES_M68K) $(PEAL)
+    PRINTNL 	$(hide)mkdir -p %(¯!OUTPUTPATH)
+    IF !%(NOLIB)
+    PRINTNL 	$(hide)$(PEAL) -l %(NAME) -o %(¯!OUTPUTPATH)lib%(NAME).a %(!BUILDPATH)%(NAME).elf
     ENDIF
+    PRINTNL 	$(hide)build-prc %(¯!PATH)%(NAME)_palmos.def -o $@ %(!BUILDPATH)%(NAME)_arm.ro %(OUTPUT_M68K) $(RES_M68K)
+    IF ("%(OUTPUT)"=="%(NAME).prc") && ("%(PROJECT_NAME)"!="%(NAME)")
+      PRINTNL 	$(hide)cp $(OUTPUT) "%(¯!OUTPUTPATH)%(PROJECT_NAME).prc"
+    ENDIF
+    IF %(TYPE)=exe
+      FOR EACH USE
+        IF %(TYPE)=dll
+          ../INSTALL_ZIP += "%(¯!OUTPUTPATH)%(PROJECT_NAME).prc"
+        ENDIF
+      ENDFOR
+      IF "%(INSTALL_ZIP)"!=""
+        INSTALL_ZIP += "%(¯!OUTPUTPATH)%(PROJECT_NAME).prc"
+        PRINTNL 	$(hide)zip -X -q -o "%(¯!OUTPUTPATH)%(PROJECT_NAME).zip" %(INSTALL_ZIP)
+      ENDIF
+    ENDIF
+    PRINTNL
+    PRINTNL %(!BUILDPATH)%(NAME)_arm.ro: %(!BUILDPATH)%(NAME).elf $(PEAL)
+    PRINTNL 	$(hide)$(PEAL) $(PFLAGS) -o $@ %(!BUILDPATH)%(NAME).elf
+    PRINTNL
+    PRINTNL %(!BUILDPATH)%(NAME).m68k: $(OBJS_M68K)
+    PRINTNL 	$(hide)echo linking m68k
+    PRINTNL 	$(hide)mkdir -p %(!BUILDPATH)
+    PRINTNL 	$(hide)$(CC_M68K) $(CFLAGS_M68K) -static $(OBJS_M68K) $(LFLAGS_M68K) -o $@
+    PRINTNL 
+    PRINTNL %(!BUILDPATH)%(NAME).elf: $(OBJS) $(LIBS)
+    PRINTNL 	$(hide)echo linking arm
+    PRINTNL 	$(hide)mkdir -p %(!BUILDPATH)
+    PRINTNL 	$(hide)$(CCENV) $(CC) $(OBJS) -o %(!BUILDPATH)%(NAME).elf $(LFLAGS) -Wl,-Map=%(!BUILDPATH)%(NAME).map
+    PRINTNL 
+    PRINTNL $(PEAL): $(PEALSRC)
+    PRINTNL 	$(hide)echo compiling peal-postlink
+    PRINTNL 	$(hide)$(CXX_HOST) $(PEALSRC) -o $(PEAL)
+    PRINTNL 	$(hide)chmod u+x $(PEAL)
   ENDIF
   PRINTNL 
-ENDIF
+  PRINTNL $(BUILD_M68K)%.%(NAME).o: %.c
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD_M68K)$(*D)  
+  PRINTNL 	$(hide)$(CC_M68K) $(CFLAGS_M68K) -c $< -o $@
+  PRINTNL 
+  PRINTNL $(BUILD_M68K)%.ro: %.rcp
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD_M68K)$(*D)  
+  PRINTNL 	$(hide)pilrc -I $(*D) -q -ro $< $@
+  PRINTNL 
 
-IF (%(TYPE)==lib)
-  PRINTNL $(OUTPUT): $(OBJS) $(USEBUILT) $(ICON) $(INSTALL) $(PLIST)
+  FOR EACH INSTALL
+    PRINTNL $(BUILD_M68K)%(¯!NAME).ro: %(!NAME)
+    PRINTNL 	$(hide)echo compiling $<
+    PRINTNL 	$(hide)mkdir -p $(BUILD_M68K)%(¯/NAME) 
+    PRINTNL 	$(hide)%(../NAME)_split.sh %(!NAME) 64512 %(,NAME) $(BUILD_M68K)%(¯!NAME)
+    PRINTNL 	$(hide)pilrc -q -ro $(BUILD_M68K)%(¯!NAME).rcp $@
+    PRINTNL 
+  ENDFOR
+
 ELSE
-  PRINTNL $(OUTPUT): $(OBJS) $(LIBS) $(USEBUILT) $(ICON) $(INSTALL) $(PLIST)
-ENDIF
-PRINTNL 	$(hide)echo linking $@
-PRINTNL 	$(hide)mkdir -p %(¯!OUTPUTPATH)%(OUTPUT_DIR)
-IF (%(TYPE)==lib)
-  PRINTNL 	$(hide)$(AR) rcs $@ $(OBJS)
-  IF "%(EXPORT_SVN)"
-    PRINTNL 	$(hide)echo exporting for SVN
-    IF "%(HOST_WIN32)"!=""
-      PRINTNL 	$(hide)if not exist "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/" mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/"
-    ELSE
-      PRINTNL 	$(hide)test -d "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/" || mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/"
+  IFNDEF TARGET_QTOPIA
+    IF !defined(RESOURCE_COREC) && !defined(TARGET_ANDROID)
+      FOR EACH INSTALL
+        PRINTNL INSTALL += %(!RESOURCEPATH)%(<NAME).%(>NAME)
+      ENDFOR
     ENDIF
-    PRINTNL 	$(hide)cp -f "$@" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/"
+    IFDEF TARGET_IPHONE
+      IF %(ICON)
+        PRINTNL ICON = %(!RESOURCEPATH)icon.png
+      ENDIF
+    ENDIF
+    PRINTNL 
   ENDIF
-ELSE
-  IF %(TYPE)==dll && defined(TARGET_ANDROID)
-    PRINTNL 	$(hide)$(CC) -nostdlib -Wl,-soname,%(OUTPUT_DLL) -Wl,-shared,-Bsymbolic $(OBJS) $(LFLAGS) -o $@
+
+  IF (%(TYPE)==lib)
+    PRINTNL $(OUTPUT): $(OBJS) $(USEBUILT) $(ICON) $(INSTALL) $(PLIST)
   ELSE
-    PRINTNL 	$(hide)$(CXX) $(CCFLAGS) $(OBJS) -o $@ $(LFLAGS) 
-    //-Wl,-Map=%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(NAME).map
+    PRINTNL $(OUTPUT): $(OBJS) $(LIBS) $(USEBUILT) $(ICON) $(INSTALL) $(PLIST)
   ENDIF
-  IF "%(STRIP)"
-    PRINTNL 	$(hide)$(STRIP) %(STRIPFLAGS) $@
-  ENDIF
-  IF %(TYPE)==dll && defined(TARGET_ANDROID)
-    PRINTNL 	$(hide)mkdir -p %(!BUILDDIR)libs/%(ANDROID_ABI)
-    PRINTNL 	$(hide)install -p $@ %(!BUILDDIR)libs/%(ANDROID_ABI)
-  ENDIF
-  IF (%(TYPE)==dll)
-    IF defined(TARGET_WIN32) && "%(EXPORT_MSVC_LIB)"!=""
-      PRINTNL 	$(hide)lib -machine:i386 -def:"%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_DLL_DEF)" -out:"%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(<NAME).lib"
-    ENDIF
+  PRINTNL 	$(hide)echo linking $@
+  PRINTNL 	$(hide)mkdir -p %(¯!OUTPUTPATH)%(OUTPUT_DIR)
+  IF (%(TYPE)==lib)
+    PRINTNL 	$(hide)$(AR) rcs $@ $(OBJS)
     IF "%(EXPORT_SVN)"
       PRINTNL 	$(hide)echo exporting for SVN
       IF "%(HOST_WIN32)"!=""
-        PRINTNL 	$(hide)if not exist "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/" mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        PRINTNL 	$(hide)if not exist "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/" mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/"
       ELSE
-        PRINTNL 	$(hide)test -d "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/" || mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        PRINTNL 	$(hide)test -d "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/" || mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/"
       ENDIF
-      PRINTNL 	$(hide)cp -f "$@" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
-      PRINTNL 	$(hide)cp -f "%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_DLL_LIB)" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
-      IF "%(OUTPUT_DLL_DEF)"!=""
-        PRINTNL 	$(hide)cp -f "%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_DLL_DEF)" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
-      ENDIF
+      PRINTNL 	$(hide)cp -f "$@" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/static/"
+    ENDIF
+  ELSE
+    IF %(TYPE)==dll && defined(TARGET_ANDROID)
+      PRINTNL 	$(hide)$(CC) -nostdlib -Wl,-soname,%(OUTPUT_DLL) -Wl,-shared,-Bsymbolic $(OBJS) $(LFLAGS) -o $@
+    ELSE
+      PRINTNL 	$(hide)$(CXX) $(CCFLAGS) $(OBJS) -o $@ $(LFLAGS) 
+      //-Wl,-Map=%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(NAME).map
+    ENDIF
+    IF "%(STRIP)"
+      PRINTNL 	$(hide)$(STRIP) %(STRIPFLAGS) $@
+    ENDIF
+    IF %(TYPE)==dll && defined(TARGET_ANDROID)
+      PRINTNL 	$(hide)mkdir -p %(!BUILDDIR)libs/%(ANDROID_ABI)
+      PRINTNL 	$(hide)install -p $@ %(!BUILDDIR)libs/%(ANDROID_ABI)
+    ENDIF
+    IF (%(TYPE)==dll)
       IF defined(TARGET_WIN32) && "%(EXPORT_MSVC_LIB)"!=""
-        PRINTNL 	$(hide)cp -f "%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(<NAME).lib" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        PRINTNL 	$(hide)lib -machine:i386 -def:"%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_DLL_DEF)" -out:"%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(<NAME).lib"
+      ENDIF
+      IF "%(EXPORT_SVN)"
+        PRINTNL 	$(hide)echo exporting for SVN
+        IF "%(HOST_WIN32)"!=""
+          PRINTNL 	$(hide)if not exist "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/" mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        ELSE
+          PRINTNL 	$(hide)test -d "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/" || mkdir -p "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        ENDIF
+        PRINTNL 	$(hide)cp -f "$@" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        PRINTNL 	$(hide)cp -f "%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_DLL_LIB)" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        IF "%(OUTPUT_DLL_DEF)"!=""
+          PRINTNL 	$(hide)cp -f "%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_DLL_DEF)" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        ENDIF
+        IF defined(TARGET_WIN32) && "%(EXPORT_MSVC_LIB)"!=""
+          PRINTNL 	$(hide)cp -f "%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(<NAME).lib" "%(!EXPORT_SVN)export/lib/%(SVNDIR)/dynamic/"
+        ENDIF
       ENDIF
     ENDIF
   ENDIF
-ENDIF
-IF "%(TRANSLATION_QT4)"!=""
-  PRINTNL 	$(hide)echo processing translations
-  PRINTNL 	$(hide)"$(QTDIR)/bin/lupdate" %(NAME).tmp.pro
-  PRINTNL 	$(hide)"$(QTDIR)/bin/lrelease" %(NAME).tmp.pro
-  FOR EACH TRANSLATION_QT4
-    PRINTNL 	$(hide)cp -f "%(?NAME)%(<NAME:%=%.qm)" "%(¯!OUTPUTPATH)%(OUTPUT_DIR)"
-  ENDFOR
-ENDIF
-
-IF %(PLIST_FILE)!=""
-  PRINTNL
-  PRINTNL %(!PLIST_PATH)/Info.plist: %(!PLIST_FILE)
-  PRINTNL 	$(hide)echo copy $<
-  PRINTNL 	$(hide)mkdir -p %(!PLIST_PATH)
-  PRINTNL 	$(hide)cp -f $< $@
-ENDIF
-
-IFNDEF TARGET_QTOPIA
-  IFDEF TARGET_IPHONE
-    IF %(ICON)
-      PRINTNL 
-      PRINTNL %(!RESOURCEPATH)icon.png: %(!ICON)_iphone.png
-      PRINTNL 	$(hide)echo copy $<
-      PRINTNL 	$(hide)mkdir -p %(!RESOURCEPATH)
-      PRINTNL 	$(hide)cp -f $< $@
-    ENDIF
-  ENDIF
-  IFDEF RESOURCE_COREC 
-    IF (%(TYPE)!=lib)
-      PRINTNL 
-      FOR EACH INSTALL
-        PRINTNL $(BUILD)%(NAME).%(../NAME).o: %(!NAME)
-        PRINTNL 	$(hide)echo compiling $<
-        DIRPUSH %(!BUILDDIR)
-        PRINTNL 	$(hide)mkdir -p $(BUILD)%(¯!/NAME)
-        DIRPOP
-        PRINTNL 	$(hide)corerc -corec $(CORERCFLAGS) $< | $(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -w -x c -c - -o $@
-        PRINTNL 
-      ENDFOR
-    ENDIF
-  ELIF !defined(TARGET_ANDROID)
-    PRINTNL 
-    FOR EACH INSTALL
-      PRINTNL 
-      PRINTNL %(!RESOURCEPATH)%(<NAME).%(>NAME): %(!NAME)
-      PRINTNL 	$(hide)echo copy $<
-      PRINTNL 	$(hide)mkdir -p %(!RESOURCEPATH)
-      PRINTNL 	$(hide)cp -f $< $@
+  IF "%(TRANSLATION_QT4)"!=""
+    PRINTNL 	$(hide)echo processing translations
+    PRINTNL 	$(hide)"$(QTDIR)/bin/lupdate" %(NAME).tmp.pro
+    PRINTNL 	$(hide)"$(QTDIR)/bin/lrelease" %(NAME).tmp.pro
+    FOR EACH TRANSLATION_QT4
+      PRINTNL 	$(hide)cp -f "%(?NAME)%(<NAME:%=%.qm)" "%(¯!OUTPUTPATH)%(OUTPUT_DIR)"
     ENDFOR
   ENDIF
+
+  IF %(PLIST_FILE)!=""
+    PRINTNL
+    PRINTNL %(!PLIST_PATH)/Info.plist: %(!PLIST_FILE)
+    PRINTNL 	$(hide)echo copy $<
+    PRINTNL 	$(hide)mkdir -p %(!PLIST_PATH)
+    PRINTNL 	$(hide)cp -f $< $@
+  ENDIF
+
+  IFNDEF TARGET_QTOPIA
+    IFDEF TARGET_IPHONE
+      IF %(ICON)
+        PRINTNL 
+        PRINTNL %(!RESOURCEPATH)icon.png: %(!ICON)_iphone.png
+        PRINTNL 	$(hide)echo copy $<
+        PRINTNL 	$(hide)mkdir -p %(!RESOURCEPATH)
+        PRINTNL 	$(hide)cp -f $< $@
+      ENDIF
+    ENDIF
+    IFDEF RESOURCE_COREC 
+      IF (%(TYPE)!=lib)
+        PRINTNL 
+        FOR EACH INSTALL
+          PRINTNL $(BUILD)%(NAME).%(../NAME).o: %(!NAME)
+          PRINTNL 	$(hide)echo compiling $<
+          DIRPUSH %(!BUILDDIR)
+          PRINTNL 	$(hide)mkdir -p $(BUILD)%(¯!/NAME)
+          DIRPOP
+          PRINTNL 	$(hide)corerc -corec $(CORERCFLAGS) $< | $(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -w -x c -c - -o $@
+          PRINTNL 
+        ENDFOR
+      ENDIF
+    ELIF !defined(TARGET_ANDROID)
+      PRINTNL 
+      FOR EACH INSTALL
+        PRINTNL 
+        PRINTNL %(!RESOURCEPATH)%(<NAME).%(>NAME): %(!NAME)
+        PRINTNL 	$(hide)echo copy $<
+        PRINTNL 	$(hide)mkdir -p %(!RESOURCEPATH)
+        PRINTNL 	$(hide)cp -f $< $@
+      ENDFOR
+    ENDIF
+  ENDIF
+
 ENDIF
 
   IF "%(USEBUILT)" || "%(USE)"
@@ -425,12 +573,17 @@ ENDIF
       PRINTNL %(NAME):
       PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
     ENDFOR
-    FOR EACH USE
-      IF (%(TYPE)==dll)
-        PRINTNL %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT):
-        PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
-      ENDIF
-    ENDFOR
+    IF !defined(TARGET_PS2SDK) // otherwise it has too many references
+      FOR EACH USE
+        IF (%(TYPE)==dll) && !defined(TARGET_PALMOS)
+          PRINTNL %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT):
+          PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
+        ELSE
+          PRINTNL %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT_LIB):
+          PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
+        ENDIF
+      ENDFOR
+    ENDIF
   ENDIF
 
 IF "%(PRECOMPILED_HEADER)"!=""
@@ -539,6 +692,48 @@ IF (%(NASM)!="")
   PRINTNL 	$(hide)$(NASM) $(NASMFLAGS) -o $@ $<
   PRINTNL 
 ENDIF
+IF defined(TARGET_PS2SDK)
+  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.vsm
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)$(CCENV) %(DVP_AS) --warn -I $(<D) $< -o $@
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %.vsm
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)$(CCENV) %(DVP_AS) --warn -I $(<D) $< -o $@
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.icn
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)corerc -n config_icon $(CORERCFLAGS) $< | $(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -w -x c -c - -o $@
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %.icn
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)corerc -n config_icon $(CORERCFLAGS) $< | $(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -w -x c -c - -o $@
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.tab
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %.tab
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.lst
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
+  PRINTNL 
+  PRINTNL $(BUILD)%.%(NAME).o: %.lst
+  PRINTNL 	$(hide)echo compiling $<
+  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
+  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
+  PRINTNL 
+ENDIF
 IF "%(UI_FORM_QT4)"!=""
   FOR EACH UI_FORM_QT4
     PRINTNL $(BUILD)GeneratedFiles/ui_%.h: %(!NAME)
@@ -639,11 +834,13 @@ PRINTNL
 
 PRINTNL cleandep:
 PRINTNL 	$(hide)rm -f $(DEPS)
-FOR EACH USE
-  IF (!%(NOLIB)) && (%(NAME)!=%(../NAME))
-    PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak cleandep
-  ENDIF
-ENDFOR
+IF !defined(TARGET_PS2SDK) // too noisy
+  FOR EACH USE
+    IF (!%(NOLIB)) && (%(NAME)!=%(../NAME))
+      PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak cleandep
+    ENDIF
+  ENDFOR
+ENDIF
 PRINTNL 
 
 PRINTNL distclean: cleandep

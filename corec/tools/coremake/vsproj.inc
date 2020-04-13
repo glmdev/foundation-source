@@ -25,6 +25,19 @@ IF %(USE_ATL) && %(USE_ATL)!="dll"
   DEFINE += _ATL_STATIC_REGISTRY
 ENDIF
 
+IFDEF TARGET_PALMOS
+  IF %(PALMSDK5R4)==""
+    PALMSDK5R4 = C:\Program Files\ACCESS\Garnet OS Development Suite\sdk-5r4
+  ENDIF
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include&quot;
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include\Core&quot;
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include\Core\Hardware&quot;
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include\Core\System&quot;
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include\Core\UI&quot;
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include\Dynamic&quot;
+  TARGINC += ;&quot;%(~PALMSDK5R4)\include\Libraries&quot;
+ENDIF
+
 DEFINE += STRICT
 IF "%(VSVERSION)"!="7.10"
   IFNDEF MSVC_SEE_DEPRECATE

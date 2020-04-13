@@ -1,4 +1,8 @@
+IFDEF TARGET_PALMOS
+#define OUTPUT_EXE %(NAME).dll
+ELSE
 #define OUTPUT_EXE %(NAME).exe
+ENDIF
 #define OUTPUT_DLL %(NAME).dll
 #define OUTPUT_LIB %(NAME).lib
 IFNDEF TARGET_WINCE
@@ -281,7 +285,7 @@ FOR EACH LIB,DLL,EXE,CON,GENERATE
     TARGSUBSYSTEMX = Console
   ENDIF
 
-  IF (%(TYPE)==DLL)
+  IF (%(TYPE)==DLL) || ((%(TYPE)==EXE) && defined(TARGET_PALMOS))
     TARGCONFTYPE = 2
     DEFINE += %(<^NAME)_EXPORTS
     TARGSUBSYSTEM = %(TARGEXESUBSYSTEM)
@@ -869,6 +873,12 @@ FOR EACH LIB,DLL,EXE,CON,GENERATE
 //      EXECUTABLE_DEBUG = %(RemoteExecutable)
 //      #include "vsproj-user.inc"
     ENDIF
+    IFDEF TARGET_PALMOS
+      FILE %(¯PATH)%(NAME).icproj.user
+      EXECUTABLE_RELEASE = %(~PALMSDK5R4)\tools\Palm_OS_54_Simulator\release\PalmSim_54_rel.exe
+      EXECUTABLE_DEBUG = %(~PALMSDK5R4)\tools\Palm_OS_54_Simulator\debug\PalmSim_54_dbg.exe
+      #include "vsproj-user.inc"
+    ENDIF
     
     // clean for the next project
     COMPILERVERSION=8.00
@@ -905,6 +915,13 @@ FOR EACH LIB,DLL,EXE,CON,GENERATE
 //    ENDIF
 //    EXECUTABLE_DEBUG = %(RemoteExecutable)
 //    #include "vsproj-user.inc"
+    ENDIF
+    IFDEF TARGET_PALMOS
+      FILE %(¯PATH)%(NAME).vcproj.user
+      EXECUTABLE_RELEASE = %(~PALMSDK5R4)\tools\Palm_OS_54_Simulator\release\PalmSim_54_rel.exe
+      EXECUTABLE_DEBUG = %(~PALMSDK5R4)\tools\Palm_OS_54_Simulator\debug\PalmSim_54_dbg.exe
+      WORKINGDIR_DEBUG = %(~`|OUTPUTPATH)
+      #include "vsproj-user.inc"
     ENDIF
   ENDIF
 
