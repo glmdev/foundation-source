@@ -3064,15 +3064,10 @@ void Mem_RemoveCollector(anynode* AnyNode, memcollect Func, void* Cookie)
     ArrayRemove(&Node_Context(AnyNode)->Collect,memcollectitem,&Item,NULL,NULL);
 }
 
-#if defined(TARGET_PS2SDK)
-extern void FileXio_Init(nodemodule* Module);
-extern void FileXio_Done(nodemodule* Module);
-#endif
-
 extern const nodemeta BufStream_Class[];
 extern const nodemeta MemStream_Class[];
 extern const nodemeta Streams_Class[];
-#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_PS2SDK) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
+#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
 extern const nodemeta File_Class[];
 #endif
 #if defined(CONFIG_STDIO)
@@ -3084,11 +3079,8 @@ err_t CoreC_Init(nodemodule* Module)
 	NodeRegisterClassEx(Module,BufStream_Class);
 	NodeRegisterClassEx(Module,MemStream_Class);
 	NodeRegisterClassEx(Module,Streams_Class);
-#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_PS2SDK) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
+#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
 	NodeRegisterClassEx(Module,File_Class);
-#endif
-#if defined(TARGET_PS2SDK)
-	FileXio_Init(Module);
 #endif
 #if defined(CONFIG_STDIO)
 	NodeRegisterClassEx(Module,Stdio_Class);
@@ -3097,7 +3089,4 @@ err_t CoreC_Init(nodemodule* Module)
 
 void CoreC_Done(nodemodule* Module)
 {
-#if defined(TARGET_PS2SDK)
-	FileXio_Done(Module);
-#endif
 }
