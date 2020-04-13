@@ -81,27 +81,6 @@ ENDFOR
 
 FOR EACH LIB,DLL,EXE,CON,EXE_ANDROID,DLL_ANDROID,GENERATE
 
-  IF defined(TARGET_PALMOS) && (%(TYPE)==exe)
-    SOURCE_M68K += %(¯PATH)%(NAME)_palmos.rcp
-    FILE %(¯PATH)%(NAME)_palmos.rcp
-    PRINTNL APPLICATIONICONNAME 1000 "%(PROJECT_NAME)"
-
-    IF "%(ICON)"!=""
-      PRINTNL 
-      PRINTNL ICONFAMILYEX 
-      PRINTNL BEGIN
-      PRINTNL 	BITMAP "%(!ICON)_palmos_22x22.bmp" BPP 8 TRANSPARENT 255 0 255 DENSITY 72
-      PRINTNL 	BITMAP "%(!ICON)_palmos_44x44.bmp" BPP 8 TRANSPARENT 255 0 255 DENSITY 144
-      PRINTNL END
-      PRINTNL 
-      PRINTNL SMALLICONFAMILYEX 
-      PRINTNL BEGIN
-      PRINTNL 	BITMAP "%(!ICON)_palmos_15x9.bmp" BPP 8 TRANSPARENT 255 0 255 DENSITY 72
-      PRINTNL 	BITMAP "%(!ICON)_palmos_30x18.bmp" BPP 8 TRANSPARENT 255 0 255 DENSITY 144
-      PRINTNL END
-    ENDIF
-  ENDIF
-
   IFDEF TARGET_OSX
     IF (%(TYPE)==EXE || %(TYPE)==DLL)
       PLIST_FILE = %(¯PATH)%(NAME).plist
@@ -117,42 +96,5 @@ FOR EACH LIB,DLL,EXE,CON,EXE_ANDROID,DLL_ANDROID,GENERATE
 
   FILE %(¯PATH)%(NAME).mak
   #include "gcc_mak.inc"
-
-  IFDEF TARGET_PALMOS
-    IF (%(TYPE)==exe || %(TYPE)==dll)
-      FILE %(¯PATH)%(NAME)_palmos.def
-      IF (%(TYPE)==exe)
-        PRINTNL application { "%(PROJECT_NAME)" "%('PROJECT_FOURCC)" backup }
-      ELSE
-        PRINTNL database "%('PROJECT_FOURCC)" { "%(PROJECT_NAME)" "%('PROJECT_TYPE)" backup } 
-      ENDIF
-    ENDIF
-    IF "%(INSTALL)"!="" 
-      // 1: input
-      // 2: split
-      // 3: fourcc
-      // 4: output
-      FILEBIN %(¯PATH)%(NAME)_split.sh
-      SCRIPT
-      PRINTNL #!/bin/sh
-      PRINTNL 
-      PRINTNL total=`wc -c $1 | cut -d" " -f1`
-      PRINTNL rm -f $4.rcp
-      PRINTNL 
-      PRINTNL n=0
-      PRINTNL while [ $total -gt `expr $n "*" $2` ]
-      PRINTNL do
-      PRINTNL   if [ $total -gt `expr $n "*" $2 + $2` ]
-      PRINTNL   then
-      PRINTNL     part=$2
-      PRINTNL   else
-      PRINTNL     part=`expr $total - $n "*" $2`
-      PRINTNL   fi
-      PRINTNL   dd iflag=binary oflag=binary bs=1 skip=`expr $n "*" $2` count=$part if=$1 of=$4.$n 2>nul
-      PRINTNL   echo DATA \"$3\" ID `expr 1000 + $n` \"$4.$n\" >>$4.rcp
-      PRINTNL   n=`expr $n + 1`
-      PRINTNL done
-    ENDIF
-  ENDIF
 
 ENDFOR

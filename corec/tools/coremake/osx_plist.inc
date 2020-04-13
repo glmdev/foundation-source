@@ -171,10 +171,6 @@ IF %(PROJECT_VERSION)
   PRINTNL 	<key>CFBundleShortVersionString</key>
   PRINTNL 	<string>%(PROJECT_VERSION)</string>
 ENDIF
-IF %(PROJECT_FOURCC)
-  PRINTNL 	<key>CFBundleSignature</key>
-  PRINTNL 	<string>%('PROJECT_FOURCC)</string>
-ENDIF
 MAIN_NIB_FILE =
 MAIN_NIB_CLASS =
 FOR EACH SOURCE

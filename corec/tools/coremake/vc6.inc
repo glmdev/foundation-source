@@ -121,11 +121,7 @@ FOR EACH LIB,DLL,EXE,CON
 
   PRJNAME = %(NAME)
 
-  IFNDEF TARGET_PALMOS
-    DEFINE += WIN32
-  ELSE
-    DEFINE += __palmos__
-  ENDIF
+  DEFINE += WIN32
 
   IFNDEF COREMAKE_UNICODE
     DEFINE += _MBCS
@@ -156,7 +152,7 @@ FOR EACH LIB,DLL,EXE,CON
     DEFINE += _ATL_STATIC_REGISTRY
   ENDIF
 
-  IF (%(TYPE)==EXE) && !defined(TARGET_PALMOS)
+  IF (%(TYPE)==EXE)
     TARGTYPE = 0x0101
     TARGNAME = Application
     TARGLINK = /subsystem:windows
@@ -170,14 +166,12 @@ FOR EACH LIB,DLL,EXE,CON
     DEFINE += _CONSOLE
   ENDIF
 
-  IF (%(TYPE)==DLL) || ((%(TYPE)==EXE) && defined(TARGET_PALMOS))
+  IF (%(TYPE)==DLL)
     TARGTYPE = 0x0102
     TARGNAME = Dynamic-Link Library
     TARGLINK = /dll
     DEFINE += _USRDLL
-    IFNDEF TARGET_PALMOS
-      DEFINE += _WINDOWS
-    ENDIF
+    DEFINE += _WINDOWS
     DEFINE += %(<^NAME)_EXPORTS
   ENDIF
 
@@ -218,19 +212,6 @@ FOR EACH LIB,DLL,EXE,CON
   ENDIF
 
   CFLAGS = %(DEFINE:%=/D "%") %(@INCLUDE:%=/I "%") %(@SYSINCLUDE:%=/I "%")
-
-  IF defined(TARGET_PALMOS)
-    IF %(PALMSDK5R4)==""
-      PALMSDK5R4 = C:\Program Files\ACCESS\Garnet OS Development Suite\sdk-5r4
-    ENDIF
-    CFLAGS += /I "%(~PALMSDK5R4)\include"
-    CFLAGS += /I "%(~PALMSDK5R4)\include\Core"
-    CFLAGS += /I "%(~PALMSDK5R4)\include\Core\Hardware"
-    CFLAGS += /I "%(~PALMSDK5R4)\include\Core\System"
-    CFLAGS += /I "%(~PALMSDK5R4)\include\Core\UI"
-    CFLAGS += /I "%(~PALMSDK5R4)\include\Dynamic"
-    CFLAGS += /I "%(~PALMSDK5R4)\include\Libraries"
-  ENDIF
 
   PRINTNLDOS # Microsoft Developer Studio Project File - Name="%(NAME)" - Package Owner=<4>
   PRINTNLDOS # Microsoft Developer Studio Generated Build File, Format Version 6.00
@@ -314,12 +295,6 @@ FOR EACH LIB,DLL,EXE,CON
   PRINTNLDOS # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib %(LIBS) %(LIBS_RELEASE) %(MFCFLAGS) /nologo %(TARGLINK) %(@LIBINCLUDE:%=/libpath:%) %(@LIBINCLUDE_RELEASE:%=/libpath:%) /machine:I386
   PRINTNLDOS # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib %(LIBS) %(LIBS_RELEASE) %(MFCFLAGS) /nologo %(TARGLINK) %(@LIBINCLUDE:%=/libpath:%) %(@LIBINCLUDE_RELEASE:%=/libpath:%) /map /machine:I386 /out:"%(¯~!OUTPUTPATH)release/%(OUTPUT)"
   ENDIF
-  IF (%(TYPE)==EXE) && defined(TARGET_PALMOS)
-    PRINTNLDOS # Begin Special Build Tool
-    PRINTNLDOS SOURCE="$(InputPath)"
-    PRINTNLDOS PostBuild_Cmds=copy $(TargetPath) "%(PALMSDK5R4)\tools\Palm_OS_54_Simulator\release\AutoLoad"
-    PRINTNLDOS # End Special Build Tool
-  ENDIF
   PRINTNLDOS 
   PRINTNLDOS !ELSEIF  "$(CFG)" == "%(NAME) - Win32 %(TARG_DEBUG)"
   PRINTNLDOS 
@@ -369,12 +344,6 @@ FOR EACH LIB,DLL,EXE,CON
   PRINTNLDOS LINK32=link.exe
   PRINTNLDOS # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib %(LIBS) %(LIBS_DEBUG) %(MFCFLAGS) /nologo %(TARGLINK) %(@LIBINCLUDE:%=/libpath:%) %(@LIBINCLUDE_DEBUG:%=/libpath:%) /debug /machine:I386 /pdbtype:sept
   PRINTNLDOS # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib %(LIBS) %(LIBS_DEBUG) %(MFCFLAGS) /nologo %(TARGLINK) %(@LIBINCLUDE:%=/libpath:%) %(@LIBINCLUDE_DEBUG:%=/libpath:%) /debug /machine:I386 /out:"%(¯~!OUTPUTPATH)debug/%(OUTPUT)" /pdbtype:sept
-  ENDIF
-  IF (%(TYPE)==EXE) && defined(TARGET_PALMOS)
-    PRINTNLDOS # Begin Special Build Tool
-    PRINTNLDOS SOURCE="$(InputPath)"
-    PRINTNLDOS PostBuild_Cmds=copy $(TargetPath) "%(PALMSDK5R4)\tools\Palm_OS_54_Simulator\debug\AutoLoad"
-    PRINTNLDOS # End Special Build Tool
   ENDIF
   PRINTNLDOS 
   PRINTNLDOS !ENDIF 

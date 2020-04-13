@@ -2848,10 +2848,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				    {
 					    fprintf(f,"\nvoid ProjectSettings(nodecontext* p)\n");
 					    fprintf(f,"{\n");
-					    fprintf(f,"#ifdef PROJECT_FOURCC\n");
-					    fprintf(f,"    fourcc_t FourCC = PROJECT_FOURCC;\n");
-					    fprintf(f,"    Node_Set(p,NODECONTEXT_PROJECT_FOURCC,&FourCC,sizeof(FourCC));\n");
-					    fprintf(f,"#endif\n");
 					    fprintf(f,"#ifdef PROJECT_NAME\n");
 					    fprintf(f,"    Node_SetData((node*)p,NODECONTEXT_PROJECT_NAME,TYPE_STRING,PROJECT_NAME);\n");
 					    fprintf(f,"#endif\n");
@@ -3691,9 +3687,6 @@ static void preprocess_sort(item* p)
 		src = item_find_add(*child, "project_version", 0);
         if (!getvalue(src))
             item_find_add(src,"1.0.0",1);
-
-        if ((item_find_add(getconfig(*child),"TARGET_PALMOS",0)->flags & FLAG_DEFINED) && !getvalue(item_find_add(*child,"project_fourcc",0)))
-            item_find_add(item_find_add(*child,"project_fourcc",0),"'CMAK'",1);
 
         major=1;
         minor=0;
