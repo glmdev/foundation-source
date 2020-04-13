@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "spec2data_stdafx.h"
 #include "spec_element.h"
 
 static void SkipLevel(parser *p)

@@ -32,7 +32,6 @@
  *  output: spec.xml
  */
 
-#include "data2spec_stdafx.h"
 #include "spec_element.h"
 
 #define WITH_V4 0
@@ -564,7 +563,7 @@ int main(void)
     //tchar_t Element[MAXLINE], String[MAXLINE], Value[MAXLINE];
 
     ParserContext_Init(&p,NULL,NULL,NULL);
-    NodeRegisterClassEx((nodemodule*)&p, SpecElement_Class);
+    NodeRegisterClassEx(&p.Base.Base, SpecElement_Class);
 
     Input = StreamOpen(&p,T("ebml_matroska.xml"),SFLAG_RDONLY/*|SFLAG_BUFFERED*/);
     Output = StreamOpen(&p,T("spec.xml"),SFLAG_WRONLY|SFLAG_CREATE);
