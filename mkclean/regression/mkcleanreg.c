@@ -287,7 +287,6 @@ exit:
     StreamClose(RegList);
 
     // Core-C ending
-    CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
 
     return Result;

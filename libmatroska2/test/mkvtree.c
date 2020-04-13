@@ -319,7 +319,6 @@ int main(int argc, const char *argv[])
     // EBML & Matroska ending
     MATROSKA_Done((nodecontext*)&p);
     // Core-C ending
-    CoreC_Done((nodemodule*)&p);
 #if defined(CONFIG_EBML_UNICODE)
     ParserContext_Done(&p);
 #else

@@ -127,7 +127,6 @@ int main(void)
     StreamClose(Input);
     StreamClose(Output);
 
-	CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
     return 0;
 }

@@ -661,7 +661,6 @@ done:
     StreamClose(OutputC);
     StreamClose(OutputH);
 
-	CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
     return result;
 }

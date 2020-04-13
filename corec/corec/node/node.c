@@ -3086,7 +3086,3 @@ err_t CoreC_Init(nodemodule* Module)
 	NodeRegisterClassEx(Module,Stdio_Class);
 #endif
 }
-
-void CoreC_Done(nodemodule* Module)
-{
-}

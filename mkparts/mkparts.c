@@ -356,7 +356,6 @@ exit:
     MATROSKA_Done((nodecontext*)&p);
 
     // Core-C ending
-    CoreC_Done((nodemodule*)&p);
     ParserContext_Done(&p);
 
     return Result;
