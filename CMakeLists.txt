@@ -13,7 +13,10 @@ target_include_directories("ccsystem" PRIVATE ".")
 
 add_subdirectory("spectool")
 # Dirty way for now
-target_include_directories("tabler" PRIVATE "corec/corec" "corec/corec/helpers" "corec" ".")
+target_include_directories("tabler" PRIVATE "corec/corec" ".")
+target_include_directories("data2lib" PRIVATE ".")
+target_include_directories("data2spec" PRIVATE ".")
+target_include_directories("spec2data" PRIVATE ".")
 
 add_subdirectory("mkvalidator")
 # Dirty way to add the global config.h for now

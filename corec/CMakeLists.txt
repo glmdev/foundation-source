@@ -51,7 +51,7 @@ add_library("corec_parser"
   corec/helpers/parser/urlpart.c
 )
 target_link_libraries("corec_parser" PRIVATE "corec")
-target_include_directories("corec_parser" PUBLIC ".")
+target_include_directories("corec_parser" PUBLIC "." "corec/helpers")
 
 add_library("ccsystem")
 if (WIN32)
