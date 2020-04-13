@@ -1381,7 +1381,7 @@ int main(int argc, const char *argv[])
 
 	if (!Quiet && Result==0)
     {
-        TextPrintf(StdErr,T("\r%s %s: the file appears to be valid\r\n"),PROJECT_NAME,PROJECT_VERSION);
+        TextPrintf(StdErr,T("\rmkvalidator %s: the file appears to be valid\r\n"),PROJECT_VERSION);
         if (Details)
         {
             track_info *TI;
