@@ -49,7 +49,7 @@ err_t EBML_Init(nodecontext *p)
     // TODO: only when used as standalone (no coremake & core-c in the rest of the project)
 #if defined(EBML_LIBRARY)
     tchar_t LibName[MAXPATH];
-    tcscpy_s(LibName,TSIZEOF(LibName),PROJECT_NAME T(" v") PROJECT_VERSION);
+    tcscpy_s(LibName,TSIZEOF(LibName),T("libebml2 v") PROJECT_VERSION);
     Node_SetData(p,CONTEXT_LIBEBML_VERSION,TYPE_STRING,LibName);
 #endif
 
