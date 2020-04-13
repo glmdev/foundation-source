@@ -57,7 +57,7 @@ err_t MATROSKA_Init(nodecontext *p)
 #if defined(MATROSKA_LIBRARY)
     tchar_t LibName[MAXPATH];
 #endif
-	NodeRegisterClassEx(p,Matroska_Class);
+	NodeRegisterClassEx((nodemodule*)p,Matroska_Class);
 
     err_t Err = EBML_Init(p);
     if (Err == ERR_NONE)
