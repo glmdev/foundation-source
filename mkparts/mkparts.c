@@ -25,10 +25,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "mkparts_project.h"
 #include "matroska/matroska.h"
 #include "matroska/matroska_sem.h"
 #include "corec/helpers/parser/parser.h"
+#include "mkparts_project.h"
 
 static textwriter *StdErr = NULL;
 static bool_t Split = 1;
