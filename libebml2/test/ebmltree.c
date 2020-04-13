@@ -185,7 +185,6 @@ int main(int argc, const char *argv[])
 #else
     NodeContext_Init(&p,NULL,NULL,NULL);
 #endif
-    CoreC_Init((nodemodule*)&p);
     // EBML Init
     EBML_Init((nodecontext*)&p);
 

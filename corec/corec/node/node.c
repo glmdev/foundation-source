@@ -2789,6 +2789,8 @@ void NodeContext_Init(nodecontext* p,const nodemeta* Custom, const cc_memheap* H
     }
 
     Node_Constructor(p,(node*)p,0,ClassId);
+
+    CoreC_Init((nodemodule*)&p->Base);
 }
 
 void NodeContext_Done(nodecontext* p)

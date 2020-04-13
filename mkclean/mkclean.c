@@ -1443,7 +1443,6 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
-    CoreC_Init((nodemodule*)&p);
     ProjectSettings((nodecontext*)&p);
 
     // EBML & Matroska Init
