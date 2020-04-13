@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project("foundation sources" C)
+project("foundation sources")
 
 configure_file(config.h.in config.h)
 
@@ -36,3 +36,4 @@ target_include_directories("matroska2" PRIVATE ".")
 #target_include_directories("matroska2" PUBLIC "libmatroska2")
 add_subdirectory("libebml2")
 target_include_directories("ebml2" PRIVATE ".")
+# target_include_directories("ebml2_legacy" PRIVATE ".")

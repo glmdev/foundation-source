@@ -244,7 +244,7 @@ void ebml_init()
 {
     NodeContext_Init(&ccContext,NULL,NULL,NULL);
     EBML_Init(&ccContext);
-    NodeRegisterClassEx((nodemodule*)&ccContext,IOCallback_Class);
+    NodeRegisterClassEx(&ccContext->Base,IOCallback_Class);
 
     ::EBML_ContextHead.PostCreate = EbmlHead::PostCreate;
     ::EBML_ContextDocType.PostCreate = EDocType::PostCreate;
