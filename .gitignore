@@ -31,3 +31,6 @@ mkvalidator/mkvalidator-*.zip
 *.compiled
 *.br.br
 *.sh.sh
+CMakeCache.txt
+CMakeFiles
+Makefile
