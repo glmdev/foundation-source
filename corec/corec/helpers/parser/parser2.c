@@ -51,8 +51,8 @@ void ParserContext_Init(parsercontext* p,const nodemeta* Custom, const cc_memhea
 	p->ToUtf16   = CharConvOpen(NULL,CHARSET_UTF16);
 	p->FromUtf16 = CharConvOpen(CHARSET_UTF16,NULL);
 
-	NodeRegisterClassEx((nodemodule*)&p->Base,LangStr_Class);
-	NodeRegisterClassEx((nodemodule*)&p->Base,UrlPart_Class);
+	NodeRegisterClassEx(&p->Base.Base,LangStr_Class);
+	NodeRegisterClassEx(&p->Base.Base,UrlPart_Class);
 }
 
 void ParserContext_Done(parsercontext* p)
