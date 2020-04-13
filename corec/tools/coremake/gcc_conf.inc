@@ -27,32 +27,9 @@ FOR EACH WORKSPACE
   PRINTNL 
   PRINTNL all: %(ALL_NAMES)
   PRINTNL 	
-  IFDEF TARGET_PS2SDK
-    PRINT run:
-    FOR EACH USE
-      IF %(TYPE)==EXE || %(TYPE)==CON
-        PRINT  %(NAME)_run
-      ENDIF
-    ENDFOR
-    PRINTNL 	
-    PRINTNL 	
-    PRINTNL reset:
-    PRINTNL 	@$(PS2DEV)/bin/ps2client reset
-    PRINTNL
-  ENDIF
   FOR EACH USE
-    IF defined(TARGET_PS2SDK) // direct references is too slow otherwise
-      PRINTNL %(NAME): %(USE)
-    ELSE
-      PRINTNL %(NAME):
-    ENDIF
+    PRINTNL %(NAME):
     PRINTNL 	@$(MAKE) -C %(¯!PATH) -f %(NAME).mak
-    IFDEF TARGET_PS2SDK
-      IF %(TYPE)==EXE || %(TYPE)==CON
-        PRINTNL %(NAME)_run: %(NAME)
-        PRINTNL 	@$(PS2DEV)/bin/ps2client execee host:%(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT)
-      ENDIF
-    ENDIF
   ENDFOR
   PRINTNL clean depend cleandep install:
   FOR EACH USE

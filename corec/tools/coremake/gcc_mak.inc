@@ -28,15 +28,6 @@ ELSE
   PRINTNL OUTPUT = %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT)
 ENDIF
 PRINTNL BUILD = %(!BUILDPATH)
-IF defined(TARGET_PS2SDK) && %(IOP)
-  CC = %(iop_cc)
-  CXX = %(iop_cxx)
-  AR = %(iop_ar)
-  STRIP = %(iop_strip)
-  CCFLAGS = %(iop_ccflags)
-  SHFLAGS = %(iop_shflags)
-  LFLAGS = %(iop_lflags)
-ENDIF
 PRINTNL 
 
 IF ("%(CC)"!="")
@@ -193,15 +184,7 @@ FOR EACH SOURCE
       ENDFOR
     ENDIF
   ENDIF
-  IF defined(TARGET_PS2SDK) && (%(>NAME)==lst || %(>NAME)==tab)
-    PRINTNL SOURCE += %(!NAME)
-  ENDIF
 ENDFOR
-IFDEF TARGET_PS2SDK
-  IF %(ICON)
-    PRINTNL SOURCE += %(!ICON)_ps2.icn
-  ENDIF
-ENDIF
 FOR EACH RESOURCE_QT4
     PRINTNL SOURCE += $(BUILD)GeneratedFiles/qrc_%(~<!NAME).cpp
 ENDFOR
@@ -254,16 +237,6 @@ PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.nas=$(BUILD)%.%(NAME).o)
 PRINTNL OBJS:=$(OBJS:%.nas=$(BUILD)%.%(NAME).o)
 PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.asm=$(BUILD)%.%(NAME).o)
 PRINTNL OBJS:=$(OBJS:%.asm=$(BUILD)%.%(NAME).o)
-IF defined(TARGET_PS2SDK)
-  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.lst=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%.lst=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.tab=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%.tab=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.vsm=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%.vsm=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%(!ROOTPATH)%.icn=$(BUILD)%.%(NAME).o)
-  PRINTNL OBJS:=$(OBJS:%.icn=$(BUILD)%.%(NAME).o)
-ENDIF
 PRINTNL 
 
 PRINTNL DEPS:=$(SOURCE:%(!ROOTPATH)%.c=$(BUILD)%.%(NAME).o.d)
@@ -280,16 +253,6 @@ PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.nas=)
 PRINTNL DEPS:=$(DEPS:%.nas=)
 PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.asm=)
 PRINTNL DEPS:=$(DEPS:%.asm=)
-IF defined(TARGET_PS2SDK)
-  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.lst=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%.lst=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.tab=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%.tab=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.vsm=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%.vsm=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%(!ROOTPATH)%.icn=$(BUILD)%.%(NAME).o.d)
-  PRINTNL DEPS:=$(DEPS:%.icn=$(BUILD)%.%(NAME).o.d)
-ENDIF
 PRINTNL 
 
 IF "%(USEBUILT)"
@@ -462,14 +425,12 @@ ENDIF
       PRINTNL %(NAME):
       PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
     ENDFOR
-    IF !defined(TARGET_PS2SDK) // otherwise it has too many references
-      FOR EACH USE
-        IF (%(TYPE)==dll)
-          PRINTNL %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT):
-          PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
-        ENDIF
-      ENDFOR
-    ENDIF
+    FOR EACH USE
+      IF (%(TYPE)==dll)
+        PRINTNL %(¯!OUTPUTPATH)%(+OUTPUT_DIR)%(OUTPUT):
+        PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak
+      ENDIF
+    ENDFOR
   ENDIF
 
 IF "%(PRECOMPILED_HEADER)"!=""
@@ -578,48 +539,6 @@ IF (%(NASM)!="")
   PRINTNL 	$(hide)$(NASM) $(NASMFLAGS) -o $@ $<
   PRINTNL 
 ENDIF
-IF defined(TARGET_PS2SDK)
-  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.vsm
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)$(CCENV) %(DVP_AS) --warn -I $(<D) $< -o $@
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %.vsm
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)$(CCENV) %(DVP_AS) --warn -I $(<D) $< -o $@
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.icn
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)corerc -n config_icon $(CORERCFLAGS) $< | $(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -w -x c -c - -o $@
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %.icn
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)corerc -n config_icon $(CORERCFLAGS) $< | $(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -w -x c -c - -o $@
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.tab
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %.tab
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %(!ROOTPATH)%.lst
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
-  PRINTNL 
-  PRINTNL $(BUILD)%.%(NAME).o: %.lst
-  PRINTNL 	$(hide)echo compiling $<
-  PRINTNL 	$(hide)mkdir -p $(BUILD)$(*D)
-  PRINTNL 	$(hide)$(CCENV) $(CC) $(CFLAGS) $(CCFLAGS) -x c -include $(<D)/irx_imports.h -c $< -o $@ -MMD -MP -MF $@.d
-  PRINTNL 
-ENDIF
 IF "%(UI_FORM_QT4)"!=""
   FOR EACH UI_FORM_QT4
     PRINTNL $(BUILD)GeneratedFiles/ui_%.h: %(!NAME)
@@ -720,13 +639,11 @@ PRINTNL
 
 PRINTNL cleandep:
 PRINTNL 	$(hide)rm -f $(DEPS)
-IF !defined(TARGET_PS2SDK) // too noisy
-  FOR EACH USE
-    IF (!%(NOLIB)) && (%(NAME)!=%(../NAME))
-      PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak cleandep
-    ENDIF
-  ENDFOR
-ENDIF
+FOR EACH USE
+  IF (!%(NOLIB)) && (%(NAME)!=%(../NAME))
+    PRINTNL 	$(hide)$(MAKE) -C %(¯!§PATH) -f %(NAME).mak cleandep
+  ENDIF
+ENDFOR
 PRINTNL 
 
 PRINTNL distclean: cleandep

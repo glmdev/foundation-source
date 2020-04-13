@@ -63,7 +63,7 @@
 
 /* forbid some defines */
 
-#if defined(TARGET_LINUX) || defined(TARGET_PS2SDK)
+#if defined(TARGET_LINUX)
 #undef COREMAKE_UNICODE /* platforms where Unicode is handled via UTF-8 strings */
 #endif
 
