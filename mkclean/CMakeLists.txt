@@ -3,4 +3,4 @@ add_executable("mkclean" mkclean.c)
 target_link_libraries("mkclean" PRIVATE "corec_parser")
 target_link_libraries("mkclean" PRIVATE "matroska2")
 
-# TODO generate mkclean_project.h with PROJECT_NAME, PROJECT_VERSION
+# TODO generate mkclean_project.h with PROJECT_VERSION

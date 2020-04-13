@@ -3,4 +3,4 @@ add_executable("mkvalidator" mkvalidator.c)
 target_link_libraries("mkvalidator" PRIVATE "corec_parser")
 target_link_libraries("mkvalidator" PRIVATE "matroska2")
 
-# TODO generate mkvalidator_project.h with PROJECT_NAME, PROJECT_VERSION
+# TODO generate mkvalidator_project.h with PROJECT_VERSION
