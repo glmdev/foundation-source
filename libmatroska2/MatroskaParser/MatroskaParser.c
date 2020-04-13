@@ -1501,5 +1501,5 @@ META_END(STREAM_CLASS)
 
 err_t mkv_Init(nodecontext*p)
 {
-	NodeRegisterClassEx((nodemodule*)p, HaaliStream_Class);
+	NodeRegisterClassEx(&p->Base, HaaliStream_Class);
 }
