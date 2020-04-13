@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "mkcleanreg_stdafx.h"
 #include "mkcleanreg_project.h"
 #include "corec/helpers/parser/parser.h"
 #include "corec/helpers/md5/md5.h"
@@ -163,7 +162,6 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
-    ProjectSettings((nodecontext*)&p);
 
     StdErr = &_StdErr;
     memset(StdErr,0,sizeof(_StdErr));

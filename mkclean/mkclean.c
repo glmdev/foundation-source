@@ -25,7 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "mkclean_stdafx.h"
 #include "mkclean_project.h"
 #ifndef CONFIG_EBML_UNICODE
 #define CONFIG_EBML_UNICODE
@@ -1443,7 +1442,6 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
-    ProjectSettings((nodecontext*)&p);
 
     // EBML & Matroska Init
     MATROSKA_Init((nodecontext*)&p);
