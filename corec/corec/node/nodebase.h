@@ -520,9 +520,6 @@ struct nodecontext
     void (*LuaAddRef)(void* Cookie, int* Ref);
 #endif
 	void (*ReportError)(nodecontext*, node* Node, fourcc_t MsgClass, int MsgNo, va_list Args);
-#if defined(TARGET_PALMOS)
-	fourcc_t ProjFourCC;
-#endif
     int Build;
     int Revision;
     array Collect;

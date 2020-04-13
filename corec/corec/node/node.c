@@ -2730,12 +2730,6 @@ META_PARAM(NAME,NODECONTEXT_PROJECT_HELP,T("HelpFile"))
 META_PARAM(TYPE,NODECONTEXT_PROJECT_HELP,TYPE_STRING|TFLAG_SETUP|TFLAG_RDONLY)
 META_DYNAMIC_RDONLY(TYPE_STRING,NODECONTEXT_PROJECT_HELP)
 
-#if defined(TARGET_PALMOS)
-META_PARAM(NAME,NODECONTEXT_PROJECT_FOURCC,T("ProjFourCC"))
-META_PARAM(TYPE,NODECONTEXT_PROJECT_FOURCC,TYPE_FOURCC|TFLAG_SETUP|TFLAG_RDONLY)
-META_DATA(TYPE_FOURCC,NODECONTEXT_PROJECT_FOURCC,nodecontext,ProjFourCC)
-#endif
-
 META_PARAM(NAME,NODECONTEXT_PROJECT_BUILD,T("BuildVersion"))
 META_PARAM(TYPE,NODECONTEXT_PROJECT_BUILD,TYPE_INT|TFLAG_SETUP|TFLAG_RDONLY)
 META_DATA(TYPE_INT,NODECONTEXT_PROJECT_BUILD,nodecontext,Build)
@@ -3078,14 +3072,10 @@ extern void FileXio_Done(nodemodule* Module);
 extern const nodemeta BufStream_Class[];
 extern const nodemeta MemStream_Class[];
 extern const nodemeta Streams_Class[];
-#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_PALMOS) || defined(TARGET_PS2SDK) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
+#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_PS2SDK) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
 extern const nodemeta File_Class[];
 #endif
-#if defined(TARGET_PALMOS)
-extern const nodemeta FileDb_Class[];
-extern const nodemeta VFS_Class[];
-#endif
-#if defined(CONFIG_STDIO) && !defined(TARGET_PALMOS)
+#if defined(CONFIG_STDIO)
 extern const nodemeta Stdio_Class[];
 #endif
 
@@ -3094,17 +3084,13 @@ err_t CoreC_Init(nodemodule* Module)
 	NodeRegisterClassEx(Module,BufStream_Class);
 	NodeRegisterClassEx(Module,MemStream_Class);
 	NodeRegisterClassEx(Module,Streams_Class);
-#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_PALMOS) || defined(TARGET_PS2SDK) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
+#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_PS2SDK) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
 	NodeRegisterClassEx(Module,File_Class);
-#endif
-#if defined(TARGET_PALMOS)
-	NodeRegisterClassEx(Module,FileDb_Class);
-	NodeRegisterClassEx(Module,VFS_Class);
 #endif
 #if defined(TARGET_PS2SDK)
 	FileXio_Init(Module);
 #endif
-#if defined(CONFIG_STDIO) && !defined(TARGET_PALMOS)
+#if defined(CONFIG_STDIO)
 	NodeRegisterClassEx(Module,Stdio_Class);
 #endif
 }

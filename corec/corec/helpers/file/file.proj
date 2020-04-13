@@ -12,13 +12,10 @@ GROUP file
   SOURCE tools.c
 
   SOURCE(TARGET_LINUX || TARGET_OSX || TARGET_ANDROID) file_libc.c
-  SOURCE(TARGET_PALMOS) file_palmos.c
-  SOURCE(TARGET_PALMOS) filedb_palmos.c
-  SOURCE(TARGET_PALMOS) filevfs_palmos.c
   SOURCE(TARGET_PS2SDK) file_ps2sdk.c
   SOURCE(TARGET_SYMBIAN) file_symbian.cpp
   SOURCE(TARGET_WIN) file_win32.c
-  SOURCE(CONFIG_STDIO && !TARGET_PALMOS) stream_stdio.c
+  SOURCE(CONFIG_STDIO) stream_stdio.c
   
   LIBS(TARGET_WIN && !TARGET_WINCE) shell32.lib
 
