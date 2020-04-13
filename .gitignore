@@ -31,3 +31,4 @@ mkvalidator/mkvalidator-*.zip
 *.compiled
 *.br.br
 *.sh.sh
+/out
