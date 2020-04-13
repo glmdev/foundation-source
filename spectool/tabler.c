@@ -32,7 +32,6 @@
  *  output: table_spec.xml
  */
 
-#include "tabler_stdafx.h"
 #ifndef CONFIG_EBML_UNICODE
 #define CONFIG_EBML_UNICODE
 #endif
