@@ -46,24 +46,7 @@
 #undef IS_LITTLE_ENDIAN
 #undef IS_BIG_ENDIAN
 
-#if defined(_WIN32_WCE)
-
-#if !defined(CONFIG_WINCE2) && (_WIN32_WCE>=200 && _WIN32_WCE<300)
-#define CONFIG_WINCE2
-#endif
-
-#if defined(WIN32_PLATFORM_WFSP)
-#define TARGET_SMARTPHONE
-#endif
-
-#define TARGET_WINCE
-#define TARGET_WIN
-
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#elif defined(_WIN64)
+#if defined(_WIN64)
 
 #define TARGET_WIN64
 #define TARGET_WIN
@@ -189,9 +172,7 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <malloc.h>
-#ifndef TARGET_WINCE
 #include <crtdbg.h>
-#endif
 
 #ifndef strncasecmp
 #define strncasecmp(x,y,z) _strnicmp(x,y,z)
@@ -527,13 +508,8 @@ typedef uint16_t utf16_t;
 #endif
 
 
-#if defined(TARGET_WINCE) && (defined(SH3) || defined(SH4) || defined(MIPS))
-#define _INLINE
-#define _CONST
-#else
 #define _INLINE INLINE
 #define _CONST const
-#endif
 
 /* todo: needs more testing, that nothing broke... */
 #if defined(MAX_PATH)
@@ -572,12 +548,6 @@ typedef const void* constplanes[MAXPLANES];
 #define FOURCC(a,b,c,d) (fourcc_t)FOURCCLE(a,b,c,d)
 #endif
 
-#if defined(TARGET_WINCE)
-#undef strdup
-#define strdup(x) _strdup(x)
-#define wcscoll(x,y) tcscmp(x,y)
-#endif
-
 #if defined(__CW32__)
 void * __alloca(size_t size);
 #ifndef alloca
@@ -591,7 +561,7 @@ void * __alloca(size_t size);
 #define alloca(size) __builtin_alloca(size)
 #endif
 
-#if defined(ARM) && !defined(TARGET_WINCE)
+#if defined(ARM)
 //fixed size stack:
 //  symbian
 //  palm os
@@ -620,19 +590,11 @@ static INLINE void* SwapSP(void* in)
 #endif
 
 #ifndef NDEBUG
-#if defined(TARGET_OSX)
-#include </usr/include/assert.h>
-#elif !defined(TARGET_WINCE)
-#include <assert.h>
-#else
-#ifdef LIBC_EXPORTS
-#define ASSERT_DLL DLLEXPORT
-#else
-#define ASSERT_DLL
-#endif
-ASSERT_DLL void _Assert(const char* Exp, const char* File, int Line);
-#define assert(x)   ((x) ? (void)0 : _Assert(#x, __FILE__, __LINE__))
-#endif
+# if defined(TARGET_OSX)
+#  include </usr/include/assert.h>
+# else
+#  include <assert.h>
+# endif
 #else // NDEBUG
 #ifndef assert
 #define assert(x)   ((void)0)
