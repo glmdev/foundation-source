@@ -12,19 +12,6 @@ GROUP mkclean_base
   COMPILE pkg.sh
 }
 
-CON(CONFIG_EBML_WRITING) mkWDclean
-{
-   USE mkclean_base
-}
-
-
-WORKSPACE mkclean
-{
-  USE mkclean
-  USE mkWDclean
-  USE mkcleanreg
-}
-
 LIB tremor
 {
   SOURCE tremor/block.c
