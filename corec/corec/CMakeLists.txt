@@ -1,11 +1,16 @@
 # Base core API
-add_library("corec"
+add_library("corec_node"
   node/node.c
   node/nodetree.c
-  array/array.c
 )
-set_target_properties("corec" PROPERTIES PUBLIC_HEADER "array/array.h")
-target_include_directories("corec" PUBLIC "." "..")
+set_target_properties("corec_node" PROPERTIES PUBLIC_HEADER "node/node.h;node/nodebase.h;node/nodetree.h;node/nodetools.h")
+target_include_directories("corec_node" PUBLIC "." "..")
+target_link_libraries("corec_node" PRIVATE "corec_array" "corec_multithread" "corec_str")
+
+# Base core API
+add_library("corec_array" array/array.c)
+set_target_properties("corec_array" PROPERTIES PUBLIC_HEADER "array/array.h")
+target_include_directories("corec_array" PUBLIC "." "..")
 
 # File API
 add_library("corec_file" 
@@ -27,7 +32,7 @@ elseif(UNIX)
 endif(WIN32)
 target_include_directories("corec_file" PUBLIC "." "..")
 set_target_properties("corec_file" PROPERTIES PUBLIC_HEADER "helpers/file/file.h;helpers/file/streams.h")
-target_link_libraries("corec_file" PRIVATE "corec" "corec_str" "corec_date")
+target_link_libraries("corec_file" PRIVATE "corec_node" "corec_str" "corec_date")
 
 # Parser API
 add_library("corec_parser"
@@ -98,3 +103,16 @@ else(UNIX)
 endif(WIN32)
 target_include_directories("corec_charconvert" PUBLIC "." "..")
 set_target_properties("corec_charconvert" PROPERTIES PUBLIC_HEADER "helpers/charconvert/charconvert.h")
+
+# TODO only if CONFIG_MULTITHREAD is set
+add_library("corec_multithread")
+if (WIN32)
+  target_sources("corec_multithread" PRIVATE multithread/multithread_win32.c)
+elseif(UNIX)
+  target_sources("corec_multithread" PRIVATE multithread/multithread_pthread.c)
+endif(WIN32)
+set_target_properties("corec_multithread" PROPERTIES PUBLIC_HEADER "multithread/multithread.h")
+target_link_libraries("corec_multithread" PRIVATE "corec_node")
+if(UNIX)
+  target_link_libraries("corec_multithread" PRIVATE pthread)
+endif(UNIX)

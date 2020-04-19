@@ -20,7 +20,7 @@ add_library("ebml2"
   ebmlvoid.c
 )
 target_include_directories("ebml2" PUBLIC ".")
-target_link_libraries("ebml2" PRIVATE "corec")
+target_link_libraries("ebml2" PRIVATE "corec_node")
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/legacy/ebml2_legacy_project.h.in
