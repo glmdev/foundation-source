@@ -14,7 +14,7 @@ target_sources("corec" INTERFACE ${COREC_BASE_HEADERS})
 #if(COREMAKE_CONFIG_HELPER)
 #  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h)
 #endif (COREMAKE_CONFIG_HELPER)
-target_include_directories("corec" INTERFACE "..")
+target_include_directories("corec" INTERFACE ".." "${COREC_CONFIG_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("corec" PROPERTIES 
     PUBLIC_HEADER "${COREC_BASE_HEADERS}"
@@ -39,7 +39,12 @@ set_target_properties("corec_node" PROPERTIES
   PUBLIC_HEADER "${COREC_NODE_HEADERS}"
 )
 target_include_directories("corec_node" PUBLIC ".")
-target_link_libraries("corec_node" PRIVATE "corec_array" "corec_multithread" "corec_str" "corec_file")
+target_link_libraries("corec_node" PRIVATE "corec_array" "corec_str" "corec_file")
+if(CONFIG_MULTITHREAD)
+  target_link_libraries("corec_node" PRIVATE "corec_multithread")
+endif(CONFIG_MULTITHREAD)
+target_include_directories("corec_node" PRIVATE )
+
 
 # Array API
 add_library("corec_array" array/array.c)
@@ -171,14 +176,17 @@ set_target_properties("corec_charconvert" PROPERTIES
 target_link_libraries("corec_charconvert" PUBLIC "corec")
 
 # TODO only if CONFIG_MULTITHREAD is set
-add_library("corec_multithread")
-if (WIN32)
-  target_sources("corec_multithread" PRIVATE multithread/multithread_win32.c)
-elseif(UNIX)
-  target_sources("corec_multithread" PRIVATE multithread/multithread_pthread.c)
-endif(WIN32)
-set_target_properties("corec_multithread" PROPERTIES PUBLIC_HEADER "multithread/multithread.h")
-target_link_libraries("corec_multithread" PRIVATE "corec_node")
-if(UNIX)
-  target_link_libraries("corec_multithread" PRIVATE pthread)
-endif(UNIX)
+option(CONFIG_MULTITHREAD "Enable multithread API")
+if(CONFIG_MULTITHREAD)
+  add_library("corec_multithread")
+  if (WIN32)
+    target_sources("corec_multithread" PRIVATE multithread/multithread_win32.c)
+  elseif(UNIX)
+    target_sources("corec_multithread" PRIVATE multithread/multithread_pthread.c)
+  endif(WIN32)
+  set_target_properties("corec_multithread" PROPERTIES PUBLIC_HEADER "multithread/multithread.h")
+  target_link_libraries("corec_multithread" PRIVATE "corec_node")
+  if(UNIX)
+    target_link_libraries("corec_multithread" PRIVATE pthread)
+  endif(UNIX)
+endif(CONFIG_MULTITHREAD)
