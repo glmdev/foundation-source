@@ -22,19 +22,3 @@ GROUP matroska2_group
   HEADER matroska/matroska_sem.h
   HEADER matroska/matroska_internal.h
 }
-
-DLL matroska2
-{
-  DEFINE MATROSKA_LIBRARY
-  USE matroska2_group
-}
-
-GROUP matroska2_haali
-{
-  USE(COREMAKE_STATIC) matroska2_group
-  USE(!COREMAKE_STATIC) matroska2
-
-  INCLUDE MatroskaParser
-  SOURCE MatroskaParser/MatroskaParser.c
-  HEADER MatroskaParser/MatroskaParser.h
-}

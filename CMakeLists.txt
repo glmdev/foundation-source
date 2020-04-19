@@ -15,6 +15,9 @@ target_include_directories("corec_str" PRIVATE ".")
 target_include_directories("corec_file" PRIVATE ".")
 target_include_directories("corec_date" PRIVATE ".")
 target_include_directories("corec_multithread" PRIVATE ".")
+target_include_directories("string_test" PRIVATE ".")
+target_include_directories("file_test" PRIVATE ".")
+target_include_directories("node_test" PRIVATE ".")
 
 add_subdirectory("spectool")
 # Dirty way for now

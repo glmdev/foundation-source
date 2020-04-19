@@ -85,9 +85,10 @@ elseif(UNIX)
     target_sources("corec_str" PRIVATE str/str_linux.c)
 endif(WIN32)
 target_include_directories("corec_str" PUBLIC "." "..")
+set_target_properties("corec_str" PROPERTIES PUBLIC_HEADER "helpers/str/str.h")
 # TODO only for projects using "core_parser"
 target_compile_definitions("corec_str" PUBLIC COREC_PARSER)
-set_target_properties("corec_str" PROPERTIES PUBLIC_HEADER "helpers/str/str.h")
+target_link_libraries("corec_str" PRIVATE "corec_parser")
 
 # Character Conversion API
 add_library("corec_charconvert")
