@@ -13,9 +13,9 @@ add_library("corec"
   corec/helpers/file/stream_stdio.c
 )
 if (WIN32)
-  target_sources("corec" 
+  target_sources("corec" PRIVATE
     corec/str/str_win32.c
-    corec/helpers/file/date_win32.c
+    corec/helpers/date/date_win32.c
     corec/helpers/file/file_win32.c
     corec/helpers/charconvert/charconvert_win32.c
   )
