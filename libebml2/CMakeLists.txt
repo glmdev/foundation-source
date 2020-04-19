@@ -3,32 +3,53 @@ set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 21)
 set(CPACK_PACKAGE_VERSION_PATCH 3)
 
+option(CONFIG_EBML_UNICODE "Build libebml2 with Unicode conversion support")
+option(CONFIG_EBML_WRITING "Build libebml2 with write support")
+
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/ebml2_project.h.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/ebml2_project.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebml2_project.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/ebml2_project.h
 )
 
 set(EBML2_GROUP_SOURCES
-  ebmlmain.c
-  ebmlbinary.c
-  ebmlcrc.c
-  ebmldate.c
-  ebmlelement.c
-  ebmlmaster.c
-  ebmlnumber.c
-  ebmlstring.c
-  ebmlvoid.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlmain.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlbinary.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlcrc.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmldate.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlelement.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlmaster.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlnumber.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlstring.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlvoid.c
+  ${CMAKE_CURRENT_BINARY_DIR}/ebml2_project.h
 )
-add_library("ebml2" ${EBML2_GROUP_SOURCES})
-target_include_directories("ebml2" PUBLIC ".")
-target_link_libraries("ebml2" PRIVATE "corec_node")
+set(EBML2_GROUP_HEADERS
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml_internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebmlcrc.h
+)
+add_library("ebml2_group" INTERFACE)
+target_sources("ebml2_group" INTERFACE ${EBML2_GROUP_SOURCES} ${EBML2_GROUP_HEADERS})
+if(CONFIG_EBML_UNICODE)
+  target_compile_definitions("ebml2_group" INTERFACE CONFIG_EBML_UNICODE)
+endif(CONFIG_EBML_UNICODE)
+target_link_libraries("ebml2_group" INTERFACE "corec_node")
+target_include_directories("ebml2_group" INTERFACE "." "${CMAKE_CURRENT_BINARY_DIR}")
+if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
+  set_target_properties("ebml2_group" PROPERTIES 
+    PUBLIC_HEADER "${EBML2_GROUP_HEADERS}"
+  )
+endif()
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/legacy/ebml2_legacy_project.h.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/legacy/ebml2_legacy_project.h
-)
+# the actual library that can be installed/linked
+add_library("ebml2")
+target_link_libraries("ebml2" PUBLIC "ebml2_group")
 
 # TODO finish this
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/legacy/ebml2_legacy_project.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/legacy/ebml2_legacy_project.h
+)
 set(LEGACY_LIBEBML_HEADERS
   legacy/ebml/EbmlBinary.h
   legacy/ebml/EbmlConfig.h

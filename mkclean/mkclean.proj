@@ -12,11 +12,6 @@ GROUP mkclean_base
   COMPILE pkg.sh
 }
 
-CON(CONFIG_EBML_WRITING) mkclean
-{
-   USE mkclean_base
-}
-
 CON(CONFIG_EBML_WRITING) mkWDclean
 {
    USE mkclean_base
