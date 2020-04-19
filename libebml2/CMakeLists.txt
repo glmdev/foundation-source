@@ -3,6 +3,9 @@ set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 21)
 set(CPACK_PACKAGE_VERSION_PATCH 3)
 
+option(CONFIG_EBML_UNICODE "Build libebml2 with Unicode conversion support" ON)
+option(CONFIG_EBML_WRITING "Build libebml2 with write support" ON)
+
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/ebml2_project.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/ebml2_project.h

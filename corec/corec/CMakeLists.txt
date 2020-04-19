@@ -14,7 +14,7 @@ target_sources("corec" INTERFACE ${COREC_BASE_HEADERS})
 #if(COREMAKE_CONFIG_HELPER)
 #  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h)
 #endif (COREMAKE_CONFIG_HELPER)
-target_include_directories("corec" INTERFACE "${COREC_CONFIG_DIR}" "..")
+target_include_directories("corec" INTERFACE ".." "${COREC_CONFIG_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("corec" PROPERTIES 
     PUBLIC_HEADER "${COREC_BASE_HEADERS}"
@@ -176,6 +176,7 @@ set_target_properties("corec_charconvert" PROPERTIES
 target_link_libraries("corec_charconvert" PUBLIC "corec")
 
 # TODO only if CONFIG_MULTITHREAD is set
+option(CONFIG_MULTITHREAD "Enable multithread API")
 if(CONFIG_MULTITHREAD)
   add_library("corec_multithread")
   if (WIN32)
