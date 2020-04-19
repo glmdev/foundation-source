@@ -11,6 +11,8 @@ target_include_directories("corec_md5" PRIVATE ".")
 target_include_directories("corec_system" PRIVATE ".")
 target_include_directories("corec_charconvert" PRIVATE ".")
 target_include_directories("corec_str" PRIVATE ".")
+target_include_directories("corec_file" PRIVATE ".")
+target_include_directories("corec_date" PRIVATE ".")
 
 add_subdirectory("spectool")
 # Dirty way for now
