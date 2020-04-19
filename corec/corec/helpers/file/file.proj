@@ -12,7 +12,6 @@ GROUP file
   SOURCE tools.c
 
   SOURCE(TARGET_LINUX || TARGET_OSX || TARGET_ANDROID) file_libc.c
-  SOURCE(TARGET_SYMBIAN) file_symbian.cpp
   SOURCE(TARGET_WIN) file_win32.c
   SOURCE(CONFIG_STDIO) stream_stdio.c
   

@@ -3069,7 +3069,7 @@ void Mem_RemoveCollector(anynode* AnyNode, memcollect Func, void* Cookie)
 extern const nodemeta BufStream_Class[];
 extern const nodemeta MemStream_Class[];
 extern const nodemeta Streams_Class[];
-#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
+#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_WIN)
 extern const nodemeta File_Class[];
 #endif
 #if defined(CONFIG_STDIO)
@@ -3081,7 +3081,7 @@ err_t CoreC_Init(nodemodule* Module)
 	NodeRegisterClassEx(Module,BufStream_Class);
 	NodeRegisterClassEx(Module,MemStream_Class);
 	NodeRegisterClassEx(Module,Streams_Class);
-#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_SYMBIAN) || defined(TARGET_WIN)
+#if defined(TARGET_LINUX) || defined(TARGET_OSX) || defined(TARGET_ANDROID) || defined(TARGET_WIN)
 	NodeRegisterClassEx(Module,File_Class);
 #endif
 #if defined(CONFIG_STDIO)
