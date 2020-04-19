@@ -7,8 +7,10 @@ configure_file(config.h.in config.h)
 add_subdirectory("corec")
 target_include_directories("corec" PRIVATE ".")
 target_include_directories("corec_parser" PRIVATE ".")
-target_include_directories("md5" PRIVATE ".")
-target_include_directories("ccsystem" PRIVATE ".")
+target_include_directories("corec_md5" PRIVATE ".")
+target_include_directories("corec_system" PRIVATE ".")
+target_include_directories("corec_charconvert" PRIVATE ".")
+target_include_directories("corec_str" PRIVATE ".")
 
 add_subdirectory("spectool")
 # Dirty way for now
