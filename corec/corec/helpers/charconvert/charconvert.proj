@@ -1,8 +1,0 @@
-GROUP charconvert
-{
-  USE corec
-  USE str
-  FRAMEWORK(TARGET_OSX) CoreFoundation
-  SOURCE(TARGET_ANDROID) charconvert_utf8.c
-  HEADER charconvert.h
-}
