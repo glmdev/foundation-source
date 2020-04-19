@@ -2,5 +2,4 @@ GROUP date
 {
   USE corec
   HEADER date.h
-  LIBS(TARGET_WIN && !TARGET_WINCE) winmm.lib 
 }
