@@ -1,3 +1,5 @@
+add_subdirectory("helpers")
+
 # Base core API
 add_library("corec" INTERFACE)
 set(COREC_BASE_HEADERS

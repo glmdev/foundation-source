@@ -1,9 +1,0 @@
-WORKSPACE(CONFIG_MATROSKA2) matroska
-{
-  USE matroska2
-  USE mkvtests
-  USE mkclean
-  USE mkvalidator
-}
-
-#include "*/*.proj"
