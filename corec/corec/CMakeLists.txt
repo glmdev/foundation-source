@@ -1,12 +1,13 @@
 # Base core API
 add_library("corec" INTERFACE)
-target_sources("corec" INTERFACE
+set(COREC_BASE_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/corec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/err.h
   ${CMAKE_CURRENT_SOURCE_DIR}/helper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/memalloc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/portab.h
 )
+target_sources("corec" INTERFACE ${COREC_BASE_HEADERS})
 #if (CONFIG_SAFE_C)
 #  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/banned.h)
 #endif (WIN32)
@@ -14,6 +15,11 @@ target_sources("corec" INTERFACE
 #  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h)
 #endif (COREMAKE_CONFIG_HELPER)
 target_include_directories("corec" INTERFACE "..")
+if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
+  set_target_properties("corec" PROPERTIES 
+    PUBLIC_HEADER "${COREC_BASE_HEADERS}"
+  )
+endif()
 
 # Node API
 set(COREC_NODE_HEADERS
@@ -33,7 +39,7 @@ set_target_properties("corec_node" PROPERTIES
   PUBLIC_HEADER "${COREC_NODE_HEADERS}"
 )
 target_include_directories("corec_node" PUBLIC ".")
-target_link_libraries("corec_node" PRIVATE "corec_array" "corec_multithread" "corec_str")
+target_link_libraries("corec_node" PRIVATE "corec_array" "corec_multithread" "corec_str" "corec_file")
 
 # Array API
 add_library("corec_array" array/array.c)
@@ -67,7 +73,7 @@ endif(WIN32)
 set_target_properties("corec_file" PROPERTIES 
   PUBLIC_HEADER "${COREC_FILE_HEADERS}"
 )
-target_link_libraries("corec_file" PRIVATE "corec_node" "corec_str" "corec_date")
+target_link_libraries("corec_file" PRIVATE "corec_node" "corec_date")
 
 # Parser API
 set(COREC_PARSER_HEADERS
@@ -91,7 +97,8 @@ add_library("corec_parser"
   helpers/parser/urlpart.c
   ${COREC_PARSER_HEADERS}
 )
-target_link_libraries("corec_parser" PRIVATE "corec_charconvert" "corec_file")
+target_compile_definitions("corec_parser" PUBLIC COREC_PARSER)
+target_link_libraries("corec_parser" PRIVATE "corec_str" "corec_charconvert" "corec_file")
 target_include_directories("corec_parser" PUBLIC "helpers")
 set_target_properties("corec_parser" PROPERTIES
   PUBLIC_HEADER "${COREC_PARSER_HEADERS}"
@@ -125,18 +132,26 @@ set_target_properties("corec_date" PROPERTIES
 target_link_libraries("corec_date" PUBLIC "corec")
 
 # String API
-add_library("corec_str" str/str.c)
+add_library("corec_str" INTERFACE)
+set(COREC_STR_HEADERS
+  ${CMAKE_CURRENT_SOURCE_DIR}/str/str.h
+)
+target_sources("corec_str" INTERFACE 
+  ${CMAKE_CURRENT_SOURCE_DIR}/str/str.c
+  ${COREC_STR_HEADERS}
+)
 if (WIN32)
-  target_sources("corec_str" PRIVATE str/str_win32.c)
+  target_sources("corec_str" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/str/str_win32.c)
 elseif(APPLE)
-    target_sources("corec_str" PRIVATE str/str_osx.c)
+    target_sources("corec_str" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/str/str_osx.c)
 elseif(UNIX)
-    target_sources("corec_str" PRIVATE str/str_linux.c)
+    target_sources("corec_str" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/str/str_linux.c)
 endif(WIN32)
-set_target_properties("corec_str" PROPERTIES PUBLIC_HEADER "helpers/str/str.h")
-# TODO only for projects using "core_parser"
-target_compile_definitions("corec_str" PUBLIC COREC_PARSER)
-target_link_libraries("corec_str" PRIVATE "corec_parser")
+if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
+  set_target_properties("corec_str" PROPERTIES 
+    PUBLIC_HEADER "${COREC_STR_HEADERS}"
+  )
+endif()
 
 # Character Conversion API
 add_library("corec_charconvert")
