@@ -12,6 +12,7 @@ add_library("corec"
   # only if CONFIG_STDIO is set
   corec/helpers/file/stream_stdio.c
 )
+set_target_properties("corec" PROPERTIES PUBLIC_HEADER "corec/array/array.h;corec/helpers/date/date.h")
 if (WIN32)
   target_sources("corec" PRIVATE
     corec/str/str_win32.c

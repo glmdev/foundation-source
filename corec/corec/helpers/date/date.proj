@@ -1,5 +1,0 @@
-GROUP date
-{
-  USE corec
-  HEADER date.h
-}
