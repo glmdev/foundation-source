@@ -16,6 +16,9 @@ add_library("matroska2"
 target_include_directories("matroska2" PUBLIC ".")
 target_compile_definitions("matroska2" PUBLIC MATROSKA_LIBRARY)
 target_link_libraries("matroska2" PRIVATE "ebml2")
+if (CONFIG_ZLIB)
+  target_link_libraries("matroska2" PRIVATE "zlib")
+endif(CONFIG_ZLIB)
 
 # add_library("matroska2_haali" MatroskaParser/MatroskaParser.c)
 # target_include_directories("matroska2_haali" PUBLIC "." "MatroskaParser")
