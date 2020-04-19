@@ -1,24 +1,58 @@
 # Base core API
+add_library("corec" INTERFACE)
+target_sources("corec" INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/corec.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/err.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/helper.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/memalloc.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/portab.h
+)
+#if (CONFIG_SAFE_C)
+#  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/banned.h)
+#endif (WIN32)
+#if(COREMAKE_CONFIG_HELPER)
+#  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h)
+#endif (COREMAKE_CONFIG_HELPER)
+target_include_directories("corec" INTERFACE "..")
+
+# Node API
+set(COREC_NODE_HEADERS
+  node/node.h
+  node/nodebase.h
+  node/nodetree.h
+  node/nodetools.h
+)
 add_library("corec_node"
   node/node.c
   node/nodetree.c
+  ${COREC_NODE_HEADERS}
+  # documentation installed with the sources
+  node/corec.html
 )
-set_target_properties("corec_node" PROPERTIES PUBLIC_HEADER "node/node.h;node/nodebase.h;node/nodetree.h;node/nodetools.h")
-target_include_directories("corec_node" PUBLIC "." "..")
+set_target_properties("corec_node" PROPERTIES 
+  PUBLIC_HEADER "${COREC_NODE_HEADERS}"
+)
+target_include_directories("corec_node" PUBLIC ".")
 target_link_libraries("corec_node" PRIVATE "corec_array" "corec_multithread" "corec_str")
 
-# Base core API
+# Array API
 add_library("corec_array" array/array.c)
-set_target_properties("corec_array" PROPERTIES PUBLIC_HEADER "array/array.h")
-target_include_directories("corec_array" PUBLIC "." "..")
+set_target_properties("corec_array" PROPERTIES 
+  PUBLIC_HEADER "array/array.h"
+)
+target_link_libraries("corec_array" PUBLIC "corec")
 
 # File API
+set(COREC_FILE_HEADERS
+  helpers/file/file.h
+  helpers/file/streams.h
+)
 add_library("corec_file" 
   helpers/file/bufstream.c
   helpers/file/memstream.c
   helpers/file/streams.c
   helpers/file/tools.c
-
+  ${COREC_FILE_HEADERS}
   # TODO only if CONFIG_STDIO is set
   helpers/file/stream_stdio.c
 )
@@ -30,11 +64,22 @@ if (WIN32)
 elseif(UNIX)
   target_sources("corec_file" PRIVATE helpers/file/file_libc.c)
 endif(WIN32)
-target_include_directories("corec_file" PUBLIC "." "..")
-set_target_properties("corec_file" PROPERTIES PUBLIC_HEADER "helpers/file/file.h;helpers/file/streams.h")
+set_target_properties("corec_file" PROPERTIES 
+  PUBLIC_HEADER "${COREC_FILE_HEADERS}"
+)
 target_link_libraries("corec_file" PRIVATE "corec_node" "corec_str" "corec_date")
 
 # Parser API
+set(COREC_PARSER_HEADERS
+  helpers/parser/buffer.h
+  helpers/parser/dataheap.h
+  helpers/parser/hotkey.h
+  helpers/parser/nodelookup.h
+  helpers/parser/parser.h
+  helpers/parser/strtab.h
+  helpers/parser/strtypes.h
+  helpers/parser/urlpart.h
+)
 add_library("corec_parser"
   helpers/parser/buffer.c
   helpers/parser/dataheap.c
@@ -44,11 +89,12 @@ add_library("corec_parser"
   helpers/parser/strtab.c
   helpers/parser/strtypes.c
   helpers/parser/urlpart.c
+  ${COREC_PARSER_HEADERS}
 )
 target_link_libraries("corec_parser" PRIVATE "corec_charconvert" "corec_file")
-target_include_directories("corec_parser" PUBLIC "." ".." "helpers")
-set_target_properties("corec_parser" PROPERTIES PUBLIC_HEADER
-  "helpers/parser/buffer.h;helpers/parser/dataheap.h;helpers/parser/hotkey.h;helpers/parser/nodelookup.h;helpers/parser/parser2.h;helpers/parser/strtab.h;helpers/parser/strtypes.hhelpers/parser/urlpart.h"
+target_include_directories("corec_parser" PUBLIC "helpers")
+set_target_properties("corec_parser" PROPERTIES
+  PUBLIC_HEADER "${COREC_PARSER_HEADERS}"
 )
 
 # System call API
@@ -58,12 +104,13 @@ if (WIN32)
 elseif(UNIX)
   target_sources("corec_system" PRIVATE helpers/system/ccsystem_posix.c)
 endif(WIN32)
-target_include_directories("corec_system" PUBLIC "." "..")
 set_target_properties("corec_system" PROPERTIES PUBLIC_HEADER "helpers/system/ccsystem.h")
+target_link_libraries("corec_system" PUBLIC "corec" "corec_node")
 
+# MD5 API
 add_library("corec_md5" helpers/md5/md5.c)
-target_include_directories("corec_md5" PUBLIC "." "..")
-set_target_properties("corec_system" PROPERTIES PUBLIC_HEADER "helpers/md5/md5.h")
+set_target_properties("corec_md5" PROPERTIES PUBLIC_HEADER "helpers/md5/md5.h")
+target_link_libraries("corec_md5" PUBLIC "corec")
 
 # Date API
 add_library("corec_date")
@@ -72,8 +119,10 @@ if (WIN32)
 elseif(UNIX)
     target_sources("corec_date" PRIVATE helpers/date/date_libc.c)
 endif(WIN32)
-target_include_directories("corec_date" PUBLIC "." "..")
-set_target_properties("corec_date" PROPERTIES PUBLIC_HEADER "helpers/date/date.h")
+set_target_properties("corec_date" PROPERTIES 
+  PUBLIC_HEADER "helpers/date/date.h"
+)
+target_link_libraries("corec_date" PUBLIC "corec")
 
 # String API
 add_library("corec_str" str/str.c)
@@ -84,7 +133,6 @@ elseif(APPLE)
 elseif(UNIX)
     target_sources("corec_str" PRIVATE str/str_linux.c)
 endif(WIN32)
-target_include_directories("corec_str" PUBLIC "." "..")
 set_target_properties("corec_str" PROPERTIES PUBLIC_HEADER "helpers/str/str.h")
 # TODO only for projects using "core_parser"
 target_compile_definitions("corec_str" PUBLIC COREC_PARSER)
@@ -102,8 +150,10 @@ elseif(UNIX)
 else(UNIX)
   target_sources("corec_charconvert" PRIVATE helpers/charconvert/charconvert_utf8.c)
 endif(WIN32)
-target_include_directories("corec_charconvert" PUBLIC "." "..")
-set_target_properties("corec_charconvert" PROPERTIES PUBLIC_HEADER "helpers/charconvert/charconvert.h")
+set_target_properties("corec_charconvert" PROPERTIES 
+  PUBLIC_HEADER "helpers/charconvert/charconvert.h"
+)
+target_link_libraries("corec_charconvert" PUBLIC "corec")
 
 # TODO only if CONFIG_MULTITHREAD is set
 add_library("corec_multithread")
