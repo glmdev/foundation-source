@@ -13,5 +13,4 @@
 #cmakedefine CONFIG_STDIO
 #define CONFIG_FILEPOS_64
 #cmakedefine CONFIG_CODEC_HELPER
-#define COREMAKE_CONFIG_HELPER
 #cmakedefine CONFIG_DEBUG_LEAKS

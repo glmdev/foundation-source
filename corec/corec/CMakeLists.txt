@@ -10,14 +10,12 @@ set(corec_base_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/helper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/memalloc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/portab.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h
 )
 target_sources("corec" INTERFACE ${corec_base_PUBLIC_HEADERS})
 #if (CONFIG_SAFE_C)
 #  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/banned.h)
 #endif (WIN32)
-#if(COREMAKE_CONFIG_HELPER)
-#  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h)
-#endif (COREMAKE_CONFIG_HELPER)
 target_include_directories("corec" INTERFACE ".." "${COREC_CONFIG_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("corec" PROPERTIES 
