@@ -1,3 +1,1 @@
 #define COREMAKE_STATIC
-
-//#define CONFIG_SAFE_C

@@ -2,6 +2,7 @@ option(CONFIG_STDIO "Build corec file API with stdio support" ON)
 option(CONFIG_MULTITHREAD "Enable multithread API" OFF)
 option(CONFIG_DEBUGCHECKS "Add extra checks in corec objects/helpers in debug builds" ON)
 option(CONFIG_DEBUG_LEAKS "Debug leaks in corec objects in debug builds" OFF)
+option(CONFIG_SAFE_C "Notify unsafe C legacy calls" OFF)
 
 # Base core API
 add_library("corec" INTERFACE)
@@ -12,11 +13,9 @@ set(corec_base_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/memalloc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/portab.h
   ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/banned.h
 )
 target_sources("corec" INTERFACE ${corec_base_PUBLIC_HEADERS})
-#if (CONFIG_SAFE_C)
-#  target_sources("corec" INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/banned.h)
-#endif (WIN32)
 target_include_directories("corec" INTERFACE ".." "${COREC_CONFIG_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("corec" PROPERTIES 
