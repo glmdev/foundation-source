@@ -1,12 +1,15 @@
 add_executable("string_test" string_test.c)
 target_link_libraries("string_test" PRIVATE "corec_str")
 target_link_libraries("string_test" PRIVATE "corec_charconvert")
+target_include_directories("string_test" PRIVATE ${COREC_CONFIG_DIR})
 
 add_executable("file_test" file_test.c)
 target_link_libraries("file_test" PUBLIC "corec_file")
+target_include_directories("file_test" PRIVATE ${COREC_CONFIG_DIR})
 
 add_executable("node_test" node_test.c)
 target_link_libraries("node_test" PRIVATE "corec_node")
+target_include_directories("node_test" PRIVATE ${COREC_CONFIG_DIR})
 
 # add_executable("parser_test" parser_test.c)
 # target_link_libraries("parser_test" PRIVATE "corec_parser")

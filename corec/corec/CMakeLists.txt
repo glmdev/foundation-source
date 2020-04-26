@@ -125,3 +125,7 @@ add_library("corec")
 configure_file(full_config.h.in full/config.h)
 target_include_directories("corec" PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/full)
 target_link_libraries("corec" PUBLIC "corec_node" "corec_parser" "corec_system" "corec_md5")
+
+# TODO Temporary until we settle the config for corec in the installed headers
+set(COREC_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR}/full)
+

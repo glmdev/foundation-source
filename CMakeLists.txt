@@ -4,8 +4,6 @@ project("foundation sources")
 
 option(CONFIG_MATROSKA2 "Build libmatroska2" ON)
 
-set(COREC_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR})
-
 add_subdirectory("corec")
 add_subdirectory("spectool")
 add_subdirectory("libebml2")
