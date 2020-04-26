@@ -6,7 +6,7 @@
 #define HAVE_EBML2
 #define CONFIG_MATROSKA2
 #cmakedefine CONFIG_ZLIB
-#define CONFIG_LZO1X
+#cmakedefine CONFIG_LZO1X
 #define CONFIG_BZLIB
 #define USE_PRECOMPILED_HEADERS
 #define CONFIG_DEBUGCHECKS

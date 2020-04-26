@@ -72,6 +72,6 @@ if (CONFIG_ZLIB)
     target_sources("zlib" PRIVATE ${ZLIB_GROUP_SOURCES} ${ZLIB_ASM_SOURCES} ${ZLIB_GROUP_HEADERS})
     target_include_directories("zlib" PUBLIC ".")
     set_target_properties("zlib" PROPERTIES 
-        PUBLIC_HEADERS "${COREC_BASE_HEADERS}"
+        PUBLIC_HEADER "${ZLIB_GROUP_HEADERS}"
     )
 endif(CONFIG_ZLIB)
