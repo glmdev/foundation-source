@@ -10,8 +10,8 @@ configure_file(config.h.in config.h)
 target_include_directories("mkclean" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories("mkWDclean" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries("mkclean" PRIVATE "matroska2" "corec_parser")
-target_link_libraries("mkWDclean" PRIVATE "matroska2" "corec_parser")
+target_link_libraries("mkclean" PRIVATE "matroska2_group" "corec_parser")
+target_link_libraries("mkWDclean" PRIVATE "matroska2_group" "corec_parser")
 
 if (CONFIG_CODEC_HELPER)
     add_subdirectory("tremor")

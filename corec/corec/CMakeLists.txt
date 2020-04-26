@@ -16,7 +16,7 @@ set(corec_base_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/banned.h
 )
 target_sources("corec_bare" INTERFACE ${corec_base_PUBLIC_HEADERS})
-target_include_directories("corec_bare" INTERFACE ".." "${COREC_CONFIG_DIR}")
+target_include_directories("corec_bare" INTERFACE "..")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("corec_bare" PROPERTIES 
     PUBLIC_HEADER "${corec_base_PUBLIC_HEADERS}"
@@ -123,9 +123,5 @@ add_subdirectory("helpers")
 
 add_library("corec")
 configure_file(full_config.h.in full/config.h)
-target_include_directories("corec" PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/full)
+target_include_directories("corec" PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/full)
 target_link_libraries("corec" PUBLIC "corec_node" "corec_parser" "corec_system" "corec_md5")
-
-# TODO Temporary until we settle the config for corec in the installed headers
-set(COREC_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR}/full)
-

@@ -26,7 +26,7 @@ add_library("ebml2_group" INTERFACE)
 target_sources("ebml2_group" INTERFACE ${ebml2_group_SOURCES} ${ebml2_group_PUBLIC_HEADERS} ${ebml2_group_INTERNAL_HEADERS})
 target_link_libraries("ebml2_group" INTERFACE "corec_node")
 target_compile_definitions("ebml2_group" INTERFACE HAS_EBML2)
-target_include_directories("ebml2_group" INTERFACE "." "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories("ebml2_group" INTERFACE ".")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("ebml2_group" PROPERTIES 
     PUBLIC_HEADER "${ebml2_group_PUBLIC_HEADERS}"
@@ -38,6 +38,7 @@ add_library("ebml2")
 target_link_libraries("ebml2" PUBLIC "ebml2_group")
 target_compile_definitions("ebml2" PRIVATE EBML_LIBRARY)
 configure_file(ebml2_project.h.in ebml2_project.h)
+configure_file(config.h.in config.h)
 target_include_directories("ebml2" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # TODO fix build
