@@ -11,7 +11,3 @@
 #cmakedefine CONFIG_LZO1X
 #cmakedefine CONFIG_BZLIB
 #cmakedefine CONFIG_CODEC_HELPER
-
-#if 0
-#define USE_PRECOMPILED_HEADERS
-#endif
