@@ -4,7 +4,6 @@
 #cmakedefine CONFIG_DEBUGCHECKS
 #cmakedefine CONFIG_DEBUG_LEAKS
 #cmakedefine CONFIG_STDIO
-#define CONFIG_FILEPOS_64
 #cmakedefine CONFIG_MULTITHREAD
 #cmakedefine CONFIG_ZLIB
 // for libmatroska2
@@ -13,7 +12,5 @@
 #cmakedefine CONFIG_CODEC_HELPER
 
 #if 0
-#define COREMAKE_UNICODE
 #define USE_PRECOMPILED_HEADERS
-#define CONFIG_FILEPOS_64
 #endif
