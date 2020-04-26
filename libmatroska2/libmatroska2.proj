@@ -9,11 +9,4 @@ GROUP matroska2_group
 
   DEFINE(CONFIG_MATROSKA2_NOGLOBAL) NO_MATROSKA2_GLOBAL
   EXPDEFINE(CONFIG_MATROSKA2_NOGLOBAL) NO_MATROSKA2_GLOBAL
-
-  SOURCE matroskamain.c
-  SOURCE matroskablock.c
-  SOURCE matroska_sem.c
-  HEADER matroska/matroska.h
-  HEADER matroska/matroska_sem.h
-  HEADER matroska/matroska_internal.h
 }

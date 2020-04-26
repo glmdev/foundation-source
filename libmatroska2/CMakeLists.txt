@@ -3,9 +3,16 @@ set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 22)
 set(CPACK_PACKAGE_VERSION_PATCH 3)
 
+option(CONFIG_CODEC_HELPER "Enable Vorbis frame durations" ON)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h.in
     ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h
+)
+set(MATROSKA2_HEADERS
+  ${CMAKE_CURRENT_SOURCE_DIR}/matroska/matroska.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/matroska/matroska_sem.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/matroska/matroska_internal.h
 )
 
 add_library("matroska2"
@@ -20,6 +27,11 @@ target_link_libraries("matroska2" PRIVATE "ebml2")
 if (CONFIG_ZLIB)
   target_link_libraries("matroska2" PRIVATE "zlib")
 endif(CONFIG_ZLIB)
+if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
+  set_target_properties("matroska2" PROPERTIES 
+    PUBLIC_HEADER "${MATROSKA2_HEADERS}"
+  )
+endif()
 
 # add_library("matroska2_haali" MatroskaParser/MatroskaParser.c)
 # target_include_directories("matroska2_haali" PUBLIC "." "MatroskaParser")
