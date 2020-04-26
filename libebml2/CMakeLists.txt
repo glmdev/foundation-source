@@ -31,6 +31,7 @@ set(EBML2_GROUP_HEADERS
 add_library("ebml2_group" INTERFACE)
 target_sources("ebml2_group" INTERFACE ${EBML2_GROUP_SOURCES} ${EBML2_GROUP_HEADERS})
 target_link_libraries("ebml2_group" INTERFACE "corec_node")
+target_compile_definitions("ebml2_group" INTERFACE HAS_EBML2)
 target_include_directories("ebml2_group" INTERFACE "." "${CMAKE_CURRENT_BINARY_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("ebml2_group" PROPERTIES 
@@ -41,6 +42,7 @@ endif()
 # the actual library that can be installed/linked
 add_library("ebml2")
 target_link_libraries("ebml2" PUBLIC "ebml2_group")
+target_compile_definitions("ebml2" PRIVATE EBML_LIBRARY)
 
 # TODO finish this
 configure_file(
