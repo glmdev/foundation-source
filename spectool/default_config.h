@@ -8,4 +8,4 @@
 #cmakedefine CONFIG_STDIO
 #define CONFIG_FILEPOS_64
 #define COREMAKE_CONFIG_HELPER
-//#define CONFIG_DEBUG_LEAKS
+#cmakedefine CONFIG_DEBUG_LEAKS

@@ -1,5 +1,6 @@
 option(CONFIG_STDIO "Build corec file API with stdio support" ON)
-option(CONFIG_MULTITHREAD "Enable multithread API")
+option(CONFIG_MULTITHREAD "Enable multithread API" OFF)
+option(CONFIG_DEBUG_LEAKS "Debug leaks in corec objects in debug builds" OFF)
 
 # Base core API
 add_library("corec" INTERFACE)

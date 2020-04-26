@@ -4,7 +4,6 @@ project("foundation sources")
 
 option(CONFIG_MATROSKA2 "Build libmatroska2" ON)
 
-configure_file(config.h.in config.h)
 set(COREC_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory("corec")
@@ -16,3 +15,6 @@ if(CONFIG_MATROSKA2)
     add_subdirectory("mkparts")
     add_subdirectory("libmatroska2")
 endif(CONFIG_MATROSKA2)
+
+# Must be created after all options are known
+configure_file(config.h.in config.h)
