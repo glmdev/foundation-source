@@ -2,154 +2,170 @@ add_subdirectory("zlib")
 
 # File API
 set(corec_file_BASE_SOURCES
-  file/bufstream.c
-  file/memstream.c
-  file/streams.c
-  file/tools.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/bufstream.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/memstream.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/streams.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/tools.c
 )
 set(corec_file_STDIO_SOURCES
-  file/stream_stdio.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/stream_stdio.c
 )
 set(corec_file_WIN32_SOURCES
-  file/file_win32.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/file_win32.c
 )
 set(corec_file_UNIX_SOURCES
-  file/file_libc.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/file_libc.c
 )
 set(corec_file_PUBLIC_HEADERS
-  file/file.h
-  file/streams.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/file.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/streams.h
 )
-add_library("corec_file" ${corec_file_BASE_SOURCES} ${corec_file_PUBLIC_HEADERS})
+add_library("corec_file" INTERFACE)
+target_sources("corec_file" INTERFACE ${corec_file_BASE_SOURCES} ${corec_file_PUBLIC_HEADERS})
 if (CONFIG_STDIO)
-  target_sources("corec_file" PRIVATE ${corec_file_STDIO_SOURCES})
+  target_sources("corec_file" INTERFACE ${corec_file_STDIO_SOURCES})
 endif(CONFIG_STDIO)
 if (WIN32)
-  target_sources("corec_file" PRIVATE ${corec_file_WIN32_SOURCES})
+  target_sources("corec_file" INTERFACE ${corec_file_WIN32_SOURCES})
 
   # for SHFileOperation to move files in the recycle bin
-  target_link_libraries("corec_file" PRIVATE shell32)
+  target_link_libraries("corec_file" INTERFACE shell32)
 elseif(UNIX)
-  target_sources("corec_file" PRIVATE ${corec_file_UNIX_SOURCES})
+  target_sources("corec_file" INTERFACE ${corec_file_UNIX_SOURCES})
 endif(WIN32)
+if (0)
 set_target_properties("corec_file" PROPERTIES 
   PUBLIC_HEADER "${corec_file_PUBLIC_HEADERS}"
 )
-target_link_libraries("corec_file" PUBLIC "corec_node" "corec_date")
+endif()
+target_link_libraries("corec_file" INTERFACE "corec_node" "corec_date")
 
 # Parser API
 set(corec_parser_SOURCES
-  parser/buffer.c
-  parser/dataheap.c
-  parser/hotkey.c
-  parser/nodelookup.c
-  parser/parser2.c
-  parser/strtab.c
-  parser/strtypes.c
-  parser/urlpart.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/buffer.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/dataheap.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/hotkey.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/nodelookup.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/parser2.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/strtab.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/strtypes.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/urlpart.c
 )
 set(corec_parser_PUBLIC_HEADERS
-  parser/buffer.h
-  parser/dataheap.h
-  parser/hotkey.h
-  parser/nodelookup.h
-  parser/parser.h
-  parser/strtab.h
-  parser/strtypes.h
-  parser/urlpart.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/buffer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/dataheap.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/hotkey.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/nodelookup.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/parser.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/strtab.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/strtypes.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/parser/urlpart.h
 )
-add_library("corec_parser" ${corec_parser_SOURCES} ${corec_parser_PUBLIC_HEADERS}
-)
-target_compile_definitions("corec_parser" PUBLIC COREC_PARSER)
-target_link_libraries("corec_parser" PUBLIC "corec_str" "corec_charconvert" "corec_file")
-target_include_directories("corec_parser" PUBLIC ".")
+add_library("corec_parser" INTERFACE)
+target_sources("corec_parser" INTERFACE ${corec_parser_SOURCES} ${corec_parser_PUBLIC_HEADERS})
+target_compile_definitions("corec_parser" INTERFACE COREC_PARSER)
+target_link_libraries("corec_parser" INTERFACE "corec_str" "corec_charconvert" "corec_file")
+target_include_directories("corec_parser" INTERFACE ".")
+if (0)
 set_target_properties("corec_parser" PROPERTIES
   PUBLIC_HEADER "${corec_parser_PUBLIC_HEADERS}"
 )
+endif(0)
 
 # System call API
-add_library("corec_system")
+add_library("corec_system" INTERFACE)
 set(corec_system_WIN32_SOURCES
-  system/ccsystem_win32.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/system/ccsystem_win32.c
 )
 set(corec_system_UNIX_SOURCES
-  system/ccsystem_posix.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/system/ccsystem_posix.c
 )
 set(corec_system_PUBLIC_HEADERS
-  system/ccsystem.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/system/ccsystem.h
 )
 if (WIN32)
-  target_sources("corec_system" PRIVATE ${corec_system_WIN32_SOURCES})
+  target_sources("corec_system" INTERFACE ${corec_system_WIN32_SOURCES})
 elseif(UNIX)
-  target_sources("corec_system" PRIVATE ${corec_system_UNIX_SOURCES})
+  target_sources("corec_system" INTERFACE ${corec_system_UNIX_SOURCES})
 endif(WIN32)
+target_sources("corec_system" INTERFACE ${corec_system_PUBLIC_HEADERS})
+if (0)
 set_target_properties("corec_system" PROPERTIES
   PUBLIC_HEADER "${corec_system_PUBLIC_HEADERS}"
 )
-target_link_libraries("corec_system" PUBLIC "corec" "corec_node")
+endif()
+target_link_libraries("corec_system" INTERFACE "corec_bare" "corec_node")
 
 # MD5 API
 set(corec_md5_SOURCES
-  md5/md5.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/md5/md5.c
 )
 set(corec_md5_PUBLIC_HEADERS
-  md5/md5.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/md5/md5.h
 )
-add_library("corec_md5" ${corec_md5_SOURCES})
+add_library("corec_md5" INTERFACE)
+target_sources("corec_md5" INTERFACE ${corec_md5_SOURCES} ${corec_md5_PUBLIC_HEADERS})
+if (0)
 set_target_properties("corec_md5" PROPERTIES
   PUBLIC_HEADER "${corec_md5_PUBLIC_HEADERS}"
 )
-target_link_libraries("corec_md5" PUBLIC "corec")
+endif()
+target_link_libraries("corec_md5" INTERFACE "corec_bare")
 
 # Date API
-add_library("corec_date")
+add_library("corec_date" INTERFACE)
 set(corec_system_WIN32_SOURCES
-  date/date_win32.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/date/date_win32.c
 )
 set(corec_system_UNIX_SOURCES
-  date/date_libc.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/date/date_libc.c
 )
 set(corec_system_PUBLIC_HEADERS
-  date/date.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/date/date.h
 )
 if (WIN32)
-  target_sources("corec_date" PRIVATE ${corec_system_WIN32_SOURCES})
+  target_sources("corec_date" INTERFACE ${corec_system_WIN32_SOURCES})
 elseif(UNIX)
-    target_sources("corec_date" PRIVATE ${corec_system_UNIX_SOURCES})
+    target_sources("corec_date" INTERFACE ${corec_system_UNIX_SOURCES})
 endif(WIN32)
+target_sources("corec_date" INTERFACE ${corec_system_PUBLIC_HEADERS})
+if (0)
 set_target_properties("corec_date" PROPERTIES 
   PUBLIC_HEADER "${corec_system_PUBLIC_HEADERS}"
 )
-target_link_libraries("corec_date" PUBLIC "corec")
+endif()
+target_link_libraries("corec_date" INTERFACE "corec_bare")
 
 # Character Conversion API
 set(corec_charconvert_WIN32_SOURCES
-  charconvert/charconvert_win32.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/charconvert/charconvert_win32.c
 )
 set(corec_charconvert_OSX_SOURCES
-  charconvert/charconvert_osx.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/charconvert/charconvert_osx.c
 )
 set(corec_charconvert_LINUX_SOURCES
-  charconvert/charconvert_linux.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/charconvert/charconvert_linux.c
 )
 set(corec_charconvert_OTHER_SOURCES
-  charconvert/charconvert_utf8.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/charconvert/charconvert_utf8.c
 )
 set(corec_charconvert_PUBLIC_HEADERS
-  charconvert/charconvert.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/charconvert/charconvert.h
 )
-add_library("corec_charconvert")
+add_library("corec_charconvert" INTERFACE)
 if (WIN32)
-  target_sources("corec_charconvert" PRIVATE ${corec_charconvert_WIN32_SOURCES})
+  target_sources("corec_charconvert" INTERFACE ${corec_charconvert_WIN32_SOURCES})
 elseif(APPLE)
-  target_link_libraries("corec_charconvert" PUBLIC "-framework CoreFoundation")
-  target_sources("corec_charconvert" PRIVATE ${corec_charconvert_OSX_SOURCES})
+  target_link_libraries("corec_charconvert" INTERFACE "-framework CoreFoundation")
+  target_sources("corec_charconvert" INTERFACE ${corec_charconvert_OSX_SOURCES})
 elseif(UNIX)
-  target_sources("corec_charconvert" PRIVATE ${corec_charconvert_LINUX_SOURCES})
+  target_sources("corec_charconvert" INTERFACE ${corec_charconvert_LINUX_SOURCES})
 else(UNIX)
-  target_sources("corec_charconvert" PRIVATE ${corec_charconvert_OTHER_SOURCES})
+  target_sources("corec_charconvert" INTERFACE ${corec_charconvert_OTHER_SOURCES})
 endif(WIN32)
+if (0)
 set_target_properties("corec_charconvert" PROPERTIES 
   PUBLIC_HEADER "${corec_charconvert_PUBLIC_HEADERS}"
 )
-target_link_libraries("corec_charconvert" PUBLIC "corec")
+endif()
+target_link_libraries("corec_charconvert" INTERFACE "corec_bare")

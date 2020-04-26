@@ -5,7 +5,7 @@ option(CONFIG_DEBUG_LEAKS "Debug leaks in corec objects in debug builds" OFF)
 option(CONFIG_SAFE_C "Notify unsafe C legacy calls" OFF)
 
 # Base core API
-add_library("corec" INTERFACE)
+add_library("corec_bare" INTERFACE)
 set(corec_base_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/corec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/err.h
@@ -15,51 +15,56 @@ set(corec_base_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/confhelper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/banned.h
 )
-target_sources("corec" INTERFACE ${corec_base_PUBLIC_HEADERS})
-target_include_directories("corec" INTERFACE ".." "${COREC_CONFIG_DIR}")
+target_sources("corec_bare" INTERFACE ${corec_base_PUBLIC_HEADERS})
+target_include_directories("corec_bare" INTERFACE ".." "${COREC_CONFIG_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
-  set_target_properties("corec" PROPERTIES 
+  set_target_properties("corec_bare" PROPERTIES 
     PUBLIC_HEADER "${corec_base_PUBLIC_HEADERS}"
   )
 endif()
 
 # Node API
 set(corec_node_SOURCES
-  node/node.c
-  node/nodetree.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/node.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/nodetree.c
+  # documentation installed with the sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/corec.html
 )
 set(corec_node_PUBLIC_HEADERS
-  node/node.h
-  node/nodebase.h
-  node/nodetree.h
-  node/nodetools.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/node.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/nodebase.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/nodetree.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/node/nodetools.h
 )
-add_library("corec_node" ${corec_node_SOURCES} ${corec_node_PUBLIC_HEADERS}
-  # documentation installed with the sources
-  node/corec.html
-)
-set_target_properties("corec_node" PROPERTIES 
-  PUBLIC_HEADER "${corec_node_PUBLIC_HEADERS}"
-)
-target_include_directories("corec_node" PUBLIC ".")
-target_link_libraries("corec_node" PUBLIC "corec_array" "corec_str" "corec_file")
+add_library("corec_node" INTERFACE)
+target_sources("corec_node" INTERFACE ${corec_node_SOURCES} ${corec_node_PUBLIC_HEADERS})
+if (0)
+  set_target_properties("corec_node" PROPERTIES 
+    PUBLIC_HEADER "${corec_node_PUBLIC_HEADERS}"
+  )
+endif()
+target_include_directories("corec_node" INTERFACE ".")
+target_link_libraries("corec_node" INTERFACE "corec_array" "corec_str" "corec_file")
 if(CONFIG_MULTITHREAD)
-  target_link_libraries("corec_node" PUBLIC "corec_multithread")
+  target_link_libraries("corec_node" INTERFACE "corec_multithread")
 endif(CONFIG_MULTITHREAD)
 
 
 # Array API
 set(corec_array_SOURCES
-  array/array.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/array/array.c
 )
 set(corec_array_PUBLIC_HEADERS
-  array/array.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/array/array.h
 )
-add_library("corec_array" ${corec_array_SOURCES})
+add_library("corec_array" INTERFACE)
+target_sources("corec_array" INTERFACE ${corec_array_SOURCES} ${corec_array_PUBLIC_HEADERS})
+if (0)
 set_target_properties("corec_array" PROPERTIES 
   PUBLIC_HEADER "${corec_array_PUBLIC_HEADERS}"
 )
-target_link_libraries("corec_array" PUBLIC "corec")
+endif()
+target_link_libraries("corec_array" INTERFACE "corec_bare")
 
 # String API
 add_library("corec_str" INTERFACE)
@@ -113,6 +118,10 @@ if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
     PUBLIC_HEADER "${corec_multithread_PUBLIC_HEADERS}"
   )
 endif()
-target_link_libraries("corec_multithread" INTERFACE "corec_node")
 
 add_subdirectory("helpers")
+
+add_library("corec")
+configure_file(full_config.h.in full/config.h)
+target_include_directories("corec" PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/full)
+target_link_libraries("corec" PUBLIC "corec_node" "corec_parser" "corec_system" "corec_md5")
