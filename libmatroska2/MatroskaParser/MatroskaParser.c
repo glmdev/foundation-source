@@ -1056,7 +1056,9 @@ MatroskaFile *mkv_Open(InputStream *io, char *err_msg, size_t err_msgSize)
 	io->ioseek(io,0,SEEK_SET);
 
 	// find a segment
+#if defined(NO_MATROSKA2_GLOBAL)
 	File->Input = (haali_stream*)NodeCreate(io->AnyNode,HAALI_STREAM_CLASS);
+#endif
 	if (!File->Input)
 	{
 		strncpy(err_msg,"Out of memory",err_msgSize);
