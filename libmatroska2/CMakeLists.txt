@@ -14,7 +14,8 @@ add_library("matroska2"
   matroska_sem.c
 )
 target_include_directories("matroska2" PUBLIC ".")
-target_compile_definitions("matroska2" PUBLIC MATROSKA_LIBRARY)
+target_compile_definitions("matroska2" PUBLIC HAS_MATROSKA2
+                                       PRIVATE MATROSKA_LIBRARY)
 target_link_libraries("matroska2" PRIVATE "ebml2")
 if (CONFIG_ZLIB)
   target_link_libraries("matroska2" PRIVATE "zlib")
