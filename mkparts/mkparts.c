@@ -32,6 +32,7 @@
 #endif
 #include "matroska/matroska.h"
 #include "matroska/matroska_sem.h"
+#include "corec/helpers/parser/parser.h"
 
 static textwriter *StdErr = NULL;
 static bool_t Split = 1;
