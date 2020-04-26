@@ -3,10 +3,6 @@ project("matroska2" VERSION 0.22.3)
 option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
 option(CONFIG_LZO1X "Enable lzo (de)compression in libmatroska2" ON)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h
-)
 set(matroska2_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/matroskamain.c
   ${CMAKE_CURRENT_SOURCE_DIR}/matroskablock.c
@@ -24,6 +20,8 @@ target_compile_definitions("matroska2" PUBLIC HAS_MATROSKA2)
 # defined when building the library, rather than using as an interface
 target_compile_definitions("matroska2" PRIVATE MATROSKA_LIBRARY)
 target_link_libraries("matroska2" PUBLIC "ebml2")
+configure_file(matroska2_project.h.in matroska2_project.h)
+target_include_directories("matroska2" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 if (CONFIG_ZLIB)
   target_link_libraries("matroska2" PRIVATE "zlib")

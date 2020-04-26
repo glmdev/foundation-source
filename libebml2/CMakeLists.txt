@@ -3,11 +3,6 @@ project("ebml2" VERSION 0.21.3)
 option(CONFIG_EBML_UNICODE "Build libebml2 with Unicode conversion support" ON)
 option(CONFIG_EBML_WRITING "Build libebml2 with write support" ON)
 
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/ebml2_project.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/ebml2_project.h
-)
-
 set(ebml2_group_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlmain.c
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlbinary.c
@@ -42,16 +37,15 @@ endif()
 add_library("ebml2")
 target_link_libraries("ebml2" PUBLIC "ebml2_group")
 target_compile_definitions("ebml2" PRIVATE EBML_LIBRARY)
+configure_file(ebml2_project.h.in ebml2_project.h)
+target_include_directories("ebml2" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # TODO fix build
 # add_executable("ebmltree" test/ebmltree.c)
 # target_link_libraries("ebmltree" PUBLIC "ebml2")
 
 # TODO finish this
-# configure_file(
-#     ${CMAKE_CURRENT_SOURCE_DIR}/legacy/ebml2_legacy_project.h.in
-#     ${CMAKE_CURRENT_BINARY_DIR}/legacy/ebml2_legacy_project.h
-# )
+# configure_file(legacy/ebml2_legacy_project.h.in legacy/ebml2_legacy_project.h)
 # set(LEGACY_LIBEBML_PUBLIC_HEADERS
 #   legacy/ebml/EbmlBinary.h
 #   legacy/ebml/EbmlConfig.h

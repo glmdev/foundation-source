@@ -2,9 +2,6 @@ project("mkparts" VERSION 0.1.0)
 
 add_executable("mkparts" mkparts.c)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/mkparts_project.h.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/mkparts_project.h
-)
-target_link_libraries("mkparts" PRIVATE "corec_parser")
-target_link_libraries("mkparts" PRIVATE "matroska2")
+configure_file(mkparts_project.h.in mkparts_project.h)
+target_include_directories("mkparts" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries("mkparts" PRIVATE "matroska2" "corec_parser")

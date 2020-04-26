@@ -6,10 +6,9 @@ if(CONFIG_EBML_WRITING)
     add_executable("mkclean" mkclean.c)
     add_executable("mkWDclean" mkclean.c)
 
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/mkclean_project.h.in
-        ${CMAKE_CURRENT_SOURCE_DIR}/mkclean_project.h
-    )
+    configure_file(mkclean_project.h.in mkclean_project.h)
+    target_include_directories("mkclean" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+    target_include_directories("mkWDclean" PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
     target_link_libraries("mkclean" PRIVATE "matroska2" "corec_parser")
     target_link_libraries("mkWDclean" PRIVATE "matroska2" "corec_parser")
@@ -19,5 +18,6 @@ if(CONFIG_EBML_WRITING)
         target_link_libraries("mkclean" PRIVATE "tremor")
         target_link_libraries("mkWDclean" PRIVATE "tremor")
     endif(CONFIG_CODEC_HELPER)
+
     add_subdirectory("regression")
 endif(CONFIG_EBML_WRITING)
