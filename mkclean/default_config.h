@@ -9,7 +9,7 @@
 #cmakedefine CONFIG_LZO1X
 #cmakedefine CONFIG_BZLIB
 #define USE_PRECOMPILED_HEADERS
-#define CONFIG_DEBUGCHECKS
+#cmakedefine CONFIG_DEBUGCHECKS
 #cmakedefine CONFIG_STDIO
 #define CONFIG_FILEPOS_64
 #cmakedefine CONFIG_CODEC_HELPER
