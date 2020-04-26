@@ -3076,7 +3076,7 @@ extern const nodemeta File_Class[];
 extern const nodemeta Stdio_Class[];
 #endif
 
-err_t CoreC_Init(nodemodule* Module)
+void CoreC_Init(nodemodule* Module)
 {
 	NodeRegisterClassEx(Module,BufStream_Class);
 	NodeRegisterClassEx(Module,MemStream_Class);
