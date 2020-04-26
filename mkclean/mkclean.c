@@ -28,6 +28,7 @@
 #include "mkclean_project.h"
 #include "matroska/matroska.h"
 #include "matroska/matroska_sem.h"
+#include "corec/helpers/parser/parser.h"
 
 /*!
  * \todo write the CRC-32 on Clusters too (make it faster in libebml2)

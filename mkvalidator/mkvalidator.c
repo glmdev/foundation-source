@@ -28,6 +28,7 @@
 #include "mkvalidator_project.h"
 #include "matroska/matroska.h"
 #include "matroska/matroska_sem.h"
+#include "corec/helpers/parser/parser.h"
 
 /*!
  * \todo verify the track timecode scale is not null
