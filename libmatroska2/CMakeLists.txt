@@ -3,7 +3,6 @@ set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 22)
 set(CPACK_PACKAGE_VERSION_PATCH 3)
 
-option(CONFIG_CODEC_HELPER "Enable Vorbis frame durations in libmatroska2" ON)
 option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
 option(CONFIG_LZO1X "Enable lzo (de)compression in libmatroska2" ON)
 
@@ -23,21 +22,26 @@ add_library("matroska2"
   matroska_sem.c
 )
 target_include_directories("matroska2" PUBLIC ".")
-target_compile_definitions("matroska2" PUBLIC HAS_MATROSKA2
-                                       PRIVATE MATROSKA_LIBRARY)
+target_compile_definitions("matroska2" PUBLIC HAS_MATROSKA2)
+# defined when building the library, rather than using as an interface
+target_compile_definitions("matroska2" PRIVATE MATROSKA_LIBRARY)
 target_link_libraries("matroska2" PRIVATE "ebml2")
+
 if (CONFIG_ZLIB)
   target_link_libraries("matroska2" PRIVATE "zlib")
 endif(CONFIG_ZLIB)
 if (CONFIG_LZO1X)
+  add_subdirectory("minilzo")
   target_link_libraries("matroska2" PRIVATE "minilzo")
 endif(CONFIG_LZO1X)
 if (CONFIG_BZLIB)
+  add_subdirectory("bzip2")
   target_link_libraries("matroska2" PRIVATE "bzlib")
 endif(CONFIG_BZLIB)
 if (CONFIG_CODEC_HELPER)
   target_link_libraries("matroska2" PRIVATE "tremor")
 endif(CONFIG_CODEC_HELPER)
+
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("matroska2" PROPERTIES 
     PUBLIC_HEADER "${MATROSKA2_HEADERS}"

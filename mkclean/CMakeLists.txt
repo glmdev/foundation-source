@@ -1,3 +1,5 @@
+option(CONFIG_CODEC_HELPER "Enable Vorbis frame durations in libmatroska2" ON)
+
 if(CONFIG_EBML_WRITING)
     add_executable("mkclean" mkclean.c)
     add_executable("mkWDclean" mkclean.c)
@@ -15,5 +17,10 @@ if(CONFIG_EBML_WRITING)
     target_link_libraries("mkclean" PRIVATE "matroska2" "corec_parser")
     target_link_libraries("mkWDclean" PRIVATE "matroska2" "corec_parser")
 
+    if (CONFIG_CODEC_HELPER)
+        add_subdirectory("tremor")
+        target_link_libraries("mkclean" PRIVATE "tremor")
+        target_link_libraries("mkWDclean" PRIVATE "tremor")
+    endif(CONFIG_CODEC_HELPER)
     add_subdirectory("regression")
 endif(CONFIG_EBML_WRITING)
