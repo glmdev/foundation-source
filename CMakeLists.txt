@@ -15,3 +15,6 @@ if(CONFIG_MATROSKA2)
     add_subdirectory("mkparts")
     add_subdirectory("libmatroska2")
 endif(CONFIG_MATROSKA2)
+
+# Must be created after all options are known
+configure_file(config.h.in config.h)
