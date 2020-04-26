@@ -1,3 +1,5 @@
+project("mkvalidator" VERSION 0.5.2)
+
 add_executable("mkvalidator" mkvalidator.c)
 
 set(CPACK_PACKAGE_NAME "mkvalidator")

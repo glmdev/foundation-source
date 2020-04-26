@@ -1,3 +1,5 @@
+project("mkparts" VERSION 0.1.0)
+
 add_executable("mkparts" mkparts.c)
 
 set(CPACK_PACKAGE_NAME "mkparts")

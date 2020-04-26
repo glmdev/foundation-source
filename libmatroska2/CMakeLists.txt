@@ -12,17 +12,18 @@ configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h.in
     ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h
 )
-set(MATROSKA2_HEADERS
+set(matroska2_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/matroskamain.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/matroskablock.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/matroska_sem.c
+)
+set(matroska2_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/matroska/matroska.h
   ${CMAKE_CURRENT_SOURCE_DIR}/matroska/matroska_sem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/matroska/matroska_internal.h
 )
 
-add_library("matroska2"
-  matroskamain.c
-  matroskablock.c
-  matroska_sem.c
-)
+add_library("matroska2" ${matroska2_SOURCES} ${matroska2_PUBLIC_HEADERS})
 target_include_directories("matroska2" PUBLIC ".")
 target_compile_definitions("matroska2" PUBLIC HAS_MATROSKA2)
 # defined when building the library, rather than using as an interface
@@ -43,12 +44,9 @@ endif(CONFIG_BZLIB)
 if (CONFIG_CODEC_HELPER)
   target_link_libraries("matroska2" PUBLIC "tremor")
 endif(CONFIG_CODEC_HELPER)
-
-if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
-  set_target_properties("matroska2" PROPERTIES 
-    PUBLIC_HEADER "${MATROSKA2_HEADERS}"
-  )
-endif()
+set_target_properties("matroska2" PROPERTIES 
+  PUBLIC_HEADER "${matroska2_PUBLIC_HEADERS}"
+)
 
 add_executable("mkvtree" test/mkvtree.c)
 target_link_libraries("mkvtree" PRIVATE "matroska2" "corec_parser")

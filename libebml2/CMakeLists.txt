@@ -13,7 +13,7 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/ebml2_project.h
 )
 
-set(EBML2_GROUP_SOURCES
+set(ebml2_group_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlmain.c
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlbinary.c
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlcrc.c
@@ -25,18 +25,21 @@ set(EBML2_GROUP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlvoid.c
   ${CMAKE_CURRENT_BINARY_DIR}/ebml2_project.h
 )
-set(EBML2_GROUP_HEADERS
+set(ebml2_group_PUBLIC_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlcrc.h
 )
+set(ebml2_group_INTERNAL_HEADERS
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml_internal.h
+)
 add_library("ebml2_group" INTERFACE)
-target_sources("ebml2_group" INTERFACE ${EBML2_GROUP_SOURCES} ${EBML2_GROUP_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml_internal.h)
+target_sources("ebml2_group" INTERFACE ${ebml2_group_SOURCES} ${ebml2_group_PUBLIC_HEADERS} ${ebml2_group_INTERNAL_HEADERS})
 target_link_libraries("ebml2_group" INTERFACE "corec_node")
 target_compile_definitions("ebml2_group" INTERFACE HAS_EBML2)
 target_include_directories("ebml2_group" INTERFACE "." "${CMAKE_CURRENT_BINARY_DIR}")
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("ebml2_group" PROPERTIES 
-    PUBLIC_HEADER "${EBML2_GROUP_HEADERS}"
+    PUBLIC_HEADER "${ebml2_group_PUBLIC_HEADERS}"
   )
 endif()
 
@@ -54,7 +57,7 @@ target_compile_definitions("ebml2" PRIVATE EBML_LIBRARY)
 #     ${CMAKE_CURRENT_SOURCE_DIR}/legacy/ebml2_legacy_project.h.in
 #     ${CMAKE_CURRENT_BINARY_DIR}/legacy/ebml2_legacy_project.h
 # )
-# set(LEGACY_LIBEBML_HEADERS
+# set(LEGACY_LIBEBML_PUBLIC_HEADERS
 #   legacy/ebml/EbmlBinary.h
 #   legacy/ebml/EbmlConfig.h
 #   legacy/ebml/EbmlContexts.h
@@ -80,14 +83,14 @@ target_compile_definitions("ebml2" PRIVATE EBML_LIBRARY)
 # )
 #add_library("ebml2_legacy" 
 #  legacy/legacy.cpp
-#  ${EBML2_GROUP_SOURCES}
-#  ${LEGACY_LIBEBML_HEADERS}
+#  ${ebml2_group_SOURCES}
+#  ${LEGACY_LIBEBML_PUBLIC_HEADERS}
 #)
 # target_compile_definitions("ebml2_legacy" PUBLIC EBML_STRICT_API)
 # target_compile_definitions("ebml2_legacy" PRIVATE EBML_LEGACY_API)
 # target_link_libraries("ebml2_legacy" PUBLIC "ebml2")
 # target_include_directories("ebml2_legacy" PUBLIC "legacy")
 # set_target_properties("corec_node" PROPERTIES PUBLIC_HEADER 
-#  "${LEGACY_LIBEBML_HEADERS}"
+#  "${LEGACY_LIBEBML_PUBLIC_HEADERS}"
 #)
 

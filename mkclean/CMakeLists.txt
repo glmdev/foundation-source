@@ -1,6 +1,8 @@
 option(CONFIG_CODEC_HELPER "Enable Vorbis frame durations in libmatroska2" ON)
 
 if(CONFIG_EBML_WRITING)
+    project("mkclean" VERSION 0.8.1)
+
     add_executable("mkclean" mkclean.c)
     add_executable("mkWDclean" mkclean.c)
 
