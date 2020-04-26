@@ -1,4 +1,3 @@
 #define COREMAKE_STATIC
-//#define COREMAKE_UNICODE
 
 //#define CONFIG_SAFE_C

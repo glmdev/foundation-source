@@ -9,6 +9,5 @@
 #define USE_PRECOMPILED_HEADERS
 #cmakedefine CONFIG_DEBUGCHECKS
 #cmakedefine CONFIG_STDIO
-#define CONFIG_FILEPOS_64
 #cmakedefine CONFIG_CODEC_HELPER
 #cmakedefine CONFIG_DEBUG_LEAKS
