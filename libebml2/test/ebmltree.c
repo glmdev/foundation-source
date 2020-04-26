@@ -29,25 +29,25 @@
 #include <stdio.h>
 
 #include "ebml/ebml.h"
-#include "ebmltree_stdafx.h"
+// #include "ebmltree_stdafx.h"
 
 static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_context *Context, stream *Input, int *Level)
 {
     int LevelPrint;
     for (LevelPrint=0;LevelPrint<*Level;++LevelPrint)
         fprintf(stdout,"+ ");
-    fprintf(stdout,"%s: ",Element->Context->ElementName);
+    fprintf(stdout,"%s: ",EBML_ElementGetClassName(Element));
     if (Node_IsPartOf(Element,EBML_MASTER_CLASS))
     {
         int UpperElement = 0;
         ebml_element *SubElement,*NewElement;
         ebml_parser_context SubContext;
 
-        fprintf(stdout,"(master) [%d bytes]\r\n",(int)Element->Size);
+        fprintf(stdout,"(master) [%d bytes]\r\n",(int)EBML_ElementDataSize(Element,1));
         SubContext.UpContext = Context;
-        SubContext.Context = Element->Context;
-        SubElement = EBML_FindNextElement(Input, &SubContext, &UpperElement, EBML_INFINITE, 1);
-        while (SubElement != NULL && UpperElement<=0 && (SubElement->ElementPosition < (Element->Size + Element->SizePosition + Element->SizeLength) || *Level==-1))
+        SubContext.Context = EBML_ElementContext(Element);
+        SubElement = EBML_FindNextElement(Input, &SubContext, &UpperElement, 1);
+        while (SubElement != NULL && UpperElement<=0 && (SubElement->ElementPosition < (EBML_ElementDataSize(Element,1) + Element->SizePosition + Element->SizeLength) || *Level==-1))
         {
             // a sub element == not higher level and contained inside the current element
             (*Level)++;
@@ -56,7 +56,7 @@ static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_cont
             if (NewElement)
                 SubElement = NewElement;
             else
-                SubElement = EBML_FindNextElement(Input, &SubContext, &UpperElement, EBML_INFINITE, 1);
+                SubElement = EBML_FindNextElement(Input, &SubContext, &UpperElement, 1);
             (*Level)--;
             if (UpperElement < 0)
                 *Level += UpperElement;
@@ -66,7 +66,7 @@ static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_cont
         else
             *Level -= UpperElement-1;
         return SubElement;
-        //EBML_ElementSkipData(Element, Input, Element->Context, NULL, 0);
+        //EBML_ElementSkipData(Element, Input, EBML_ElementContext(Element), NULL, 0);
     }
     else if (Node_IsPartOf(Element,EBML_STRING_CLASS) || Node_IsPartOf(Element,EBML_UNISTRING_CLASS))
     {
@@ -111,9 +111,9 @@ static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_cont
     else if (EBML_ElementIsDummy(Element))
     {
 #ifdef IS_BIG_ENDIAN
-        fprintf(stdout,"%x\r\n",Element->Context->Id);
+        fprintf(stdout,"%x\r\n",EBML_ElementClassID(Element));
 #else
-        fourcc_t Id = Element->Context->Id;
+        fourcc_t Id = EBML_ElementClassID(Element);
         while (Id & 0xFF)
         {
             fprintf(stdout,"[%x]",Id & 0xFF);
@@ -128,7 +128,7 @@ static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_cont
         if (EBML_ElementReadData(Element,Input,NULL,0,SCOPE_ALL_DATA)==ERR_NONE)
         {
             uint8_t *Data = ARRAYBEGIN(((ebml_binary*)Element)->Data,uint8_t);
-            fprintf(stdout,"%02X %02X %02X %02X.. (%d)\r\n",Data[0],Data[1],Data[2],Data[3],Element->Size);
+            fprintf(stdout,"%02X %02X %02X %02X.. (%d)\r\n",Data[0],Data[1],Data[2],Data[3],EBML_ElementDataSize(Element));
         }
         else
             fprintf(stdout,"<error reading>\r\n");
@@ -137,16 +137,16 @@ static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_cont
     else
     {
 #ifdef IS_BIG_ENDIAN
-        fprintf(stdout,"<unsupported element %x>\r\n",Element->Context->Id);
+        fprintf(stdout,"<unsupported element %x>\r\n",EBML_ElementClassID(Element));
 #else
-        fourcc_t Id = Element->Context->Id;
+        fourcc_t Id = EBML_ElementClassID(Element);
         fprintf(stdout,"<unsupported element ");
         while (Id & 0xFF)
         {
             fprintf(stdout,"[%x]",Id & 0xFF);
             Id >>= 8;
         }
-        fprintf(stdout,">\r\n",Element->Context->Id);
+        fprintf(stdout,">\r\n",EBML_ElementClassID(Element));
 #endif
         EBML_ElementSkipData(Element, Input, Context, NULL, 0);
     }
