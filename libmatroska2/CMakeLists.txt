@@ -1,3 +1,5 @@
+project("matroska2" VERSION 0.22.3)
+
 set(CPACK_PACKAGE_NAME "matroska2")
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 22)
@@ -25,7 +27,7 @@ target_include_directories("matroska2" PUBLIC ".")
 target_compile_definitions("matroska2" PUBLIC HAS_MATROSKA2)
 # defined when building the library, rather than using as an interface
 target_compile_definitions("matroska2" PRIVATE MATROSKA_LIBRARY)
-target_link_libraries("matroska2" PRIVATE "ebml2")
+target_link_libraries("matroska2" PUBLIC "ebml2")
 
 if (CONFIG_ZLIB)
   target_link_libraries("matroska2" PRIVATE "zlib")
@@ -39,7 +41,7 @@ if (CONFIG_BZLIB)
   target_link_libraries("matroska2" PRIVATE "bzlib")
 endif(CONFIG_BZLIB)
 if (CONFIG_CODEC_HELPER)
-  target_link_libraries("matroska2" PRIVATE "tremor")
+  target_link_libraries("matroska2" PUBLIC "tremor")
 endif(CONFIG_CODEC_HELPER)
 
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
