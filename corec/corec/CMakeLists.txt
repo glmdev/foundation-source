@@ -1,5 +1,5 @@
 option(CONFIG_STDIO "Build corec file API with stdio support" ON)
-option(CONFIG_MULTITHREAD "Enable multithread API" OFF)
+option(CONFIG_MULTITHREAD "Enable multithread support in corec" OFF)
 option(CONFIG_DEBUGCHECKS "Add extra checks in corec objects/helpers in debug builds" ON)
 option(CONFIG_DEBUG_LEAKS "Debug leaks in corec objects in debug builds" OFF)
 option(CONFIG_SAFE_C "Notify unsafe C legacy calls" OFF)
