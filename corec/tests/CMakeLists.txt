@@ -1,6 +1,5 @@
 add_executable("string_test" string_test.c)
 target_link_libraries("string_test" PRIVATE "corec_str")
-# TODO only with COREMAKE_UNICODE
 target_link_libraries("string_test" PRIVATE "corec_charconvert")
 
 add_executable("file_test" file_test.c)
