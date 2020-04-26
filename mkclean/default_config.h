@@ -7,7 +7,7 @@
 #define CONFIG_MATROSKA2
 #cmakedefine CONFIG_ZLIB
 #cmakedefine CONFIG_LZO1X
-#define CONFIG_BZLIB
+#cmakedefine CONFIG_BZLIB
 #define USE_PRECOMPILED_HEADERS
 #define CONFIG_DEBUGCHECKS
 #define CONFIG_STDIO

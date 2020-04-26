@@ -1,7 +1,0 @@
-#include "*/*.proj"
-
-GROUP matroska2_group
-{
-  USE minilzo
-  USE bzlib
-}

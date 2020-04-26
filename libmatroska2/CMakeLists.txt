@@ -3,8 +3,9 @@ set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 22)
 set(CPACK_PACKAGE_VERSION_PATCH 3)
 
-option(CONFIG_CODEC_HELPER "Enable Vorbis frame durations" ON)
-option(CONFIG_LZO1X "Enable lzo (de)compression" ON)
+option(CONFIG_CODEC_HELPER "Enable Vorbis frame durations in libmatroska2" ON)
+option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
+option(CONFIG_LZO1X "Enable lzo (de)compression in libmatroska2" ON)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/matroska2_project.h.in
@@ -31,6 +32,9 @@ endif(CONFIG_ZLIB)
 if (CONFIG_LZO1X)
   target_link_libraries("matroska2" PRIVATE "minilzo")
 endif(CONFIG_LZO1X)
+if (CONFIG_BZLIB)
+  target_link_libraries("matroska2" PRIVATE "bzlib")
+endif(CONFIG_BZLIB)
 if (CONFIG_CODEC_HELPER)
   target_link_libraries("matroska2" PRIVATE "tremor")
 endif(CONFIG_CODEC_HELPER)
