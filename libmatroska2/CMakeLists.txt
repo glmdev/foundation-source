@@ -48,6 +48,9 @@ if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   )
 endif()
 
+add_executable("mkvtree" test/mkvtree.c)
+target_link_libraries("mkvtree" PRIVATE "matroska2" "corec_parser")
+
 # add_library("matroska2_haali" MatroskaParser/MatroskaParser.c)
 # option(CONFIG_MATROSKA2_NOGLOBAL "" OFF)
 # if (CONFIG_MATROSKA2_NOGLOBAL)

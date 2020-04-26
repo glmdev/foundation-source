@@ -11,5 +11,3 @@ configure_file(
 )
 target_link_libraries("mkparts" PRIVATE "corec_parser")
 target_link_libraries("mkparts" PRIVATE "matroska2")
-
-# TODO generate mkparts_project.h with PROJECT_VERSION

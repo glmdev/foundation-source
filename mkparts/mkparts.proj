@@ -1,14 +1,6 @@
 CON mkparts
 {
-  USE matroska2
-  SOURCE mkparts.c
   COMPILE src.br
   COMPILE configure
   COMPILE pkg.sh
-}
-
-
-WORKSPACE mkparts
-{
-  USE mkparts
 }

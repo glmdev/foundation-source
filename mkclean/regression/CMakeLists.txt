@@ -13,4 +13,3 @@ configure_file(
 target_link_libraries("mkcleanreg" PRIVATE "corec_parser")
 target_link_libraries("mkcleanreg" PRIVATE "corec_md5")
 target_link_libraries("mkcleanreg" PRIVATE "corec_system")
-target_link_libraries("mkcleanreg" PRIVATE "matroska2")
