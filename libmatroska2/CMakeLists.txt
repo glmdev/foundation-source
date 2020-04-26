@@ -1,10 +1,5 @@
 project("matroska2" VERSION 0.22.3)
 
-set(CPACK_PACKAGE_NAME "matroska2")
-set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 22)
-set(CPACK_PACKAGE_VERSION_PATCH 3)
-
 option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
 option(CONFIG_LZO1X "Enable lzo (de)compression in libmatroska2" ON)
 

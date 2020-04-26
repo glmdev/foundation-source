@@ -1,10 +1,5 @@
 project("ebml2" VERSION 0.21.3)
 
-set(CPACK_PACKAGE_NAME "ebml2")
-set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 21)
-set(CPACK_PACKAGE_VERSION_PATCH 3)
-
 option(CONFIG_EBML_UNICODE "Build libebml2 with Unicode conversion support" ON)
 option(CONFIG_EBML_WRITING "Build libebml2 with write support" ON)
 

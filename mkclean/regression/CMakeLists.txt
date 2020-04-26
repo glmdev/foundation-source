@@ -1,9 +1,6 @@
-add_executable("mkcleanreg" mkcleanreg.c)
+project("mkcleanreg" VERSION 0.1.0)
 
-set(CPACK_PACKAGE_NAME "mkcleanreg")
-set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 1)
-set(CPACK_PACKAGE_VERSION_PATCH 0)
+add_executable("mkcleanreg" mkcleanreg.c)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/mkcleanreg_project.h.in
