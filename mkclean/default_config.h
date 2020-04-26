@@ -3,7 +3,6 @@
 #define CONFIG_EBML_WRITING
 #undef CONFIG_EBML_UNICODE
 #define CONFIG_EBML_UNICODE
-#define HAVE_EBML2
 #define CONFIG_MATROSKA2
 #cmakedefine CONFIG_ZLIB
 #cmakedefine CONFIG_LZO1X

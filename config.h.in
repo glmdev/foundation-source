@@ -1,6 +1,5 @@
 #cmakedefine CONFIG_EBML_WRITING
 #cmakedefine CONFIG_EBML_UNICODE
-#define HAVE_EBML2
 #cmakedefine CONFIG_MATROSKA2
 #cmakedefine CONFIG_DEBUGCHECKS
 #cmakedefine CONFIG_DEBUG_LEAKS
@@ -15,7 +14,6 @@
 
 #if 0
 #define COREMAKE_UNICODE
-#define HAVE_EBML2
 #define USE_PRECOMPILED_HEADERS
 #define CONFIG_FILEPOS_64
 #endif
