@@ -3100,7 +3100,6 @@ exit:
     MATROSKA_Done((nodecontext*)&p);
 
     // Core-C ending
-	StdAfx_Done((nodemodule*)&p);
     if (!Regression) // until all the memory leaks are fixed
     ParserContext_Done(&p);
 
