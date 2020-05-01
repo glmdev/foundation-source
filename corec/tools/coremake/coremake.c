@@ -3495,13 +3495,6 @@ void preprocess_part1(item* root, const char *pr_root, const char *src_root, con
         set_path_type(i, FLAG_PATH_SOURCE);
     }
 
-    // add the path of PLATFORM_FILES to CONFIG_INCLUDE if COREMAKE_CONFIG_HELPER is set
-    if (item_find_add(getconfig(root), "COREMAKE_CONFIG_HELPER", 0)->flags & FLAG_DEFINED)
-    {
-        i = item_find_add(item_find_add(root, "config_include", 0), coremake_root, 1);
-        set_path_type(i, FLAG_PATH_SOURCE);
-    }
-
     // "GROUP con_to_exe": replaces all "con" by "exe" and add "USE con_to_exe"
     con_to_exe = getvalue(item_find(item_find(item_find(root, "group"), "con_to_exe"), "source"));
     if (con_to_exe)
@@ -4799,13 +4792,6 @@ static int build_parse(item* p,reader* file,int sub,int skip,build_pos* pos0, en
                         item* no_include = item_find(*config->child, "no_include");
                         set_path_type(config, FLAG_PATH_GENERATED);
                         build_file(p, getvalue(config)->value, FLAG_PATH_GENERATED | (no_include ? FLAG_NO_INCLUDE : 0), file->project_root, file->src_root, file->coremake_root, prebuild);
-                    }
-                    config = item_find(getconfig(p), "COREMAKE_CONFIG_HELPER");
-                    if (config && config->flags & FLAG_DEFINED)
-                    {
-                        strcpy(tmpstr, file->coremake_root);
-                        strcat(tmpstr, "/config_helper.h");
-                        build_file(p, tmpstr, FLAG_PATH_COREMAKE, file->project_root, file->src_root, file->coremake_root, prebuild);
                     }
                     config = item_find(root, "config_cleaner");
                     if (config && getvalue(config))
