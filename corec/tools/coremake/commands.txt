@@ -19,7 +19,7 @@ Project outputs
   generate the specified file
 
 Project commands
-- SOURCE <filename> ({class <BaseCoremakeClass>})
+- SOURCE <filename>
   a source file, in various programming languages
 - SOURCEAM <filename>
   an automake file that needs to be processed and added to the list of source files
