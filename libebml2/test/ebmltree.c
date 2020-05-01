@@ -30,7 +30,6 @@
 
 #include "ebml/ebml.h"
 #include "ebml/ebml_internal.h"
-#include "ebmltree_stdafx.h"
 
 static ebml_element *OutputElement(ebml_element *Element, const ebml_parser_context *Context, stream *Input, int *Level)
 {
@@ -185,7 +184,7 @@ int main(int argc, const char *argv[])
     ParserContext_Init(&p,NULL,NULL,NULL);
 #else
     NodeContext_Init(&p,NULL,NULL,NULL);
-	StdAfx_Init((nodemodule*)&p);
+    CoreC_FileInit(&p.Base);
 #endif
     // EBML Init
     EBML_Init((nodecontext*)&p);
