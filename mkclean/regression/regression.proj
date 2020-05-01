@@ -1,7 +1,0 @@
-CON mkcleanreg
-{
-  USE parser
-  USE md5
-  USE ccsystem
-  SOURCE mkcleanreg.c
-}
