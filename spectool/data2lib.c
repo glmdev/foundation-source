@@ -517,6 +517,7 @@ int main(void)
 
     ParserContext_Init(&p,NULL,NULL,NULL);
     StdAfx_Init((nodemodule*)&p);
+    NodeRegisterClassEx(&p.Base.Base, SpecElement_Class);
 
     Input = StreamOpen(&p,T("ebml_matroska.xml"),SFLAG_RDONLY/*|SFLAG_BUFFERED*/);
     if (Input == NULL)
