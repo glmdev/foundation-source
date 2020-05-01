@@ -58,6 +58,8 @@ err_t MATROSKA_Init(nodecontext *p)
     err_t Err = EBML_Init(p);
     if (Err == ERR_NONE)
     {
+        NodeRegisterClassEx(&p->Base,Matroska_Class);
+
 #if defined(MATROSKA_LIBRARY)
         tcscpy_s(LibName,TSIZEOF(LibName),PROJECT_NAME T(" v") PROJECT_VERSION);
         Node_SetData(p,CONTEXT_LIBMATROSKA_VERSION,TYPE_STRING,LibName);
