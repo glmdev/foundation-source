@@ -1,7 +1,6 @@
 CON mkvalidator
 {
   PROJECT_NAME "mkvalidator"
-  PROJECT_VERSION  0.5.2
   USE matroska2
   SOURCE mkvalidator.c
   COMPILE src.br
