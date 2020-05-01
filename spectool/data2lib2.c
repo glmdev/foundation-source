@@ -32,7 +32,6 @@
  *  output: matroska_sem.c / matroska_sem.h
  */
 
-#include "data2lib2_stdafx.h"
 #include "spec_element.h"
 
 #include <stdio.h>
@@ -395,7 +394,6 @@ int main(void)
     //tchar_t Element[MAXLINE], String[MAXLINE], Value[MAXLINE];
 
     ParserContext_Init(&p,NULL,NULL,NULL);
-    StdAfx_Init((nodemodule*)&p);
     NodeRegisterClassEx(&p.Base.Base, SpecElement_Class);
 
     Input = StreamOpen(&p,T("ebml_matroska.xml"),SFLAG_RDONLY/*|SFLAG_BUFFERED*/);

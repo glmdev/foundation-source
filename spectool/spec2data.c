@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "spec2data_stdafx.h"
 #include "spec_element.h"
 
 static void SkipLevel(parser *p)
@@ -302,7 +301,6 @@ int main(void)
     //tchar_t Element[MAXLINE], String[MAXLINE], Value[MAXLINE];
 
     ParserContext_Init(&p,NULL,NULL,NULL);
-    StdAfx_Init((nodemodule*)&p);
     NodeRegisterClassEx(&p.Base.Base, SpecElement_Class);
 
     Input = StreamOpen(&p,T("ebml_matroska.xml"),SFLAG_RDONLY/*|SFLAG_BUFFERED*/);
