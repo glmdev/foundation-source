@@ -86,7 +86,6 @@
 
 #ifdef TARGET_OS_IPHONE // defined in TargetConditionals.h
 #define TARGET_IPHONE
-#define TARGET_IPHONE_SDK
 
 #if !TARGET_IPHONE_SIMULATOR
 #define TARGET_IPHONE_DEVICE
