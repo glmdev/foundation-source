@@ -1425,10 +1425,10 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
-    ProjectSettings((nodecontext*)&p);
+    ProjectSettings(&p.Base);
 
     // EBML & Matroska Init
-    MATROSKA_Init((nodecontext*)&p);
+    MATROSKA_Init(&p);
 
     ArrayInit(&RClusters);
     ArrayInit(&WClusters);
@@ -3096,7 +3096,7 @@ exit:
         FileErase((nodecontext*)&p,Path,1,0);
 
     // EBML & Matroska ending
-    MATROSKA_Done((nodecontext*)&p);
+    MATROSKA_Done(&p);
 
     // Core-C ending
     if (!Regression) // until all the memory leaks are fixed
