@@ -7,7 +7,7 @@ CON tabler
 CON spec2data
 {
   USE parser
-  SOURCE spec2data.c {class SpecElement_Class}
+  SOURCE spec2data.c
   SOURCE spec_element.c
   HEADER spec_element.h
 }
@@ -15,7 +15,7 @@ CON spec2data
 CON data2spec
 {
   USE parser
-  SOURCE data2spec.c {class SpecElement_Class}
+  SOURCE data2spec.c
   SOURCE spec_element.c
   HEADER spec_element.h
 }
@@ -23,7 +23,7 @@ CON data2spec
 CON data2lib
 {
   USE parser
-  SOURCE data2lib.c {class SpecElement_Class}
+  SOURCE data2lib.c
   SOURCE spec_element.c
   HEADER spec_element.h
 }
@@ -31,7 +31,7 @@ CON data2lib
 CON data2lib2
 {
   USE parser
-  SOURCE data2lib2.c {class SpecElement_Class}
+  SOURCE data2lib2.c
   SOURCE spec_element.c
   HEADER spec_element.h
 }
