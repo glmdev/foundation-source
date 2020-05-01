@@ -1,7 +1,6 @@
 CON mkcleanreg
 {
   PROJECT_VERSION  0.1.0
-  PROJECT_VENDOR   "Matroska"
 
   USE parser
   USE md5

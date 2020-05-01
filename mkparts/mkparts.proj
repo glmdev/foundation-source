@@ -1,7 +1,6 @@
 CON mkparts
 {
   PROJECT_VERSION  0.1.0
-  PROJECT_VENDOR   "Matroska"
   USE matroska2
   SOURCE mkparts.c
   COMPILE src.br
