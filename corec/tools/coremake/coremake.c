@@ -2715,29 +2715,8 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				    {
 					    fprintf(f,"\nvoid ProjectSettings(nodecontext* p)\n");
 					    fprintf(f,"{\n");
-					    fprintf(f,"#ifdef PROJECT_HELP\n");
-					    fprintf(f,"    Node_SetData((node*)p,NODECONTEXT_PROJECT_HELP,TYPE_STRING,PROJECT_HELP);\n");
-					    fprintf(f,"#endif\n");
 					    fprintf(f,"#ifdef PROJECT_VERSION\n");
 					    fprintf(f,"    Node_SetData((node*)p,NODECONTEXT_PROJECT_VERSION,TYPE_STRING,PROJECT_VERSION);\n");
-					    fprintf(f,"#endif\n");
-					    fprintf(f,"#ifdef PROJECT_BUILD\n");
-					    fprintf(f,"    {\n");
-					    fprintf(f,"        int BuildVersion = PROJECT_BUILD;\n");
-					    fprintf(f,"        Node_Set(p,NODECONTEXT_PROJECT_BUILD,&BuildVersion,sizeof(BuildVersion));\n");
-					    fprintf(f,"    }\n");
-					    fprintf(f,"#endif\n");
-					    fprintf(f,"#ifdef PROJECT_MIME\n");
-					    fprintf(f,"    Node_SetData((node*)p,NODECONTEXT_PROJECT_MIME,TYPE_STRING,PROJECT_MIME);\n");
-					    fprintf(f,"#endif\n");
-					    fprintf(f,"#ifdef PROJECT_APPID\n");
-					    fprintf(f,"    {\n");
-					    fprintf(f,"        uint16_t AppId = PROJECT_APPID;\n");
-					    fprintf(f,"        Node_Set(p,NODECONTEXT_PROJECT_APPID,&AppId,sizeof(AppId));\n");
-					    fprintf(f,"    }\n");
-					    fprintf(f,"#endif\n");
-					    fprintf(f,"#ifdef PROJECT_PATH\n");
-					    fprintf(f,"    Node_SetData((node*)p,NODECONTEXT_PROJECT_PATH,TYPE_STRING,PROJECT_PATH);\n");
 					    fprintf(f,"#endif\n");
 					    fprintf(f,"}\n");
 				    }
