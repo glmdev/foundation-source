@@ -163,10 +163,10 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
-    ProjectSettings((nodecontext*)&p);
+    ProjectSettings(&p.Base);
 
     // EBML & Matroska Init
-    MATROSKA_Init((nodecontext*)&p);
+    MATROSKA_Init(&p);
 
     ArrayInit(&SegmentStarts);
 
@@ -334,7 +334,7 @@ exit:
         StreamClose(Output);
 
     // EBML & Matroska ending
-    MATROSKA_Done((nodecontext*)&p);
+    MATROSKA_Done(&p);
 
     // Core-C ending
     ParserContext_Done(&p);
