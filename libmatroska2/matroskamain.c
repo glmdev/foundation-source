@@ -61,7 +61,7 @@ err_t MATROSKA_Init(parsercontext *p)
     {
 #if defined(MATROSKA_LIBRARY)
         tchar_t LibName[MAXPATH];
-        tcscpy_s(LibName,TSIZEOF(LibName),PROJECT_NAME T(" v") PROJECT_VERSION);
+        tcscpy_s(LibName,TSIZEOF(LibName),T("libmatroska2 v") PROJECT_VERSION);
         Node_SetData(p,CONTEXT_LIBMATROSKA_VERSION,TYPE_STRING,LibName);
 #endif
     }

@@ -2,7 +2,6 @@
 
 GROUP mkclean_base
 {
-  PROJECT_NAME "mkclean"
   PROJECT_VERSION  0.8.10
   PROJECT_VENDOR   "Matroska"
   USE matroska2

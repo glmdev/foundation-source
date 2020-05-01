@@ -882,6 +882,7 @@ int main(int argc, const char *argv[])
 
     // Core-C init phase
     ParserContext_Init(&p,NULL,NULL,NULL);
+    Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_NAME,TYPE_STRING,"mkvalidator");
     ProjectSettings(&p.Base);
 
     // EBML & Matroska Init
@@ -1365,7 +1366,7 @@ int main(int argc, const char *argv[])
 
 	if (!Quiet && Result==0)
     {
-        TextPrintf(StdErr,T("\r%s %s: the file appears to be valid\r\n"),PROJECT_NAME,PROJECT_VERSION);
+        TextPrintf(StdErr,T("\rmkvalidator %s: the file appears to be valid\r\n"),PROJECT_VERSION);
         if (Details)
         {
             track_info *TI;
