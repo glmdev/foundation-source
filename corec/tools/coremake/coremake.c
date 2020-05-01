@@ -1716,7 +1716,6 @@ int load_item(item* root,reader* file,int sub,itemcond* cond0)
 
             attrib = filename ||
 					   stricmp(file->token,"register_cab")==0 ||
-					   stricmp(file->token,"class")==0 ||
                        stricmp(file->token,"no_include") == 0; // we need this because priority would mess up conditions
 
 			if (new_root)
@@ -2263,7 +2262,6 @@ void preprocess_stdafx_includes(item* p,int lib, const char *p_root, const char 
 		item* plugin = getvalue(item_find(*child,"plugin"));
 		item* no_stdafx = getvalue(item_find(*child,"no_stdafx"));
 		item* no_project = getvalue(item_find(*child,"no_project"));
-		item* cls = item_find(*child,"class");
 		item* path = getvalue(item_find(*child,"path"));
         item *include = item_find_add(*child,"include",0);
 
@@ -2321,7 +2319,7 @@ void preprocess_stdafx_includes(item* p,int lib, const char *p_root, const char 
             add_inc->flags |= FLAG_ATTRIB;
         }
 
-		if ((item_childcount(cls) || prj) && !lib && !no_stdafx)
+		if (prj && !lib && !no_stdafx)
 		{
 			/* add _stdafx.c */
             item *src;
@@ -2415,7 +2413,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
         char gen_path[MAX_PATH];
 		item* plugin = getvalue(item_find(*child,"plugin"));
 		item* no_stdafx = getvalue(item_find(*child,"no_stdafx"));
-		item* cls = item_find_add(*child,"class",0);
 		item* use = item_find(*child,"use");
 		item* usebuilt = item_find(*child,"usebuilt");
 		const item* path = getvalue(item_find_add(*child,"path",0));
@@ -2498,18 +2495,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				break;
 			}
 
-		// copy register from source
-		for (i=0;i<item_childcount(src);++i)
-		{
-			item_merge(cls,item_find(src->child[i],"class"),NULL);
-		}
-
-		if (uselib)
-		    for (i=0;i<item_childcount(uselib);++i)
-		    {
-			    item_merge(cls,item_find(uselib->child[i],"class"),NULL);
-		    }
-
 		// register libraries as well from use
 		for (i=0;i<item_childcount(use);++i)
 		{
@@ -2519,18 +2504,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				item* src = item_find(ref,"source");
         		item* uselib = item_find(*child,"uselib");
 
-				for (j=0;j<item_childcount(src);++j)
-				{
-					item_merge(cls,item_find(src->child[j],"class"),use->child[i]);
-				}
-
-                if (uselib)
-        		    for (j=0;j<item_childcount(uselib);++j)
-        		    {
-					    item_merge(cls,item_find(uselib->child[j],"class"),use->child[i]);
-				    }
-
-				item_merge(cls,item_find(ref,"class"),use->child[i]);
 				item_merge(libs,item_find(ref,"libs"),use->child[i]);
 				item_merge(syslibs,item_find(ref,"syslibs"),use->child[i]);
 				item_merge(install,item_find(ref,"install"),use->child[i]);
@@ -2546,18 +2519,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				item* src = item_find(ref,"source");
         		item* uselib = item_find(*child,"uselib");
 
-				for (j=0;j<item_childcount(src);++j)
-				{
-					item_merge(cls,item_find(src->child[j],"class"),usebuilt->child[i]);
-				}
-
-                if (uselib)
-        		    for (j=0;j<item_childcount(uselib);++j)
-        		    {
-					    item_merge(cls,item_find(uselib->child[j],"class"),usebuilt->child[i]);
-				    }
-
-				item_merge(cls,item_find(ref,"class"),usebuilt->child[i]);
 				item_merge(libs,item_find(ref,"libs"),usebuilt->child[i]);
 				item_merge(syslibs,item_find(ref,"syslibs"),usebuilt->child[i]);
 				item_merge(install,item_find(ref,"install"),usebuilt->child[i]);
@@ -2610,7 +2571,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
                     item_find_add(item_find_add(v->child[i],"priority",1),"1",1);
                     v->child[i]->cond = itemcond_and(v->child[i]->cond,cond);
                 }
-                item_merge(cls,v,NULL);
                 itemcond_delete(cond);
             }
         }
@@ -2732,7 +2692,7 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 			    }
             }
 
-		    if ((item_childcount(cls) || prj) && !lib && !no_stdafx)
+		    if (prj && !lib && !no_stdafx)
 		    {
 			    /* generate stdafx.c */
 			    FILE* f;
@@ -2750,58 +2710,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				    if (prj)
 					    fprintf(f,"#include \"%s_project.h\"\n",(*child)->value);
 				    fprintf(f,"\n\n");
-
-				    if (item_childcount(cls))
-				    {
-                        item* found;
-                        int found_reg = 0;
-                        int found_pri;
-
-					    for (i=0;i<item_childcount(cls);++i)
-                        {
-                            cls->child[i]->flags &= ~FLAG_PROCESSED;
-						    fprintf(f,"extern const nodemeta %s[];\n",cls->child[i]->value);
-                        }
-
-					    fprintf(f,"\nerr_t %s(nodemodule* Module)\n",plugin?"DLLRegister":"StdAfx_Init");
-					    fprintf(f,"{\n");
-
-                        do
-                        {
-                            found = NULL;
-                            found_pri = MAX_PRI+1;
-
-					        for (i=0;i<item_childcount(cls);++i)
-					        {
-                                if (!(cls->child[i]->flags & FLAG_PROCESSED))
-                                {
-                                    int pri = getpri(cls->child[i]);
-                                    if (found_pri > pri)
-                                    {
-                                        found_pri = pri;
-                                        found_reg = 0;
-                                        found = cls->child[i];
-                                    }
-                                }
-					        }
-
-                            if (found)
-                            {
-                                found->flags |= FLAG_PROCESSED;
-						        cond = itemcond_print(f,cond,found->cond);
-                                if (found_reg)
-						            fprintf(f,"\t%s_Init(Module);\n",found->value);
-                                else
-    						        fprintf(f,"\tNodeRegisterClassEx(Module,%s);\n",found->value);
-					        }
-
-                        } while (found);
-
-					    cond = itemcond_print(f,cond,NULL);
-
-					    fprintf(f,"\treturn ERR_NONE;\n");
-					    fprintf(f,"}\n\n");
-				    }
 
 				    if (prj)
 				    {
@@ -2858,11 +2766,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				    fprintf(f,"extern \"C\" {\n");
 				    fprintf(f,"#endif\n");
 				    fprintf(f,"\n");
-
-				    if (item_childcount(cls))
-				    {
-					    fprintf(f,"extern err_t %s(nodemodule* Module);\n",plugin?"DLLRegister":"StdAfx_Init");
-				    }
 
 				    if (prj)
 					    fprintf(f,"extern void ProjectSettings(nodecontext* p);\n");
@@ -3277,11 +3180,8 @@ static void preprocess_uselib(item* p,item* ref,item* uselib)
                         truncfileext(path);
                         if (stricmp(path,"rc")==0)
     			            item_merge(item_find_add(item_find_add(*child,"source",0),src->child[j]->value,1),src->child[j],use->child[i]);
-
-			            item_merge(item_find_add(*child,"class",0),item_find(src->child[j],"class"),use->child[i]);
 		            }
 
-	                item_merge(item_find_add(*child,"class",0),item_find(ref,"class"),use->child[i]);
 	                item_merge(item_find_add(*child,"libs",0),item_find(ref,"libs"),use->child[i]);
 	                item_merge(item_find_add(*child,"syslibs",0),item_find(ref,"syslibs"),use->child[i]);
 	                item_merge(item_find_add(*child,"install",0),item_find(ref,"install"),use->child[i]);
