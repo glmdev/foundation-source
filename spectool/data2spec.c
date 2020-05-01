@@ -607,7 +607,6 @@ int main(void)
     StreamClose(Input);
     StreamClose(Output);
 
-	StdAfx_Done((nodemodule*)&p);
     ParserContext_Done(&p);
     return 0;
 }
