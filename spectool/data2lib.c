@@ -660,7 +660,6 @@ done:
     StreamClose(OutputC);
     StreamClose(OutputH);
 
-	StdAfx_Done((nodemodule*)&p);
     ParserContext_Done(&p);
     return result;
 }
