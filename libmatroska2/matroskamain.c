@@ -52,17 +52,15 @@ const ebml_context MATROSKA_ContextStream = {FOURCC('M','K','X','_'), EBML_MASTE
 
 const nodemeta Matroska_Class[];
 
-err_t MATROSKA_Init(nodecontext *p)
+err_t MATROSKA_Init(parsercontext *p)
 {
-#if defined(MATROSKA_LIBRARY)
-    tchar_t LibName[MAXPATH];
-#endif
-	NodeRegisterClassEx(&p->Base,Matroska_Class);
+	NodeRegisterClassEx(&p->Base.Base,Matroska_Class);
 
     err_t Err = EBML_Init(p);
     if (Err == ERR_NONE)
     {
 #if defined(MATROSKA_LIBRARY)
+        tchar_t LibName[MAXPATH];
         tcscpy_s(LibName,TSIZEOF(LibName),PROJECT_NAME T(" v") PROJECT_VERSION);
         Node_SetData(p,CONTEXT_LIBMATROSKA_VERSION,TYPE_STRING,LibName);
 #endif
@@ -70,7 +68,7 @@ err_t MATROSKA_Init(nodecontext *p)
     return Err;
 }
 
-err_t MATROSKA_Done(nodecontext *p)
+err_t MATROSKA_Done(parsercontext *p)
 {
     return EBML_Done(p);
 }
