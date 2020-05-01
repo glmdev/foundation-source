@@ -1,15 +1,6 @@
 CON mkvalidator
 {
-  PROJECT_NAME "mkvalidator"
-  USE matroska2
-  SOURCE mkvalidator.c
   COMPILE src.br
   COMPILE configure
   COMPILE pkg.sh
-}
-
-
-WORKSPACE mkvalidator
-{
-  USE mkvalidator
 }
