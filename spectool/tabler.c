@@ -32,9 +32,6 @@
  *  output: table_spec.xml
  */
 
-#ifndef CONFIG_EBML_UNICODE
-#define CONFIG_EBML_UNICODE
-#endif
 #include "parser/parser.h"
 
 static void DumpLevel(parser *p, textwriter *parent)
