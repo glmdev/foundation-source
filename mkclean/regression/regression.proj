@@ -1,7 +1,6 @@
 CON mkcleanreg
 {
   PROJECT_NAME "mkcleanreg"
-  PROJECT_VERSION  0.1.0
 
   USE parser
   USE md5
