@@ -2715,9 +2715,6 @@ static void preprocess_stdafx(item* p,int lib, const char *pro_root, const char 
 				    {
 					    fprintf(f,"\nvoid ProjectSettings(nodecontext* p)\n");
 					    fprintf(f,"{\n");
-					    fprintf(f,"#ifdef PROJECT_VERSION\n");
-					    fprintf(f,"    Node_SetData((node*)p,NODECONTEXT_PROJECT_VERSION,TYPE_STRING,PROJECT_VERSION);\n");
-					    fprintf(f,"#endif\n");
 					    fprintf(f,"}\n");
 				    }
 

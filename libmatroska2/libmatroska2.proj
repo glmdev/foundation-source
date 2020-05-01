@@ -1,10 +1,5 @@
 #include "*/*.proj"
 
-PROJECT matroska2
-{
-  PROJECT_VERSION  0.22.3
-}
-
 GROUP matroska2_group
 {
   USE ebml2

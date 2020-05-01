@@ -165,6 +165,7 @@ int main(int argc, const char *argv[])
     ParserContext_Init(&p,NULL,NULL,NULL);
     Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_NAME,TYPE_STRING,"mkcleanreg");
     Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_VENDOR,TYPE_STRING,"Matroska");
+    Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_VERSION,TYPE_STRING,PROJECT_VERSION);
     ProjectSettings((nodecontext*)&p);
 
     StdErr = &_StdErr;
@@ -212,7 +213,7 @@ int main(int argc, const char *argv[])
 
     if (Result!=0 || ShowVersion)
     {
-        TextWrite(StdErr,T("mkcleanreg v") PROJECT_VERSION T(", Copyright (c) 2010 Matroska Foundation\r\n"));
+        TextWrite(StdErr,T("mkcleanreg v") PROJECT_VERSION T(", Copyright (c) 2010-2020 Matroska Foundation\r\n"));
         if (argc < 1 || ShowUsage)
         {
             TextWrite(StdErr,T("Usage: mkcleanreg [options] <regression_list>\r\n"));

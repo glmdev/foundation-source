@@ -1427,6 +1427,7 @@ int main(int argc, const char *argv[])
     ParserContext_Init(&p,NULL,NULL,NULL);
     Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_NAME,TYPE_STRING,"mkclean");
     Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_VENDOR,TYPE_STRING,"Matroska");
+    Node_SetData(&p.Base.Base.Base,NODECONTEXT_PROJECT_VERSION,TYPE_STRING,PROJECT_VERSION);
     ProjectSettings(&p.Base);
 
     // EBML & Matroska Init
@@ -1533,7 +1534,7 @@ int main(int argc, const char *argv[])
     
     if (argc < (1+InputPathIndex) || ShowVersion)
     {
-        TextWrite(StdErr,T("mkclean v") PROJECT_VERSION T(", Copyright (c) 2010-2011 Matroska Foundation\r\n"));
+        TextWrite(StdErr,T("mkclean v") PROJECT_VERSION T(", Copyright (c) 2010-2020 Matroska Foundation\r\n"));
         if (argc < 2 || ShowUsage)
         {
             TextWrite(StdErr,T("Usage: mkclean [options] <matroska_src> [matroska_dst]\r\n"));
