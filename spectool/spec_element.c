@@ -86,10 +86,10 @@ void ReadElementText(parser *p, tchar_t *Out, size_t OutLen)
 static SpecElement *FindElementParent(array *Elements, SpecElement* element)
 {
     tchar_t ParentPath[MAXPATH];
+    tchar_t *parent_end;
     SpecElement **parent;
     if (element->Level == 0)
         return NULL;
-    tchar_t *parent_end;
     tcscpy_s(ParentPath, TSIZEOF(ParentPath), element->EbmlPath);
     parent_end = tcschr(ParentPath, '(');
     if (!parent_end)
@@ -105,6 +105,8 @@ static SpecElement *FindElementParent(array *Elements, SpecElement* element)
 void LinkElementParents(array *Elements)
 {
     SpecElement **element;
+    tchar_t *parent_end;
+    const tchar_t *separator_lookup;
     for (element=ARRAYBEGIN(*Elements,SpecElement*); element!=ARRAYEND(*Elements,SpecElement*);++element) {
         if (tcsnicmp_ascii((*element)->EbmlPath, T("1*1("), 4)==0)
         {
@@ -145,7 +147,7 @@ void LinkElementParents(array *Elements)
         {
             fprintf(stderr, "did not parse element '%s' path %s\n", (*element)->Name, (*element)->EbmlPath);
         }
-        tchar_t *parent_end = tcsrchr((*element)->EbmlPath, ')');
+        parent_end = tcsrchr((*element)->EbmlPath, ')');
         *parent_end = '\0';
         parent_end = tcschr((*element)->EbmlPath, '(');
         assert(parent_end != NULL);
@@ -168,7 +170,7 @@ void LinkElementParents(array *Elements)
             }
         }
 
-        const tchar_t *separator_lookup = (*element)->EbmlPath;
+        separator_lookup = (*element)->EbmlPath;
         (*element)->Level = -1;
         while ((separator_lookup = tcschr(separator_lookup, '\\')) != NULL)
         {
