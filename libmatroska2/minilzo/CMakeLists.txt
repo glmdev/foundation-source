@@ -1,6 +1,6 @@
 # minilzo library API
 
-add_library("minilzo")
+add_library("minilzo" STATIC)
 set(MINILZO_GROUP_PUBLIC_HEADERS
     minilzo.h
     lzoconf.h

@@ -38,8 +38,8 @@ if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   )
 endif()
 
-# the actual library that can be installed/linked
-add_library("ebml2")
+# the library needs to be static as it shares constants variables
+add_library("ebml2" STATIC)
 target_link_libraries("ebml2" PUBLIC "ebml2_group")
 if (BUILD_SHARED_LIBS)
   target_compile_definitions("ebml2" PRIVATE EBML2_EXPORTS)

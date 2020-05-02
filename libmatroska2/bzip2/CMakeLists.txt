@@ -1,6 +1,6 @@
 # bzlib library API
 
-add_library("bzlib")
+add_library("bzlib" STATIC)
 set(BZLIB_GROUP_PUBLIC_HEADERS
     bzlib.h
 )

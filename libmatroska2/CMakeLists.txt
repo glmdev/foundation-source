@@ -44,7 +44,8 @@ endif(CONFIG_CODEC_HELPER)
 configure_file(matroska_config.h.in matroska/matroska_config.h)
 target_include_directories("matroska2_group" INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library("matroska2")
+# the library needs to be static as it shares constants variables
+add_library("matroska2" STATIC)
 target_link_libraries("matroska2" PUBLIC "matroska2_group")
 target_include_directories("matroska2" PUBLIC ".")
 if (BUILD_SHARED_LIBS)
