@@ -1,6 +1,5 @@
 project("ebml2" VERSION 0.21.3)
 
-option(CONFIG_EBML_UNICODE "Build libebml2 with Unicode conversion support" ON)
 option(CONFIG_EBML_WRITING "Build libebml2 with write support" ON)
 
 set(ebml2_group_SOURCES

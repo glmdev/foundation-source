@@ -1,6 +1,5 @@
 // #define CONFIG_EBML_WRITING
 #define CONFIG_MATROSKA2
-#define CONFIG_EBML_UNICODE
 #cmakedefine CONFIG_DEBUGCHECKS
 #cmakedefine CONFIG_DEBUG_LEAKS
 #cmakedefine CONFIG_STDIO
