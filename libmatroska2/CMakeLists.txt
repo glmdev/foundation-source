@@ -25,7 +25,7 @@ target_link_libraries("matroska2_group" INTERFACE "ebml2_group")
 target_include_directories("matroska2_group" INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 
 if (CONFIG_ZLIB)
-  target_link_libraries("matroska2_group" INTERFACE "zlib")
+  target_link_libraries("matroska2_group" INTERFACE "zlibstatic")
 endif(CONFIG_ZLIB)
 if (CONFIG_LZO1X)
   add_subdirectory("minilzo")
