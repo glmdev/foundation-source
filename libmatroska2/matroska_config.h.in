@@ -6,3 +6,11 @@
 
 #define LIBMATROSKA2_PROJECT_VERSION T("@matroska2_VERSION_MAJOR@.@matroska2_VERSION_MINOR@.@matroska2_VERSION_PATCH@")
 #define LIBMATROSKA2_VERSION ((@matroska2_VERSION_MAJOR@ << 24) | (@matroska2_VERSION_MINOR@ << 16) | @matroska2_VERSION_PATCH@)
+
+#ifdef MATROSKA2_DYNAMIC_LIBRARY // TODO store it with the installed header
+#ifdef matroska2_EXPORTS
+# define MATROSKA2_EXPORTS
+#else // !matroska2_EXPORTS
+# define MATROSKA2_IMPORTS
+#endif // !matroska2_EXPORTS
+#endif

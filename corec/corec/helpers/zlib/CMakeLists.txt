@@ -3,7 +3,7 @@
 option(CONFIG_ZLIB "Enable zlib (de)compression" ON)
 
 if (CONFIG_ZLIB)
-    add_library("zlib")
+    add_library("zlib" STATIC)
     set(zlib_group_PUBLIC_HEADERS
         crc32.h
         inffast.h

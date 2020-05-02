@@ -2,3 +2,11 @@
 
 #define LIBEBML2_PROJECT_VERSION T("@ebml2_VERSION_MAJOR@.@ebml2_VERSION_MINOR@.@ebml2_VERSION_PATCH@")
 #define LIBEBML2_VERSION ((@ebml2_VERSION_MAJOR@ << 24) | (@ebml2_VERSION_MINOR@ << 16) | @ebml2_VERSION_PATCH@)
+
+#ifdef EBML2_DYNAMIC_LIBRARY // TODO store it with the installed header
+#ifdef ebml2_EXPORTS
+# define EBML2_EXPORTS
+#else // !ebml2_EXPORTS
+# define EBML2_IMPORTS
+#endif // !ebml2_EXPORTS
+#endif
