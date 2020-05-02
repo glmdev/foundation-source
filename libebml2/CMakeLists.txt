@@ -14,11 +14,11 @@ set(ebml2_group_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlvoid.c
 )
 set(ebml2_group_PUBLIC_HEADERS
-  ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml.h
-  ${CMAKE_CURRENT_BINARY_DIR}/ebml/ebml_config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebml2/ebml.h
+  ${CMAKE_CURRENT_BINARY_DIR}/ebml2/ebml_config.h
 )
 set(ebml2_group_INTERNAL_HEADERS
-  ${CMAKE_CURRENT_SOURCE_DIR}/ebml/ebml_internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ebml_internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ebmlcrc.h
 )
 add_library("ebml2_group" INTERFACE)
@@ -30,7 +30,7 @@ target_sources("ebml2_group" INTERFACE
 target_link_libraries("ebml2_group" INTERFACE "corec_node")
 target_compile_definitions("ebml2_group" INTERFACE HAS_EBML2)
 target_include_directories("ebml2_group" INTERFACE ".")
-configure_file(ebml_config.h.in ebml/ebml_config.h)
+configure_file(ebml_config.h.in ebml2/ebml_config.h)
 target_include_directories("ebml2_group" INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 if(${CMAKE_VERSION}` VERSION_GREATER_EQUAL "3.15.0")
   set_target_properties("ebml2_group" PROPERTIES 
