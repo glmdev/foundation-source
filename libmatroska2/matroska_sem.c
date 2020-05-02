@@ -28,9 +28,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "matroska/matroska.h"
-#include "matroska/matroska_sem.h"
-#include "matroska/matroska_internal.h"
+#include "matroska2/matroska.h"
+#include "matroska2/matroska_sem.h"
+#include "matroska_internal.h"
 
 const ebml_context MATROSKA_ContextSeekID = {0x53AB, EBML_BINARY_CLASS, 0, 0, "SeekID", NULL, EBML_SemanticGlobals, NULL};
 const ebml_context MATROSKA_ContextSeekPosition = {0x53AC, EBML_INTEGER_CLASS, 0, 0, "SeekPosition", NULL, EBML_SemanticGlobals, NULL};
