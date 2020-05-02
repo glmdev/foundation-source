@@ -29,9 +29,6 @@
 #ifndef SPEC_ELEMENT_H
 #define SPEC_ELEMENT_H
 
-#ifndef CONFIG_EBML_UNICODE
-#define CONFIG_EBML_UNICODE
-#endif
 #include "parser/parser.h"
 
 #define SPEC_ELEMENT_CLASS  FOURCC('S','P','E','C')

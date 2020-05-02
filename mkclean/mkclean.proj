@@ -4,9 +4,6 @@ GROUP mkclean_base
 {
   PROJECT_NAME "mkclean"
   USE matroska2
-  IF !CONFIG_EBML_UNICODE
-    USE parser
-  ENDIF
   SOURCE mkclean.c
   COMPILE src.br
   COMPILE configure
