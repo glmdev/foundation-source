@@ -36,7 +36,7 @@
 #elif defined(MATROSKA2_IMPORTS)
 #define MATROSKA_DLL DLLIMPORT
 #else
-#define MATROSKA_DLL
+#define MATROSKA_DLL extern
 #endif
 
 #define CONTEXT_LIBMATROSKA_VERSION  0x00402

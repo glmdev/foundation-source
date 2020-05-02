@@ -1,6 +1,6 @@
 # tremor library API
 
-add_library("tremor" STATIC)
+add_library("tremor")
 set(TREMOR_GROUP_PUBLIC_HEADERS
     ivorbiscodec.h
     codec_internal.h
