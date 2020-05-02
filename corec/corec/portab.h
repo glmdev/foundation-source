@@ -593,7 +593,7 @@ static INLINE void* SwapSP(void* in)
 #define UNUSED_PARAM(x) (x)
 #endif
 
-#include "config.h"
+#include "corec_config.h"
 #include "confhelper.h"
 
 #if defined(TARGET_IPHONE) && !defined(__ARM_NEON__)
