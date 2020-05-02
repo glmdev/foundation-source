@@ -40,6 +40,10 @@ endif()
 # the library needs to be static as it shares constants variables
 add_library("ebml2" STATIC)
 target_link_libraries("ebml2" PUBLIC "ebml2_group")
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions("ebml2" PRIVATE EBML2_EXPORTS)
+  target_compile_definitions("ebml2" PUBLIC  EBML2_IMPORTS)
+endif(BUILD_SHARED_LIBS)
 
 # TODO fix build
 add_executable("ebmltree" test/ebmltree.c)

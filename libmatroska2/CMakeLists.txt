@@ -49,6 +49,10 @@ target_include_directories("matroska2_group" INTERFACE ${CMAKE_CURRENT_BINARY_DI
 add_library("matroska2" STATIC)
 target_link_libraries("matroska2" PUBLIC "matroska2_group")
 target_include_directories("matroska2" PUBLIC ".")
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions("matroska2" PRIVATE MATROSKA2_EXPORTS)
+  target_compile_definitions("matroska2" PUBLIC  MATROSKA2_IMPORTS)
+endif(BUILD_SHARED_LIBS)
 
 add_executable("mkvtree" test/mkvtree.c)
 target_link_libraries("mkvtree" PRIVATE "matroska2_group" "corec_parser")

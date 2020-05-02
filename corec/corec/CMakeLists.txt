@@ -139,6 +139,7 @@ endif()
 
 add_subdirectory("helpers")
 
+# standalone Core-C library (static or dynamic)
 add_library("corec")
 target_compile_definitions("corec" PRIVATE BUILDING_COREC_LIBRARY)
 if (BUILD_SHARED_LIBS)
