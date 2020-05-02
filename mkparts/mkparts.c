@@ -26,8 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "mkparts_project.h"
-#include "matroska/matroska.h"
-#include "matroska/matroska_sem.h"
+#include "matroska2/matroska.h"
+#include "matroska2/matroska_sem.h"
 #include "corec/helpers/parser/parser.h"
 
 static textwriter *StdErr = NULL;
