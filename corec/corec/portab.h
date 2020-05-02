@@ -30,11 +30,6 @@
 #ifndef __PORTAB_H
 #define __PORTAB_H
 
-#if defined(__GNUC__) && defined(__palmos__)
-#undef __WCHAR_TYPE__
-#define __WCHAR_TYPE__ unsigned short
-#endif
-
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -599,14 +594,6 @@ static INLINE void* SwapSP(void* in)
 #define assert(x)   ((void)0)
 #endif
 #endif // NDEBUG
-
-#if defined(__palmos__)
-#if _MSC_VER > 1000
-#pragma warning( disable:4068 4204 )
-#endif
-#undef BIG_ENDIAN
-#define USE_TRAPS 0
-#endif
 
 #if defined(COMPILER_GCC)
 #define UNUSED_PARAM(x) (x) __attribute__ ((unused))
