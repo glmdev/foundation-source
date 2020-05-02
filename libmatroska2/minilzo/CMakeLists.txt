@@ -15,4 +15,4 @@ set_target_properties("minilzo" PROPERTIES
 )
 
 add_executable("testmini" testmini.c)
-target_link_libraries("testmini" PRIVATE "minilzo")
+target_link_libraries("testmini" PUBLIC "minilzo")
