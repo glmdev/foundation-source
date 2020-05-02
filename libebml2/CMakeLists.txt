@@ -39,6 +39,10 @@ target_link_libraries("ebml2" PUBLIC "ebml2_group")
 target_compile_definitions("ebml2" PRIVATE EBML_LIBRARY)
 configure_file(ebml2_project.h.in ebml2_project.h)
 configure_file(config.h.in config.h)
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions("ebml2" PRIVATE EBML2_EXPORTS)
+  target_compile_definitions("ebml2" PUBLIC  EBML2_IMPORTS)
+endif(BUILD_SHARED_LIBS)
 
 # TODO fix build
 add_executable("ebmltree" test/ebmltree.c)
