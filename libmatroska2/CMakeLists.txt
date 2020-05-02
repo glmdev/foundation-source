@@ -1,7 +1,7 @@
 project("matroska2" VERSION 0.22.3)
 
 option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
-option(CONFIG_LZO1X "Enable lzo (de)compression in libmatroska2" ON)
+option(CONFIG_LZO1X "Enable lzo1x (de)compression in libmatroska2 (GPLv2)" OFF)
 
 set(matroska2_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/matroskamain.c
