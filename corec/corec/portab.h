@@ -185,10 +185,6 @@
 #pragma comment(linker, "/nodefaultlib:libc.lib")
 #pragma comment(linker, "/nodefaultlib:libcd.lib")
 //#pragma comment(linker, "/nodefaultlib:oldnames.lib")
-#elif defined(_WIN32_WCE)
-// allow evc3/evc4 compiling with vs2005 object files
-#pragma comment(linker, "/nodefaultlib:libcmt.lib")
-#pragma comment(linker, "/nodefaultlib:oldnames.lib")
 #endif
 
 #ifndef alloca
@@ -223,10 +219,6 @@ typedef signed int intptr_t;
 
 #ifndef CDECL
 #define CDECL __cdecl
-#endif
-
-#if !defined(COMPILER_MSVC)
-#define COMPILER_MSVC
 #endif
 
 #if defined(__cplusplus)
