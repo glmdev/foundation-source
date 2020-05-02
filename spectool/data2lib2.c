@@ -376,9 +376,9 @@ static void OutputCHeader(textwriter *CFile, bool_t WithInclude)
     TextWrite(CFile, T(" * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"));
     TextWrite(CFile, T(" * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"));
     TextWrite(CFile, T(" */\n"));
-    TextWrite(CFile, T("#include \"matroska/matroska.h\"\n"));
-    if (WithInclude) TextWrite(CFile, T("#include \"matroska/matroska_sem.h\"\n"));
-    TextWrite(CFile, T("#include \"matroska/matroska_internal.h\"\n"));
+    TextWrite(CFile, T("#include \"matroska2/matroska.h\"\n"));
+    if (WithInclude) TextWrite(CFile, T("#include \"matroska2/matroska_sem.h\"\n"));
+    TextWrite(CFile, T("#include \"matroska_internal.h\"\n"));
     TextWrite(CFile, T("\n"));
 }
 
@@ -420,10 +420,10 @@ int main(void)
         fprintf(stderr, "failed to open libmatroska2/matroska_sem.c for writing\n");
         goto done;
     }
-    OutputH = StreamOpen(&p,T("libmatroska2/matroska/matroska_sem.h"),SFLAG_WRONLY|SFLAG_CREATE);
+    OutputH = StreamOpen(&p,T("libmatroska2/matroska2/matroska_sem.h"),SFLAG_WRONLY|SFLAG_CREATE);
     if (!OutputH)
     {
-        fprintf(stderr, "failed to open libmatroska2/matroska/matroska_sem.h for writing\n");
+        fprintf(stderr, "failed to open libmatroska2/matroska2/matroska_sem.h for writing\n");
         goto done;
     }
 

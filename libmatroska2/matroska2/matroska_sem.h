@@ -28,8 +28,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "matroska/matroska.h"
-#include "matroska/matroska_internal.h"
+#include "matroska2/matroska.h"
+#include "matroska_internal.h"
 
 #ifndef MATROSKA_SEMANTIC_H
 #define MATROSKA_SEMANTIC_H
