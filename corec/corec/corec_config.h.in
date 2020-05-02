@@ -8,3 +8,27 @@
 
 #define COREC_PROJECT_VERSION T("@corec_VERSION_MAJOR@.@corec_VERSION_MINOR@.@corec_VERSION_PATCH@")
 #define COREC_VERSION ((@corec_VERSION_MAJOR@ << 24) | (@corec_VERSION_MINOR@ << 16) | @corec_VERSION_PATCH@)
+
+#ifdef COREC_DYNAMIC_LIBRARY // TODO store it with the installed header
+#ifdef corec_EXPORTS
+# define NODE_EXPORTS
+# define ARRAY_EXPORTS
+# define DATE_EXPORTS
+# define FILE_EXPORTS
+# define STR_EXPORTS
+# define CHARCONVERT_EXPORTS
+# define CCSYSTEM_EXPORTS
+# define MD5_EXPORTS
+# define MULTITHREAD_EXPORTS
+#else // !corec_EXPORTS
+# define NODE_IMPORTS
+# define ARRAY_IMPORTS
+# define DATE_IMPORTS
+# define FILE_IMPORTS
+# define STR_IMPORTS
+# define CHARCONVERT_IMPORTS
+# define CCSYSTEM_IMPORTS
+# define MD5_IMPORTS
+# define MULTITHREAD_IMPORTS
+#endif // !corec_EXPORTS
+#endif
