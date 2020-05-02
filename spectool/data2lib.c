@@ -512,6 +512,7 @@ int main(void)
     stream *Input = NULL,*OutputC = NULL,*OutputH = NULL;
     array Elements;
     SpecElement **element;
+    bool_t created;
     //tchar_t Element[MAXLINE], String[MAXLINE], Value[MAXLINE];
 
     ParserContext_Init(&p,NULL,NULL,NULL);
@@ -523,7 +524,7 @@ int main(void)
         fprintf(stderr, "missing source file ebml_matroska.xml\n");
         goto done;
     }
-    bool_t created = PathIsFolder(&p.Base, T("libmatroska")) || FolderCreate(&p.Base, T("libmatroska"));
+    created = PathIsFolder(&p.Base, T("libmatroska")) || FolderCreate(&p.Base, T("libmatroska"));
     if (!created)
     {
         fprintf(stderr, "failed to create the libmatroska folder\n");
