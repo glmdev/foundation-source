@@ -28,7 +28,7 @@
  ****************************************************************************/
 
 #include "str.h"
-#if defined(COREC_PARSER)
+#if defined(CONFIG_COREC_PARSER)
 #include "corec/helpers/parser/parser.h"
 #endif
 
@@ -646,7 +646,7 @@ do_exponent:
                 break;
             case 'r':
                 {
-#if !defined(COREC_PARSER)
+#if !defined(CONFIG_COREC_PARSER)
                     va_arg(Arg,fourcc_t); // skip the param
 #else
                     fourcc_t FourCC = va_arg(Arg,fourcc_t);
