@@ -1,7 +1,8 @@
 project("matroska2" VERSION 0.22.3)
 
 option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
-option(CONFIG_LZO1X "Enable lzo1x (de)compression in libmatroska2 (GPLv2)" OFF)
+option(CONFIG_LZO1X "Enable lzo1x decompression in libmatroska2" ON)
+option(CONFIG_MINILZO "Build minilzo to test lzokay" OFF)
 
 set(matroska2_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/matroskamain.c
@@ -27,8 +28,9 @@ if (CONFIG_ZLIB)
   target_link_libraries("matroska2_group" INTERFACE "zlibstatic")
 endif(CONFIG_ZLIB)
 if (CONFIG_LZO1X)
-  add_subdirectory("minilzo")
-  target_link_libraries("matroska2_group" INTERFACE "minilzo")
+  add_subdirectory("lzokay")
+  target_include_directories("matroska2_group" INTERFACE "lzokay")
+  target_link_libraries("matroska2_group" INTERFACE "lzokay")
 endif(CONFIG_LZO1X)
 if (CONFIG_BZLIB)
   add_subdirectory("bzip2")
@@ -50,6 +52,15 @@ target_include_directories("matroska2" PUBLIC ".")
 
 add_executable("mkvtree" test/mkvtree.c)
 target_link_libraries("mkvtree" PRIVATE "matroska2_group" "corec_parser")
+
+if(CONFIG_LZO1X AND CONFIG_MINILZO)
+  add_subdirectory("minilzo")
+  add_executable("lzokay-test" test/testlzokay.c)
+  target_link_libraries("lzokay-test" PUBLIC "minilzo" "lzokay")
+  if(WIN32)
+    target_link_libraries("lzokay-test" PUBLIC bcrypt)
+  endif()
+endif()
 
 if (0)
 add_library("matroska2_haali" MatroskaParser/MatroskaParser.c)
