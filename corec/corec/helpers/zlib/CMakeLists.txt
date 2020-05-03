@@ -123,7 +123,7 @@ set(ZLIB_SRCS
     zutil.c
 )
 
-if(NOT MINGW)
+if(0)
     set(ZLIB_DLL_SRCS
         win32/zlib1.rc # If present will override custom build rule below.
     )
@@ -187,6 +187,7 @@ add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC
 add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 set_target_properties(zlib PROPERTIES SOVERSION 1)
+target_include_directories(zlib PUBLIC ".")
 
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
