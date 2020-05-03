@@ -1,6 +1,7 @@
 #include "lzokay-c.h"
 #include "../lzokay.hpp"
 
+extern "C"
 int lzokay_decompress(const uint8_t * src, size_t src_size, uint8_t *output, size_t *output_len)
 {
     size_t needed_size = 0;

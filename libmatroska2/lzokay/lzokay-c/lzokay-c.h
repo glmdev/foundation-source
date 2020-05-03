@@ -10,7 +10,7 @@ extern "C" {
 #define LZOKAY_SUCCESS    0
 #define LZOKAY_ERROR     -1
 
-int lzokay_decompress(const uint8_t * src, size_t src_size, uint8_t *output, size_t output_len);
+int lzokay_decompress(const uint8_t * src, size_t src_size, uint8_t *output, size_t *output_len);
 
 #ifdef __cplusplus
 }
