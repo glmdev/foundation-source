@@ -20,7 +20,6 @@ set(matroska2_INTERNAL_HEADERS
 add_library("matroska2_group" INTERFACE)
 target_sources("matroska2_group" INTERFACE ${matroska2_SOURCES} ${matroska2_PUBLIC_HEADERS} ${matroska2_INTERNAL_HEADERS})
 target_include_directories("matroska2_group" INTERFACE ".")
-target_compile_definitions("matroska2_group" INTERFACE HAS_MATROSKA2)
 target_link_libraries("matroska2_group" INTERFACE "ebml2_group")
 target_include_directories("matroska2_group" INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 
