@@ -37,7 +37,7 @@
 #include <bzlib.h>
 #endif
 #if defined(CONFIG_LZO1X)
-#include "minilzo.h"
+#include "lzokay/lzokay.h"
 #endif
 
 const ebml_semantic EBML_SemanticMatroska[] = {
@@ -1021,22 +1021,18 @@ err_t MATROSKA_BlockReadData(matroska_block *Element, stream *Input)
 #if defined(CONFIG_LZO1X)
                         if (EBML_IntegerValue((ebml_integer*)Header)==MATROSKA_BLOCK_COMPR_LZO1X)
                         {
-                            if (lzo_init() != LZO_E_OK)
-                                Err = ERR_INVALID_DATA;
+                            size_t outSize = max(2048, ARRAYBEGIN(Element->SizeList,int32_t)[0] << 2);
+                            if (!ArrayResize(&Element->Data, outSize, 0))
+                                Err = ERR_OUT_OF_MEMORY;
                             else
                             {
-                                lzo_uint outSize = max(2048, ARRAYBEGIN(Element->SizeList,int32_t)[0] << 2);
-                                if (!ArrayResize(&Element->Data, outSize, 0))
-                                    Err = ERR_OUT_OF_MEMORY;
+                                if (lzokay_decompress(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[0],
+                                                      ARRAYBEGIN(Element->Data,uint8_t), outSize, &outSize) < EResult_Success)
+                                    Err = ERR_INVALID_DATA;
                                 else
                                 {
-                                    if (lzo1x_decompress_safe(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[0], ARRAYBEGIN(Element->Data,uint8_t), &outSize, NULL) != LZO_E_OK)
-                                        Err = ERR_INVALID_DATA;
-                                    else
-                                    {
-                                        ARRAYBEGIN(Element->SizeList,int32_t)[0] = outSize;
-                                        ArrayResize(&Element->Data,outSize,0);
-                                    }
+                                    ARRAYBEGIN(Element->SizeList,int32_t)[0] = outSize;
+                                    ArrayResize(&Element->Data,outSize,0);
                                 }
                             }
                         }
@@ -1187,24 +1183,20 @@ err_t MATROSKA_BlockReadData(matroska_block *Element, stream *Input)
 #if defined(CONFIG_LZO1X)
                     if (EBML_IntegerValue((ebml_integer*)Header)==MATROSKA_BLOCK_COMPR_LZO1X)
                     {
-                        if (lzo_init() != LZO_E_OK)
-                            Err = ERR_INVALID_DATA;
+                        size_t outSize = max(2048, ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame] << 2);
+                        FrameSize = ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame];
+                        if (!ArrayResize(&Element->Data, OutSize + outSize, 0))
+                            Err = ERR_OUT_OF_MEMORY;
                         else
                         {
-                            lzo_uint outSize = max(2048, ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame] << 2);
-                            FrameSize = ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame];
-                            if (!ArrayResize(&Element->Data, OutSize + outSize, 0))
-                                Err = ERR_OUT_OF_MEMORY;
+                            if (lzokay_decompress(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame],
+                                                  ARRAYBEGIN(Element->Data,uint8_t) + OutSize, outSize, &outSize) < EResult_Success)
+                                Err = ERR_INVALID_DATA;
                             else
                             {
-                                if (lzo1x_decompress_safe(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame], ARRAYBEGIN(Element->Data,uint8_t) + OutSize, &outSize, NULL) != LZO_E_OK)
-                                    Err = ERR_INVALID_DATA;
-                                else
-                                {
-                                    OutSize += outSize;
-                                    ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame] = outSize;
-                                    ArrayResize(&Element->Data,OutSize,0);
-                                }
+                                OutSize += outSize;
+                                ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame] = outSize;
+                                ArrayResize(&Element->Data,OutSize,0);
                             }
                         }
                     }
