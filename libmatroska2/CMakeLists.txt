@@ -1,7 +1,7 @@
 project("matroska2" VERSION 0.22.3)
 
 option(CONFIG_BZLIB "Enable bzlib (de)compression in libmatroska2" ON)
-option(CONFIG_LZO1X "Enable lzo1x (de)compression in libmatroska2 (GPLv2)" OFF)
+option(CONFIG_LZO1X "Enable lzo1x decompression in libmatroska2" ON)
 
 set(matroska2_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/matroskamain.c
@@ -28,8 +28,8 @@ if (CONFIG_ZLIB)
   target_link_libraries("matroska2_group" INTERFACE "zlibstatic")
 endif(CONFIG_ZLIB)
 if (CONFIG_LZO1X)
-  add_subdirectory("minilzo")
-  target_link_libraries("matroska2_group" INTERFACE "minilzo")
+  add_subdirectory("lzokay")
+  target_link_libraries("matroska2_group" INTERFACE "lzokay-c")
 endif(CONFIG_LZO1X)
 if (CONFIG_BZLIB)
   add_subdirectory("bzip2")
