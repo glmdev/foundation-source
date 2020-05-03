@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 2.4.4)
+cmake_minimum_required(VERSION 3.1.2)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
-project(zlib C)
-
-set(VERSION "1.2.11")
+project(zlib VERSION 1.2.11 LANGUAGES C)
 
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
@@ -123,7 +121,7 @@ set(ZLIB_SRCS
     zutil.c
 )
 
-if(NOT MINGW)
+if(0)
     set(ZLIB_DLL_SRCS
         win32/zlib1.rc # If present will override custom build rule below.
     )
@@ -187,6 +185,10 @@ add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC
 add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 set_target_properties(zlib PROPERTIES SOVERSION 1)
+target_include_directories(zlib PUBLIC ".")
+target_include_directories(zlibstatic PUBLIC ".")
+target_include_directories(zlib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(zlibstatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version

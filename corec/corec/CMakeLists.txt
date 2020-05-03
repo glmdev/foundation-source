@@ -7,6 +7,7 @@ option(CONFIG_MULTITHREAD "Enable multithread support in Core-C" OFF)
 option(CONFIG_DEBUGCHECKS "Add extra checks in Core-C objects/helpers in debug builds" ON)
 option(CONFIG_DEBUG_LEAKS "Debug leaks in Core-C objects in debug builds" OFF)
 option(CONFIG_SAFE_C "Notify unsafe C legacy calls" OFF)
+option(CONFIG_ZLIB "Enable support for zlib (de)compression helper" ON)
 
 set(CONFIG_UNICODE "best" CACHE STRING "Select the type of tchar_t (best, wchar, utf8)")
 set_property(CACHE CONFIG_UNICODE PROPERTY STRINGS "best;utf8;wchar")
