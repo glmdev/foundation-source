@@ -8,6 +8,7 @@ set(TREMOR_GROUP_PUBLIC_HEADERS
 )
 set(TREMOR_GROUP_SOURCES 
     block.c
+    bitwise.c
     codebook.c
     floor0.c
     floor1.c
