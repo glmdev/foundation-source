@@ -63,7 +63,6 @@ set(corec_parser_PUBLIC_HEADERS
 )
 add_library("corec_parser" INTERFACE)
 target_sources("corec_parser" INTERFACE ${corec_parser_SOURCES} ${corec_parser_PUBLIC_HEADERS})
-target_compile_definitions("corec_parser" INTERFACE COREC_PARSER)
 target_link_libraries("corec_parser" INTERFACE "corec_str" "corec_charconvert" "corec_file")
 target_include_directories("corec_parser" INTERFACE ".")
 if (0)

@@ -4,6 +4,7 @@
 #cmakedefine CONFIG_MULTITHREAD
 #cmakedefine CONFIG_SAFE_C
 #cmakedefine CONFIG_ZLIB
+#cmakedefine CONFIG_COREC_PARSER
 
 #cmakedefine HAVE_STDINT_H
 
