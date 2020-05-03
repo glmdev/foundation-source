@@ -21,8 +21,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ivorbiscodec.h"
-#include "ivorbisfile.h"
+#include <vorbis/ivorbiscodec.h>
+#include <vorbis/ivorbisfile.h>
 
 #ifdef _WIN32 /* We need the following two to set stdin/stdout to binary */
 #include <io.h>
@@ -69,12 +69,7 @@ int main(){
       /* EOF */
       eof=1;
     } else if (ret < 0) {
-      if(ret==OV_EBADLINK){
-        fprintf(stderr,"Corrupt bitstream section! Exiting.\n");
-        exit(1);
-      }
-
-      /* some other error in the stream.  Not a problem, just reporting it in
+      /* error in the stream.  Not a problem, just reporting it in
 	 case we (the app) cares.  In this case, we don't. */
     } else {
       /* we don't bother dealing with sample rate changes, etc, but
