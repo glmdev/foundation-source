@@ -28,7 +28,6 @@ target_sources("ebml2_group" INTERFACE
   ${ebml2_group_INTERNAL_HEADERS}
 )
 target_link_libraries("ebml2_group" INTERFACE "corec_node")
-target_compile_definitions("ebml2_group" INTERFACE HAS_EBML2)
 target_include_directories("ebml2_group" INTERFACE ".")
 configure_file(ebml_config.h.in ebml2/ebml_config.h)
 target_include_directories("ebml2_group" INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
