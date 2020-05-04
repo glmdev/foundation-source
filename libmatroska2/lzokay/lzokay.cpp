@@ -488,8 +488,8 @@ public:
   };
 
   void init(struct State* s, const uint8_t* src, size_t src_size) {
-    auto& match3 = static_cast<Match3Impl&>(_storage->match3);
-    auto& match2 = static_cast<Match2Impl&>(_storage->match2);
+    Match3Impl& match3 = static_cast<Match3Impl&>(_storage->match3);
+    Match2Impl& match2 = static_cast<Match2Impl&>(_storage->match2);
 
     s->cycle1_countdown = DictBase_MaxDist;
     match3.init();
@@ -553,16 +553,16 @@ public:
     } else {
       if (match2.search(s, lb_pos, lb_len, best_pos, _storage->buffer) && s->wind_sz >= 3) {
         for (uint32_t i = 0; i < match_count; ++i, match_pos = match3.chain[match_pos]) {
-          auto ref_ptr = _storage->buffer + s->wind_b;
-          auto match_ptr = _storage->buffer + match_pos;
+          uint8_t *ref_ptr = _storage->buffer + s->wind_b;
+          uint8_t *match_ptr = _storage->buffer + match_pos;
           uint8_t *mismatch = std_mismatch(ref_ptr, ref_ptr + s->wind_sz, match_ptr);
-          auto match_len = uint32_t(mismatch - ref_ptr);
+          intptr_t match_len = mismatch - ref_ptr;
           if (match_len < 2)
             continue;
           if (match_len < MaxMatchByLengthLen && best_pos[match_len] == 0)
             best_pos[match_len] = match_pos + 1;
           if (match_len > lb_len) {
-            lb_len = match_len;
+            lb_len = (uint32_t)match_len;
             lb_pos = match_pos;
             if (match_len == s->wind_sz || match_len > match3.best_len[match_pos])
               break;
