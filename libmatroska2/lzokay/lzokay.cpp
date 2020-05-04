@@ -43,6 +43,17 @@ static uint16_t get_le16(const uint8_t* p) {
 }
 #endif
 
+static uint8_t* copy_n(const uint8_t* first, uint32_t count, uint8_t* result)
+{
+    if (count > 0) {
+        *result++ = *first;
+        for (uint32_t i = 1; i < count; ++i) {
+            *result++ = *++first;
+        }
+    }
+    return result;
+}
+
 static const size_t Max255Count = SIZE_MAX / 255 - 2;
 
 static const uint32_t M1MaxOffset = 0x0400;
@@ -493,7 +504,7 @@ public:
     s->wind_sz = min((uint32_t)src_size, DictBase_MaxMatchLen);
     s->wind_b = 0;
     s->wind_e = s->wind_sz;
-    std::copy_n(s->inp, s->wind_sz, _storage->buffer);
+    copy_n(s->inp, s->wind_sz, _storage->buffer);
     s->inp += s->wind_sz;
 
     if (s->wind_e == DictBase_BufSize)
@@ -605,7 +616,7 @@ static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const
     WRITE_ZERO_BYTE_LENGTH(lit_len - 18);
   }
   NEEDS_OUT(lit_len);
-  outp = std::copy_n(lit_ptr, lit_len, outp);
+  outp = copy_n(lit_ptr, lit_len, outp);
   return EResult_Success;
 }
 
