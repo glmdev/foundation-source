@@ -564,8 +564,10 @@ public:
       if (lb_len > best_len)
         lb_off = pos2off(s, lb_pos);
       match3.best_len[s->wind_b] = uint16_t(lb_len);
-      for (auto posit = std::begin(best_pos) + 2, offit = best_off + 2;
-           posit != std::end(best_pos); ++posit, ++offit) {
+      const uint32_t *end_best_pos = &best_pos[sizeof(best_pos)/sizeof(best_pos[0])];
+      uint32_t *offit = best_off + 2;
+      for (const uint32_t *posit = best_pos + 2;
+           posit < end_best_pos; ++posit, ++offit) {
         *offit = (*posit > 0) ? pos2off(s, *posit - 1) : 0;
       }
     }
