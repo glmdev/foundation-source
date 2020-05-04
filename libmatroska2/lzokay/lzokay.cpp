@@ -58,19 +58,15 @@ static const uint32_t M4Marker = 0x10;
 
 static const uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
 
-}; // "C"
-
-namespace lzokay {
-
 #define NEEDS_IN(count) \
   if (inp + (count) > inp_end) { \
-    dst_size = outp - dst; \
+    *p_dst_size = outp - dst; \
     return EResult_InputOverrun; \
   }
 
 #define NEEDS_OUT(count) \
   if (outp + (count) > outp_end) { \
-    dst_size = outp - dst; \
+    *p_dst_size = outp - dst; \
     return EResult_OutputOverrun; \
   }
 
@@ -81,36 +77,29 @@ namespace lzokay {
     while (*inp == 0) ++inp; \
     offset = inp - old_inp; \
     if (offset > Max255Count) { \
-      dst_size = outp - dst; \
+      *p_dst_size = outp - dst; \
       return EResult_Error; \
     } \
   }
 
-#define WRITE_ZERO_BYTE_LENGTH(length) \
-  { \
-    std::size_t l; \
-    for (l = length; l > 255; l -= 255) { *outp++ = 0; } \
-    *outp++ = l; \
-  }
-
-EResult decompress(const uint8_t* src, std::size_t src_size,
-                   uint8_t* dst, std::size_t init_dst_size,
-                   std::size_t& dst_size) {
-  dst_size = init_dst_size;
-
+EResult decompress(const uint8_t* src, size_t src_size,
+                   uint8_t* dst, size_t init_dst_size,
+                   size_t *p_dst_size) {
   if (src_size < 3) {
-    dst_size = 0;
+    *p_dst_size = 0;
     return EResult_InputOverrun;
   }
+
+  *p_dst_size = init_dst_size;
 
   const uint8_t* inp = src;
   const uint8_t* inp_end = src + src_size;
   uint8_t* outp = dst;
-  uint8_t* outp_end = dst + dst_size;
+  uint8_t* outp_end = dst + init_dst_size;
   uint8_t* lbcur;
-  std::size_t lblen;
-  std::size_t state = 0;
-  std::size_t nstate = 0;
+  size_t lblen;
+  size_t state = 0;
+  size_t nstate = 0;
 
   /* First byte encoding */
   if (*inp >= 22) {
@@ -119,10 +108,10 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
      *           state = 4 [ don't copy extra literals ]
      *           skip byte
      */
-    std::size_t len = *inp++ - uint8_t(17);
+    size_t len = *inp++ - uint8_t(17);
     NEEDS_IN(len)
     NEEDS_OUT(len)
-    for (std::size_t i = 0; i < len; ++i)
+    for (size_t i = 0; i < len; ++i)
       *outp++ = *inp++;
     state = 4;
   } else if (*inp >= 18) {
@@ -134,7 +123,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
     state = nstate;
     NEEDS_IN(nstate)
     NEEDS_OUT(nstate)
-    for (std::size_t i = 0; i < nstate; ++i)
+    for (size_t i = 0; i < nstate; ++i)
       *outp++ = *inp++;
   }
   /* 0..17 : follow regular instruction encoding, see below. It is worth
@@ -164,7 +153,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
        */
       NEEDS_IN(1)
       lbcur = outp - ((*inp++ << 3) + ((inst >> 2) & 0x7) + 1);
-      lblen = std::size_t(inst >> 5) + 1;
+      lblen = size_t(inst >> 5) + 1;
       nstate = inst & uint8_t(0x3);
     } else if (inst & M3Marker) {
       /* [M3]
@@ -175,7 +164,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
        *   distance = D + 1
        *   state = S (copy S literals after this block)
        */
-      lblen = std::size_t(inst & uint8_t(0x1f)) + 2;
+      lblen = size_t(inst & uint8_t(0x1f)) + 2;
       if (lblen == 2) {
         CONSUME_ZERO_BYTE_LENGTH
         NEEDS_IN(1)
@@ -196,7 +185,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
        *   state = S (copy S literals after this block)
        *   End of stream is reached if distance == 16384
        */
-      lblen = std::size_t(inst & uint8_t(0x7)) + 2;
+      lblen = size_t(inst & uint8_t(0x7)) + 2;
       if (lblen == 2) {
         CONSUME_ZERO_BYTE_LENGTH
         NEEDS_IN(1)
@@ -221,7 +210,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
          *    length = 3 + (L ?: 15 + (zero_bytes * 255) + non_zero_byte)
          *    state = 4  (no extra literals are copied)
          */
-        std::size_t len = inst + 3;
+        size_t len = inst + 3;
         if (len == 3) {
           CONSUME_ZERO_BYTE_LENGTH
           NEEDS_IN(1)
@@ -230,7 +219,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
         /* copy_literal_run */
         NEEDS_IN(len)
         NEEDS_OUT(len)
-        for (std::size_t i = 0; i < len; ++i)
+        for (size_t i = 0; i < len; ++i)
           *outp++ = *inp++;
         state = 4;
         continue;
@@ -270,21 +259,21 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
       }
     }
     if (lbcur < dst) {
-      dst_size = outp - dst;
+      *p_dst_size = outp - dst;
       return EResult_LookbehindOverrun;
     }
     NEEDS_IN(nstate)
     NEEDS_OUT(lblen + nstate)
     /* Copy lookbehind */
-    for (std::size_t i = 0; i < lblen; ++i)
+    for (size_t i = 0; i < lblen; ++i)
       *outp++ = *lbcur++;
     state = nstate;
     /* Copy literal */
-    for (std::size_t i = 0; i < nstate; ++i)
+    for (size_t i = 0; i < nstate; ++i)
       *outp++ = *inp++;
   }
 
-  dst_size = outp - dst;
+  *p_dst_size = outp - dst;
   if (lblen != 3) /* Ensure terminating M4 was encountered */
     return EResult_Error;
   if (inp == inp_end)
@@ -294,6 +283,17 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
   else
     return EResult_InputOverrun;
 }
+
+}; // "C"
+
+namespace lzokay {
+
+#define WRITE_ZERO_BYTE_LENGTH(length) \
+  { \
+    std::size_t l; \
+    for (l = length; l > 255; l -= 255) { *outp++ = 0; } \
+    *outp++ = l; \
+  }
 
 struct State {
   const uint8_t* src;
@@ -529,7 +529,7 @@ static void find_better_match(const uint32_t best_off[MaxMatchByLengthLen], uint
   }
 }
 
-static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t& dst_size,
+static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t *p_dst_size,
                                   const uint8_t* lit_ptr, uint32_t lit_len) {
   if (outp == dst && lit_len <= 238) {
     NEEDS_OUT(1);
@@ -549,7 +549,7 @@ static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const
   return EResult_Success;
 }
 
-static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t& dst_size,
+static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t *p_dst_size,
                                      uint32_t lb_len, uint32_t lb_off, uint32_t last_lit_len) {
   if (lb_len == 2) {
     lb_off -= 1;
@@ -600,13 +600,13 @@ static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, co
 
 EResult compress(const uint8_t* src, std::size_t src_size,
                  uint8_t* dst, std::size_t init_dst_size,
-                 std::size_t& dst_size, DictBase& dict) {
+                 std::size_t *p_dst_size, DictBase& dict) {
   EResult err;
   State s;
   auto& d = static_cast<DictImpl&>(dict);
-  dst_size = init_dst_size;
+  *p_dst_size = init_dst_size;
   uint8_t* outp = dst;
-  uint8_t* outp_end = dst + dst_size;
+  uint8_t* outp_end = dst + init_dst_size;
   uint32_t lit_len = 0;
   uint32_t lb_off, lb_len;
   uint32_t best_off[MaxMatchByLengthLen];
@@ -628,14 +628,14 @@ EResult compress(const uint8_t* src, std::size_t src_size,
       continue;
     }
     find_better_match(best_off, lb_len, lb_off);
-    if ((err = encode_literal_run(outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult_Success)
+    if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
       return err;
-    if ((err = encode_lookback_match(outp, outp_end, dst, dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
+    if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
     d.advance(s, lb_off, lb_len, best_off, true);
   }
-  if ((err = encode_literal_run(outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult_Success)
+  if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;
 
   /* Terminating M4 */
@@ -644,7 +644,7 @@ EResult compress(const uint8_t* src, std::size_t src_size,
   *outp++ = 0;
   *outp++ = 0;
 
-  dst_size = outp - dst;
+  *p_dst_size = outp - dst;
   return EResult_Success;
 }
 

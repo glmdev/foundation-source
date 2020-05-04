@@ -43,7 +43,7 @@ int compress_and_decompress(const uint8_t* data, std::size_t length) {
   std::unique_ptr<uint8_t[]> decompressed(new uint8_t[length]);
   std::size_t decompressed_size;
   error = lzokay::decompress(compressed.get(), compressed_size,
-                             decompressed.get(), length, decompressed_size);
+                             decompressed.get(), length, &decompressed_size);
   if (error < EResult::Success)
     return 1;
 
