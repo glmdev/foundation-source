@@ -43,15 +43,12 @@ static uint16_t get_le16(const uint8_t* p) {
 }
 #endif
 
-static uint8_t* copy_n(const uint8_t* first, uint32_t count, uint8_t* result)
+static uint8_t* std_mismatch(uint8_t* first1, uint8_t* last1, uint8_t* first2)
 {
-    if (count > 0) {
-        *result++ = *first;
-        for (uint32_t i = 1; i < count; ++i) {
-            *result++ = *++first;
-        }
+    while (first1 != last1 && *first1 == *first2) {
+        ++first1, ++first2;
     }
-    return result;
+    return first1;
 }
 
 static const size_t Max255Count = SIZE_MAX / 255 - 2;
@@ -504,7 +501,7 @@ public:
     s->wind_sz = min((uint32_t)src_size, DictBase_MaxMatchLen);
     s->wind_b = 0;
     s->wind_e = s->wind_sz;
-    copy_n(s->inp, s->wind_sz, _storage->buffer);
+    memcpy(_storage->buffer, s->inp, s->wind_sz);
     s->inp += s->wind_sz;
 
     if (s->wind_e == DictBase_BufSize)
@@ -558,8 +555,8 @@ public:
         for (uint32_t i = 0; i < match_count; ++i, match_pos = match3.chain[match_pos]) {
           auto ref_ptr = _storage->buffer + s->wind_b;
           auto match_ptr = _storage->buffer + match_pos;
-          auto mismatch = std::mismatch(ref_ptr, ref_ptr + s->wind_sz, match_ptr);
-          auto match_len = uint32_t(mismatch.first - ref_ptr);
+          uint8_t *mismatch = std_mismatch(ref_ptr, ref_ptr + s->wind_sz, match_ptr);
+          auto match_len = uint32_t(mismatch - ref_ptr);
           if (match_len < 2)
             continue;
           if (match_len < MaxMatchByLengthLen && best_pos[match_len] == 0)
@@ -616,7 +613,8 @@ static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const
     WRITE_ZERO_BYTE_LENGTH(lit_len - 18);
   }
   NEEDS_OUT(lit_len);
-  outp = copy_n(lit_ptr, lit_len, outp);
+  memcpy(outp, lit_ptr, lit_len);
+  outp += lit_len;
   return EResult_Success;
 }
 
