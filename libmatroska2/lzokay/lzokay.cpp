@@ -18,6 +18,14 @@ extern "C" {
 #define HOST_BIG_ENDIAN 0
 #endif
 
+#ifndef min
+# define min(x,y)  ((x)>(y)?(y):(x))
+#endif
+
+#ifndef max
+# define max(x,y)  ((x)<(y)?(y):(x))
+#endif
+
 #if HOST_BIG_ENDIAN
 static uint16_t get_le16(const uint8_t* p) {
   uint16_t val = *reinterpret_cast<const uint16_t*>(p);
@@ -71,7 +79,7 @@ static const uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
   }
 
 #define CONSUME_ZERO_BYTE_LENGTH \
-  std::size_t offset; \
+  size_t offset; \
   { \
     const uint8_t *old_inp = inp; \
     while (*inp == 0) ++inp; \
@@ -80,6 +88,13 @@ static const uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
       *p_dst_size = outp - dst; \
       return EResult_Error; \
     } \
+  }
+
+#define WRITE_ZERO_BYTE_LENGTH(length) \
+  { \
+    uint32_t l; \
+    for (l = length; l > 255; l -= 255) { *outp++ = 0; } \
+    *outp++ = l; \
   }
 
 EResult decompress(const uint8_t* src, size_t src_size,
@@ -284,17 +299,6 @@ EResult decompress(const uint8_t* src, size_t src_size,
     return EResult_InputOverrun;
 }
 
-}; // "C"
-
-namespace lzokay {
-
-#define WRITE_ZERO_BYTE_LENGTH(length) \
-  { \
-    std::size_t l; \
-    for (l = length; l > 255; l -= 255) { *outp++ = 0; } \
-    *outp++ = l; \
-  }
-
 struct State {
   const uint8_t* src;
   const uint8_t* src_end;
@@ -306,250 +310,51 @@ struct State {
 
   const uint8_t* bufp;
   uint32_t buf_sz;
-
-  /* Access next input byte and advance both ends of circular buffer */
-  void get_byte(uint8_t* buf) {
-    if (inp >= src_end) {
-      if (wind_sz > 0)
-        --wind_sz;
-      buf[wind_e] = 0;
-      if (wind_e < DictBase_MaxMatchLen)
-        buf[DictBase_BufSize + wind_e] = 0;
-    } else {
-      buf[wind_e] = *inp;
-      if (wind_e < DictBase_MaxMatchLen)
-        buf[DictBase_BufSize + wind_e] = *inp;
-      ++inp;
-    }
-    if (++wind_e == DictBase_BufSize)
-      wind_e = 0;
-    if (++wind_b == DictBase_BufSize)
-      wind_b = 0;
-  }
-
-  uint32_t pos2off(uint32_t pos) const {
-    return wind_b > pos ? wind_b - pos : DictBase_BufSize - (pos - wind_b);
-  }
 };
 
-class DictImpl : public DictBase {
-public:
-  struct Match3Impl : DictBase::Match3 {
-    static uint32_t make_key(const uint8_t* data) {
-      return ((0x9f5f * (((uint32_t(data[0]) << 5 ^ uint32_t(data[1])) << 5) ^ data[2])) >> 5) & 0x3fff;
-    }
-
-    uint16_t get_head(uint32_t key) const {
-      return (chain_sz[key] == 0) ? uint16_t(UINT16_MAX) : head[key];
-    }
-
-    void init() {
-      std::fill(std::begin(chain_sz), std::end(chain_sz), 0);
-    }
-
-    void remove(uint32_t pos, const uint8_t* b) {
-      --chain_sz[make_key(b + pos)];
-    }
-
-    void advance(State& s, uint32_t& match_pos, uint32_t& match_count, const uint8_t* b) {
-      uint32_t key = make_key(b + s.wind_b);
-      match_pos = chain[s.wind_b] = get_head(key);
-      match_count = chain_sz[key]++;
-      if (match_count > DictBase_MaxMatchLen)
-        match_count = DictBase_MaxMatchLen;
-      head[key] = uint16_t(s.wind_b);
-    }
-
-    void skip_advance(State& s, const uint8_t* b) {
-      uint32_t key = make_key(b + s.wind_b);
-      chain[s.wind_b] = get_head(key);
-      head[key] = uint16_t(s.wind_b);
-      best_len[s.wind_b] = uint16_t(DictBase_MaxMatchLen + 1);
-      chain_sz[key]++;
-    }
-  };
-
-  struct Match2Impl : DictBase::Match2 {
-    static uint32_t make_key(const uint8_t* data) {
-      return uint32_t(data[0]) ^ (uint32_t(data[1]) << 8);
-    }
-
-    void init() {
-      std::fill(std::begin(head), std::end(head), UINT16_MAX);
-    }
-
-    void add(uint16_t pos, const uint8_t* b) {
-      head[make_key(b + pos)] = pos;
-    }
-
-    void remove(uint32_t pos, const uint8_t* b) {
-      uint16_t& p = head[make_key(b + pos)];
-      if (p == pos)
-        p = UINT16_MAX;
-    }
-
-    bool search(State& s, uint32_t& lb_pos, uint32_t& lb_len,
-                uint32_t best_pos[MaxMatchByLengthLen], const uint8_t* b) const {
-      uint16_t pos = head[make_key(b + s.wind_b)];
-      if (pos == UINT16_MAX)
-        return false;
-      if (best_pos[2] == 0)
-        best_pos[2] = pos + 1;
-      if (lb_len < 2) {
-        lb_len = 2;
-        lb_pos = pos;
-      }
-      return true;
-    }
-  };
-
-  void init(State& s, const uint8_t* src, std::size_t src_size) {
-    auto& match3 = static_cast<Match3Impl&>(_storage->match3);
-    auto& match2 = static_cast<Match2Impl&>(_storage->match2);
-
-    s.cycle1_countdown = DictBase_MaxDist;
-    match3.init();
-    match2.init();
-
-    s.src = src;
-    s.src_end = src + src_size;
-    s.inp = src;
-    s.wind_sz = uint32_t(std::min(src_size, std::size_t(DictBase_MaxMatchLen)));
-    s.wind_b = 0;
-    s.wind_e = s.wind_sz;
-    std::copy_n(s.inp, s.wind_sz, _storage->buffer);
-    s.inp += s.wind_sz;
-
-    if (s.wind_e == DictBase_BufSize)
-      s.wind_e = 0;
-
-    if (s.wind_sz < 3)
-      std::fill_n(_storage->buffer + s.wind_b + s.wind_sz, 3, 0);
-  }
-
-  void reset_next_input_entry(State& s, Match3Impl& match3, Match2Impl& match2) {
-    /* Remove match from about-to-be-clobbered buffer entry */
-    if (s.cycle1_countdown == 0) {
-      match3.remove(s.wind_e, _storage->buffer);
-      match2.remove(s.wind_e, _storage->buffer);
-    } else {
-      --s.cycle1_countdown;
-    }
-  }
-
-  void advance(State& s, uint32_t& lb_off, uint32_t& lb_len,
-               uint32_t best_off[MaxMatchByLengthLen], bool skip) {
-    auto& match3 = static_cast<Match3Impl&>(_storage->match3);
-    auto& match2 = static_cast<Match2Impl&>(_storage->match2);
-
-    if (skip) {
-      for (uint32_t i = 0; i < lb_len - 1; ++i) {
-        reset_next_input_entry(s, match3, match2);
-        match3.skip_advance(s, _storage->buffer);
-        match2.add(uint16_t(s.wind_b), _storage->buffer);
-        s.get_byte(_storage->buffer);
-      }
-    }
-
-    lb_len = 1;
-    lb_off = 0;
-    uint32_t lb_pos;
-
-    uint32_t best_pos[MaxMatchByLengthLen] = {};
-    uint32_t match_pos, match_count;
-    match3.advance(s, match_pos, match_count, _storage->buffer);
-
-    int best_char = _storage->buffer[s.wind_b];
-    uint32_t best_len = lb_len;
-    if (lb_len >= s.wind_sz) {
-      if (s.wind_sz == 0)
-        best_char = -1;
-      lb_off = 0;
-      match3.best_len[s.wind_b] = DictBase_MaxMatchLen + 1;
-    } else {
-      if (match2.search(s, lb_pos, lb_len, best_pos, _storage->buffer) && s.wind_sz >= 3) {
-        for (uint32_t i = 0; i < match_count; ++i, match_pos = match3.chain[match_pos]) {
-          auto ref_ptr = _storage->buffer + s.wind_b;
-          auto match_ptr = _storage->buffer + match_pos;
-          auto mismatch = std::mismatch(ref_ptr, ref_ptr + s.wind_sz, match_ptr);
-          auto match_len = uint32_t(mismatch.first - ref_ptr);
-          if (match_len < 2)
-            continue;
-          if (match_len < MaxMatchByLengthLen && best_pos[match_len] == 0)
-            best_pos[match_len] = match_pos + 1;
-          if (match_len > lb_len) {
-            lb_len = match_len;
-            lb_pos = match_pos;
-            if (match_len == s.wind_sz || match_len > match3.best_len[match_pos])
-              break;
-          }
-        }
-      }
-      if (lb_len > best_len)
-        lb_off = s.pos2off(lb_pos);
-      match3.best_len[s.wind_b] = uint16_t(lb_len);
-      for (auto posit = std::begin(best_pos) + 2, offit = best_off + 2;
-           posit != std::end(best_pos); ++posit, ++offit) {
-        *offit = (*posit > 0) ? s.pos2off(*posit - 1) : 0;
-      }
-    }
-
-    reset_next_input_entry(s, match3, match2);
-
-    match2.add(uint16_t(s.wind_b), _storage->buffer);
-
-    s.get_byte(_storage->buffer);
-
-    if (best_char < 0) {
-      s.buf_sz = 0;
-      lb_len = 0;
-      /* Signal exit */
-    } else {
-      s.buf_sz = s.wind_sz + 1;
-    }
-    s.bufp = s.inp - s.buf_sz;
-  }
-};
-
-static void find_better_match(const uint32_t best_off[MaxMatchByLengthLen], uint32_t& lb_len, uint32_t& lb_off) {
-  if (lb_len <= M2MinLen || lb_off <= M2MaxOffset)
-    return;
-  if (lb_off > M2MaxOffset && lb_len >= M2MinLen + 1 && lb_len <= M2MaxLen + 1 &&
-      best_off[lb_len - 1] != 0 && best_off[lb_len - 1] <= M2MaxOffset) {
-    lb_len -= 1;
-    lb_off = best_off[lb_len];
-  } else if (lb_off > M3MaxOffset && lb_len >= M4MaxLen + 1 && lb_len <= M2MaxLen + 2 &&
-             best_off[lb_len - 2] && best_off[lb_len] <= M2MaxOffset) {
-    lb_len -= 2;
-    lb_off = best_off[lb_len];
-  } else if (lb_off > M3MaxOffset && lb_len >= M4MaxLen + 1 && lb_len <= M3MaxLen + 1 &&
-             best_off[lb_len - 1] != 0 && best_off[lb_len - 2] <= M3MaxOffset) {
-    lb_len -= 1;
-    lb_off = best_off[lb_len];
-  }
-}
-
-static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t *p_dst_size,
-                                  const uint8_t* lit_ptr, uint32_t lit_len) {
-  if (outp == dst && lit_len <= 238) {
-    NEEDS_OUT(1);
-    *outp++ = uint8_t(17 + lit_len);
-  } else if (lit_len <= 3) {
-    outp[-2] = uint8_t(outp[-2] | lit_len);
-  } else if (lit_len <= 18) {
-    NEEDS_OUT(1);
-    *outp++ = uint8_t(lit_len - 3);
+/* Access next input byte and advance both ends of circular buffer */
+void get_byte(struct State *s, uint8_t* buf) {
+  if (s->inp >= s->src_end) {
+    if (s->wind_sz > 0)
+      --s->wind_sz;
+    buf[s->wind_e] = 0;
+    if (s->wind_e < DictBase_MaxMatchLen)
+      buf[DictBase_BufSize + s->wind_e] = 0;
   } else {
-    NEEDS_OUT((lit_len - 18) / 255 + 2);
-    *outp++ = 0;
-    WRITE_ZERO_BYTE_LENGTH(lit_len - 18);
+    buf[s->wind_e] = *s->inp;
+    if (s->wind_e < DictBase_MaxMatchLen)
+      buf[DictBase_BufSize + s->wind_e] = *s->inp;
+    ++s->inp;
   }
-  NEEDS_OUT(lit_len);
-  outp = std::copy_n(lit_ptr, lit_len, outp);
-  return EResult_Success;
+  if (++s->wind_e == DictBase_BufSize)
+    s->wind_e = 0;
+  if (++s->wind_b == DictBase_BufSize)
+    s->wind_b = 0;
 }
 
-static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t *p_dst_size,
+uint32_t pos2off(const struct State *s, uint32_t pos) {
+  return s->wind_b > pos ? s->wind_b - pos : DictBase_BufSize - (pos - s->wind_b);
+}
+
+static void find_better_match(const uint32_t best_off[MaxMatchByLengthLen], uint32_t* p_lb_len, uint32_t* p_lb_off) {
+  if (*p_lb_len <= M2MinLen || *p_lb_off <= M2MaxOffset)
+    return;
+  if (*p_lb_off > M2MaxOffset && *p_lb_len >= M2MinLen + 1 && *p_lb_len <= M2MaxLen + 1 &&
+      best_off[*p_lb_len - 1] != 0 && best_off[*p_lb_len - 1] <= M2MaxOffset) {
+    *p_lb_len -= 1;
+    *p_lb_off = best_off[*p_lb_len];
+  } else if (*p_lb_off > M3MaxOffset && *p_lb_len >= M4MaxLen + 1 && *p_lb_len <= M2MaxLen + 2 &&
+             best_off[*p_lb_len - 2] && best_off[*p_lb_len] <= M2MaxOffset) {
+    *p_lb_len -= 2;
+    *p_lb_off = best_off[*p_lb_len];
+  } else if (*p_lb_off > M3MaxOffset && *p_lb_len >= M4MaxLen + 1 && *p_lb_len <= M3MaxLen + 1 &&
+             best_off[*p_lb_len - 1] != 0 && best_off[*p_lb_len - 2] <= M3MaxOffset) {
+    *p_lb_len -= 1;
+    *p_lb_off = best_off[*p_lb_len];
+  }
+}
+
+static EResult encode_lookback_match(uint8_t* outp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
                                      uint32_t lb_len, uint32_t lb_off, uint32_t last_lit_len) {
   if (lb_len == 2) {
     lb_off -= 1;
@@ -598,11 +403,215 @@ static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, co
   return EResult_Success;
 }
 
-EResult compress(const uint8_t* src, std::size_t src_size,
-                 uint8_t* dst, std::size_t init_dst_size,
-                 std::size_t *p_dst_size, DictBase& dict) {
+}; // "C"
+
+namespace lzokay {
+
+class DictImpl : public DictBase {
+public:
+  struct Match3Impl : DictBase::Match3 {
+    static uint32_t make_key(const uint8_t* data) {
+      return ((0x9f5f * (((uint32_t(data[0]) << 5 ^ uint32_t(data[1])) << 5) ^ data[2])) >> 5) & 0x3fff;
+    }
+
+    uint16_t get_head(uint32_t key) const {
+      return (chain_sz[key] == 0) ? uint16_t(UINT16_MAX) : head[key];
+    }
+
+    void init() {
+      memset(chain_sz, 0, sizeof(chain_sz));
+    }
+
+    void remove(uint32_t pos, const uint8_t* b) {
+      --chain_sz[make_key(b + pos)];
+    }
+
+    void advance(struct State* s, uint32_t& match_pos, uint32_t& match_count, const uint8_t* b) {
+      uint32_t key = make_key(b + s->wind_b);
+      match_pos = chain[s->wind_b] = get_head(key);
+      match_count = chain_sz[key]++;
+      if (match_count > DictBase_MaxMatchLen)
+        match_count = DictBase_MaxMatchLen;
+      head[key] = uint16_t(s->wind_b);
+    }
+
+    void skip_advance(struct State* s, const uint8_t* b) {
+      uint32_t key = make_key(b + s->wind_b);
+      chain[s->wind_b] = get_head(key);
+      head[key] = uint16_t(s->wind_b);
+      best_len[s->wind_b] = uint16_t(DictBase_MaxMatchLen + 1);
+      chain_sz[key]++;
+    }
+  };
+
+  struct Match2Impl : DictBase::Match2 {
+    static uint32_t make_key(const uint8_t* data) {
+      return uint32_t(data[0]) ^ (uint32_t(data[1]) << 8);
+    }
+
+    void init() {
+      for (size_t i=0; i<(sizeof(head)/sizeof(head[0])); ++i)
+        head[i] = UINT16_MAX;
+    }
+
+    void add(uint16_t pos, const uint8_t* b) {
+      head[make_key(b + pos)] = pos;
+    }
+
+    void remove(uint32_t pos, const uint8_t* b) {
+      uint16_t& p = head[make_key(b + pos)];
+      if (p == pos)
+        p = UINT16_MAX;
+    }
+
+    bool search(struct State* s, uint32_t& lb_pos, uint32_t& lb_len,
+                uint32_t best_pos[MaxMatchByLengthLen], const uint8_t* b) const {
+      uint16_t pos = head[make_key(b + s->wind_b)];
+      if (pos == UINT16_MAX)
+        return false;
+      if (best_pos[2] == 0)
+        best_pos[2] = pos + 1;
+      if (lb_len < 2) {
+        lb_len = 2;
+        lb_pos = pos;
+      }
+      return true;
+    }
+  };
+
+  void init(struct State* s, const uint8_t* src, size_t src_size) {
+    auto& match3 = static_cast<Match3Impl&>(_storage->match3);
+    auto& match2 = static_cast<Match2Impl&>(_storage->match2);
+
+    s->cycle1_countdown = DictBase_MaxDist;
+    match3.init();
+    match2.init();
+
+    s->src = src;
+    s->src_end = src + src_size;
+    s->inp = src;
+    s->wind_sz = min((uint32_t)src_size, DictBase_MaxMatchLen);
+    s->wind_b = 0;
+    s->wind_e = s->wind_sz;
+    std::copy_n(s->inp, s->wind_sz, _storage->buffer);
+    s->inp += s->wind_sz;
+
+    if (s->wind_e == DictBase_BufSize)
+      s->wind_e = 0;
+
+    if (s->wind_sz < 3)
+      std::fill_n(_storage->buffer + s->wind_b + s->wind_sz, 3, 0);
+  }
+
+  void reset_next_input_entry(struct State* s, Match3Impl& match3, Match2Impl& match2) {
+    /* Remove match from about-to-be-clobbered buffer entry */
+    if (s->cycle1_countdown == 0) {
+      match3.remove(s->wind_e, _storage->buffer);
+      match2.remove(s->wind_e, _storage->buffer);
+    } else {
+      --s->cycle1_countdown;
+    }
+  }
+
+  void advance(struct State* s, uint32_t& lb_off, uint32_t& lb_len,
+               uint32_t best_off[MaxMatchByLengthLen], bool skip) {
+    auto& match3 = static_cast<Match3Impl&>(_storage->match3);
+    auto& match2 = static_cast<Match2Impl&>(_storage->match2);
+
+    if (skip) {
+      for (uint32_t i = 0; i < lb_len - 1; ++i) {
+        reset_next_input_entry(s, match3, match2);
+        match3.skip_advance(s, _storage->buffer);
+        match2.add(uint16_t(s->wind_b), _storage->buffer);
+        get_byte(s, _storage->buffer);
+      }
+    }
+
+    lb_len = 1;
+    lb_off = 0;
+    uint32_t lb_pos;
+
+    uint32_t best_pos[MaxMatchByLengthLen] = {};
+    uint32_t match_pos, match_count;
+    match3.advance(s, match_pos, match_count, _storage->buffer);
+
+    int best_char = _storage->buffer[s->wind_b];
+    uint32_t best_len = lb_len;
+    if (lb_len >= s->wind_sz) {
+      if (s->wind_sz == 0)
+        best_char = -1;
+      lb_off = 0;
+      match3.best_len[s->wind_b] = DictBase_MaxMatchLen + 1;
+    } else {
+      if (match2.search(s, lb_pos, lb_len, best_pos, _storage->buffer) && s->wind_sz >= 3) {
+        for (uint32_t i = 0; i < match_count; ++i, match_pos = match3.chain[match_pos]) {
+          auto ref_ptr = _storage->buffer + s->wind_b;
+          auto match_ptr = _storage->buffer + match_pos;
+          auto mismatch = std::mismatch(ref_ptr, ref_ptr + s->wind_sz, match_ptr);
+          auto match_len = uint32_t(mismatch.first - ref_ptr);
+          if (match_len < 2)
+            continue;
+          if (match_len < MaxMatchByLengthLen && best_pos[match_len] == 0)
+            best_pos[match_len] = match_pos + 1;
+          if (match_len > lb_len) {
+            lb_len = match_len;
+            lb_pos = match_pos;
+            if (match_len == s->wind_sz || match_len > match3.best_len[match_pos])
+              break;
+          }
+        }
+      }
+      if (lb_len > best_len)
+        lb_off = pos2off(s, lb_pos);
+      match3.best_len[s->wind_b] = uint16_t(lb_len);
+      for (auto posit = std::begin(best_pos) + 2, offit = best_off + 2;
+           posit != std::end(best_pos); ++posit, ++offit) {
+        *offit = (*posit > 0) ? pos2off(s, *posit - 1) : 0;
+      }
+    }
+
+    reset_next_input_entry(s, match3, match2);
+
+    match2.add(uint16_t(s->wind_b), _storage->buffer);
+
+    get_byte(s, _storage->buffer);
+
+    if (best_char < 0) {
+      s->buf_sz = 0;
+      lb_len = 0;
+      /* Signal exit */
+    } else {
+      s->buf_sz = s->wind_sz + 1;
+    }
+    s->bufp = s->inp - s->buf_sz;
+  }
+};
+
+static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
+                                  const uint8_t* lit_ptr, uint32_t lit_len) {
+  if (outp == dst && lit_len <= 238) {
+    NEEDS_OUT(1);
+    *outp++ = uint8_t(17 + lit_len);
+  } else if (lit_len <= 3) {
+    outp[-2] = uint8_t(outp[-2] | lit_len);
+  } else if (lit_len <= 18) {
+    NEEDS_OUT(1);
+    *outp++ = uint8_t(lit_len - 3);
+  } else {
+    NEEDS_OUT((lit_len - 18) / 255 + 2);
+    *outp++ = 0;
+    WRITE_ZERO_BYTE_LENGTH(lit_len - 18);
+  }
+  NEEDS_OUT(lit_len);
+  outp = std::copy_n(lit_ptr, lit_len, outp);
+  return EResult_Success;
+}
+
+EResult compress(const uint8_t* src, size_t src_size,
+                 uint8_t* dst, size_t init_dst_size,
+                 size_t *p_dst_size, DictBase& dict) {
   EResult err;
-  State s;
+  struct State s;
   auto& d = static_cast<DictImpl&>(dict);
   *p_dst_size = init_dst_size;
   uint8_t* outp = dst;
@@ -610,9 +619,9 @@ EResult compress(const uint8_t* src, std::size_t src_size,
   uint32_t lit_len = 0;
   uint32_t lb_off, lb_len;
   uint32_t best_off[MaxMatchByLengthLen];
-  d.init(s, src, src_size);
+  d.init(&s, src, src_size);
   const uint8_t* lit_ptr = s.inp;
-  d.advance(s, lb_off, lb_len, best_off, false);
+  d.advance(&s, lb_off, lb_len, best_off, false);
   while (s.buf_sz > 0) {
     if (lit_len == 0)
       lit_ptr = s.bufp;
@@ -624,16 +633,16 @@ EResult compress(const uint8_t* src, std::size_t src_size,
     }
     if (lb_len == 0) {
       ++lit_len;
-      d.advance(s, lb_off, lb_len, best_off, false);
+      d.advance(&s, lb_off, lb_len, best_off, false);
       continue;
     }
-    find_better_match(best_off, lb_len, lb_off);
+    find_better_match(best_off, &lb_len, &lb_off);
     if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
       return err;
     if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
-    d.advance(s, lb_off, lb_len, best_off, true);
+    d.advance(&s, lb_off, lb_len, best_off, true);
   }
   if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;

@@ -1,7 +1,7 @@
 #include "lzokay.hpp"
 #include <cstring>
 
-int compress_and_decompress(const uint8_t* data, std::size_t length) {
+int compress_and_decompress(const uint8_t* data, size_t length) {
   EResult error;
 
   /* This variable and 5th parameter of compress() is optional, but may
@@ -10,7 +10,7 @@ int compress_and_decompress(const uint8_t* data, std::size_t length) {
    */
   lzokay::Dict<> dict;
 
-  std::size_t compressed_size = compress_worst_size(length);
+  size_t compressed_size = compress_worst_size(length);
   std::unique_ptr<uint8_t[]> compressed(new uint8_t[compressed_size]);
   error = lzokay::compress(data, length, compressed.get(), compressed_size,
                            &compressed_size, dict);
@@ -18,7 +18,7 @@ int compress_and_decompress(const uint8_t* data, std::size_t length) {
     return 1;
 
   std::unique_ptr<uint8_t[]> decompressed(new uint8_t[length]);
-  std::size_t decompressed_size;
+  size_t decompressed_size;
   error = decompress(compressed.get(), compressed_size,
                              decompressed.get(), length, &decompressed_size);
   if (error < EResult_Success)
