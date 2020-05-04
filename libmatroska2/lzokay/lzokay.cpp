@@ -511,7 +511,7 @@ public:
       s->wind_e = 0;
 
     if (s->wind_sz < 3)
-      std::fill_n(_storage->buffer + s->wind_b + s->wind_sz, 3, 0);
+      memset(&_storage->buffer[s->wind_b + s->wind_sz], 0, 3);
   }
 
   void reset_next_input_entry(struct State* s, Match3Impl& match3, Match2Impl& match2) {
