@@ -3,30 +3,38 @@
 #include <cstdint>
 #include <memory>
 
-namespace lzokay {
+extern "C" {
 
-enum class EResult {
-  LookbehindOverrun = -4,
-  OutputOverrun = -3,
-  InputOverrun = -2,
-  Error = -1,
-  Success = 0,
-  InputNotConsumed = 1,
-};
+typedef enum {
+  EResult_LookbehindOverrun = -4,
+  EResult_OutputOverrun = -3,
+  EResult_InputOverrun = -2,
+  EResult_Error = -1,
+  EResult_Success = 0,
+  EResult_InputNotConsumed = 1,
+} EResult;
+
+static const uint32_t HashSize = 0x4000;
+static const uint32_t DictBase_MaxDist = 0xbfff;
+static const uint32_t DictBase_MaxMatchLen = 0x800;
+static const uint32_t DictBase_BufSize = DictBase_MaxDist + DictBase_MaxMatchLen;
+
+static size_t compress_worst_size(size_t s) {
+  return s + s / 16 + 64 + 3;
+}
+
+}; // "C"
+
+namespace lzokay {
 
 class DictBase {
 protected:
-  static constexpr uint32_t HashSize = 0x4000;
-  static constexpr uint32_t MaxDist = 0xbfff;
-  static constexpr uint32_t MaxMatchLen = 0x800;
-  static constexpr uint32_t BufSize = MaxDist + MaxMatchLen;
-
   /* List encoding of previous 3-byte data matches */
   struct Match3 {
     uint16_t head[HashSize]; /* key -> chain-head-pos */
     uint16_t chain_sz[HashSize]; /* key -> chain-size */
-    uint16_t chain[BufSize]; /* chain-pos -> next-chain-pos */
-    uint16_t best_len[BufSize]; /* chain-pos -> best-match-length */
+    uint16_t chain[DictBase_BufSize]; /* chain-pos -> next-chain-pos */
+    uint16_t best_len[DictBase_BufSize]; /* chain-pos -> best-match-length */
   };
   /* Encoding of 2-byte data matches */
   struct Match2 {
@@ -42,7 +50,7 @@ protected:
      * allocated so the start of the buffer may be replicated at the end,
      * therefore providing efficient circular access.
      */
-    uint8_t buffer[BufSize + MaxMatchLen];
+    uint8_t buffer[DictBase_BufSize + DictBase_MaxMatchLen];
   };
   using storage_type = Data;
   storage_type* _storage;
@@ -70,10 +78,6 @@ inline EResult compress(const uint8_t* src, std::size_t src_size,
                         std::size_t& out_size) {
   Dict<> dict;
   return compress(src, src_size, dst, dst_size, out_size, dict);
-}
-
-static constexpr std::size_t compress_worst_size(std::size_t s) {
-  return s + s / 16 + 64 + 3;
 }
 
 }

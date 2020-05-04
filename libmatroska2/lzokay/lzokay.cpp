@@ -1,13 +1,14 @@
 #include "lzokay.hpp"
 #include <cstring>
 #include <algorithm>
+#include <limits>
 
 /*
  * Based on documentation from the Linux sources: Documentation/lzo.txt
  * https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/lzo.txt
  */
 
-namespace lzokay {
+extern "C" {
 
 #if _WIN32
 #define HOST_BIG_ENDIAN 0
@@ -34,18 +35,43 @@ static uint16_t get_le16(const uint8_t* p) {
 }
 #endif
 
-constexpr std::size_t Max255Count = std::size_t(~0) / 255 - 2;
+static const size_t Max255Count = SIZE_MAX / 255 - 2;
+
+static const uint32_t M1MaxOffset = 0x0400;
+static const uint32_t M2MaxOffset = 0x0800;
+static const uint32_t M3MaxOffset = 0x4000;
+static const uint32_t M4MaxOffset = 0xbfff;
+
+static const uint32_t M1MinLen = 2;
+static const uint32_t M1MaxLen = 2;
+static const uint32_t M2MinLen = 3;
+static const uint32_t M2MaxLen = 8;
+static const uint32_t M3MinLen = 3;
+static const uint32_t M3MaxLen = 33;
+static const uint32_t M4MinLen = 3;
+static const uint32_t M4MaxLen = 9;
+
+static const uint32_t M1Marker = 0x0;
+static const uint32_t M2Marker = 0x40;
+static const uint32_t M3Marker = 0x20;
+static const uint32_t M4Marker = 0x10;
+
+static const uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
+
+}; // "C"
+
+namespace lzokay {
 
 #define NEEDS_IN(count) \
   if (inp + (count) > inp_end) { \
     dst_size = outp - dst; \
-    return EResult::InputOverrun; \
+    return EResult_InputOverrun; \
   }
 
 #define NEEDS_OUT(count) \
   if (outp + (count) > outp_end) { \
     dst_size = outp - dst; \
-    return EResult::OutputOverrun; \
+    return EResult_OutputOverrun; \
   }
 
 #define CONSUME_ZERO_BYTE_LENGTH \
@@ -56,7 +82,7 @@ constexpr std::size_t Max255Count = std::size_t(~0) / 255 - 2;
     offset = inp - old_inp; \
     if (offset > Max255Count) { \
       dst_size = outp - dst; \
-      return EResult::Error; \
+      return EResult_Error; \
     } \
   }
 
@@ -67,27 +93,6 @@ constexpr std::size_t Max255Count = std::size_t(~0) / 255 - 2;
     *outp++ = l; \
   }
 
-constexpr uint32_t M1MaxOffset = 0x0400;
-constexpr uint32_t M2MaxOffset = 0x0800;
-constexpr uint32_t M3MaxOffset = 0x4000;
-constexpr uint32_t M4MaxOffset = 0xbfff;
-
-constexpr uint32_t M1MinLen = 2;
-constexpr uint32_t M1MaxLen = 2;
-constexpr uint32_t M2MinLen = 3;
-constexpr uint32_t M2MaxLen = 8;
-constexpr uint32_t M3MinLen = 3;
-constexpr uint32_t M3MaxLen = 33;
-constexpr uint32_t M4MinLen = 3;
-constexpr uint32_t M4MaxLen = 9;
-
-constexpr uint32_t M1Marker = 0x0;
-constexpr uint32_t M2Marker = 0x40;
-constexpr uint32_t M3Marker = 0x20;
-constexpr uint32_t M4Marker = 0x10;
-
-constexpr uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
-
 EResult decompress(const uint8_t* src, std::size_t src_size,
                    uint8_t* dst, std::size_t init_dst_size,
                    std::size_t& dst_size) {
@@ -95,7 +100,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
 
   if (src_size < 3) {
     dst_size = 0;
-    return EResult::InputOverrun;
+    return EResult_InputOverrun;
   }
 
   const uint8_t* inp = src;
@@ -266,7 +271,7 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
     }
     if (lbcur < dst) {
       dst_size = outp - dst;
-      return EResult::LookbehindOverrun;
+      return EResult_LookbehindOverrun;
     }
     NEEDS_IN(nstate)
     NEEDS_OUT(lblen + nstate)
@@ -281,13 +286,13 @@ EResult decompress(const uint8_t* src, std::size_t src_size,
 
   dst_size = outp - dst;
   if (lblen != 3) /* Ensure terminating M4 was encountered */
-    return EResult::Error;
+    return EResult_Error;
   if (inp == inp_end)
-    return EResult::Success;
+    return EResult_Success;
   else if (inp < inp_end)
-    return EResult::InputNotConsumed;
+    return EResult_InputNotConsumed;
   else
-    return EResult::InputOverrun;
+    return EResult_InputOverrun;
 }
 
 struct State {
@@ -308,22 +313,22 @@ struct State {
       if (wind_sz > 0)
         --wind_sz;
       buf[wind_e] = 0;
-      if (wind_e < DictBase::MaxMatchLen)
-        buf[DictBase::BufSize + wind_e] = 0;
+      if (wind_e < DictBase_MaxMatchLen)
+        buf[DictBase_BufSize + wind_e] = 0;
     } else {
       buf[wind_e] = *inp;
-      if (wind_e < DictBase::MaxMatchLen)
-        buf[DictBase::BufSize + wind_e] = *inp;
+      if (wind_e < DictBase_MaxMatchLen)
+        buf[DictBase_BufSize + wind_e] = *inp;
       ++inp;
     }
-    if (++wind_e == DictBase::BufSize)
+    if (++wind_e == DictBase_BufSize)
       wind_e = 0;
-    if (++wind_b == DictBase::BufSize)
+    if (++wind_b == DictBase_BufSize)
       wind_b = 0;
   }
 
   uint32_t pos2off(uint32_t pos) const {
-    return wind_b > pos ? wind_b - pos : DictBase::BufSize - (pos - wind_b);
+    return wind_b > pos ? wind_b - pos : DictBase_BufSize - (pos - wind_b);
   }
 };
 
@@ -350,8 +355,8 @@ public:
       uint32_t key = make_key(b + s.wind_b);
       match_pos = chain[s.wind_b] = get_head(key);
       match_count = chain_sz[key]++;
-      if (match_count > DictBase::MaxMatchLen)
-        match_count = DictBase::MaxMatchLen;
+      if (match_count > DictBase_MaxMatchLen)
+        match_count = DictBase_MaxMatchLen;
       head[key] = uint16_t(s.wind_b);
     }
 
@@ -359,7 +364,7 @@ public:
       uint32_t key = make_key(b + s.wind_b);
       chain[s.wind_b] = get_head(key);
       head[key] = uint16_t(s.wind_b);
-      best_len[s.wind_b] = uint16_t(DictBase::MaxMatchLen + 1);
+      best_len[s.wind_b] = uint16_t(DictBase_MaxMatchLen + 1);
       chain_sz[key]++;
     }
   };
@@ -402,20 +407,20 @@ public:
     auto& match3 = static_cast<Match3Impl&>(_storage->match3);
     auto& match2 = static_cast<Match2Impl&>(_storage->match2);
 
-    s.cycle1_countdown = DictBase::MaxDist;
+    s.cycle1_countdown = DictBase_MaxDist;
     match3.init();
     match2.init();
 
     s.src = src;
     s.src_end = src + src_size;
     s.inp = src;
-    s.wind_sz = uint32_t(std::min(src_size, std::size_t(MaxMatchLen)));
+    s.wind_sz = uint32_t(std::min(src_size, std::size_t(DictBase_MaxMatchLen)));
     s.wind_b = 0;
     s.wind_e = s.wind_sz;
     std::copy_n(s.inp, s.wind_sz, _storage->buffer);
     s.inp += s.wind_sz;
 
-    if (s.wind_e == DictBase::BufSize)
+    if (s.wind_e == DictBase_BufSize)
       s.wind_e = 0;
 
     if (s.wind_sz < 3)
@@ -460,7 +465,7 @@ public:
       if (s.wind_sz == 0)
         best_char = -1;
       lb_off = 0;
-      match3.best_len[s.wind_b] = DictBase::MaxMatchLen + 1;
+      match3.best_len[s.wind_b] = DictBase_MaxMatchLen + 1;
     } else {
       if (match2.search(s, lb_pos, lb_len, best_pos, _storage->buffer) && s.wind_sz >= 3) {
         for (uint32_t i = 0; i < match_count; ++i, match_pos = match3.chain[match_pos]) {
@@ -541,7 +546,7 @@ static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const
   }
   NEEDS_OUT(lit_len);
   outp = std::copy_n(lit_ptr, lit_len, outp);
-  return EResult::Success;
+  return EResult_Success;
 }
 
 static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, std::size_t& dst_size,
@@ -590,7 +595,7 @@ static EResult encode_lookback_match(uint8_t*& outp, const uint8_t* outp_end, co
     *outp++ = uint8_t(lb_off << 2);
     *outp++ = uint8_t(lb_off >> 6);
   }
-  return EResult::Success;
+  return EResult_Success;
 }
 
 EResult compress(const uint8_t* src, std::size_t src_size,
@@ -623,14 +628,14 @@ EResult compress(const uint8_t* src, std::size_t src_size,
       continue;
     }
     find_better_match(best_off, lb_len, lb_off);
-    if ((err = encode_literal_run(outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult::Success)
+    if ((err = encode_literal_run(outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult_Success)
       return err;
-    if ((err = encode_lookback_match(outp, outp_end, dst, dst_size, lb_len, lb_off, lit_len)) < EResult::Success)
+    if ((err = encode_lookback_match(outp, outp_end, dst, dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
     d.advance(s, lb_off, lb_len, best_off, true);
   }
-  if ((err = encode_literal_run(outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult::Success)
+  if ((err = encode_literal_run(outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;
 
   /* Terminating M4 */
@@ -640,7 +645,7 @@ EResult compress(const uint8_t* src, std::size_t src_size,
   *outp++ = 0;
 
   dst_size = outp - dst;
-  return EResult::Success;
+  return EResult_Success;
 }
 
 }

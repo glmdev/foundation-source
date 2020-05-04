@@ -2,7 +2,7 @@
 #include <cstring>
 
 int compress_and_decompress(const uint8_t* data, std::size_t length) {
-  lzokay::EResult error;
+  EResult error;
 
   /* This variable and 5th parameter of compress() is optional, but may
    * be reused across multiple compression runs; avoiding repeat
@@ -10,18 +10,18 @@ int compress_and_decompress(const uint8_t* data, std::size_t length) {
    */
   lzokay::Dict<> dict;
 
-  std::size_t compressed_size = lzokay::compress_worst_size(length);
+  std::size_t compressed_size = compress_worst_size(length);
   std::unique_ptr<uint8_t[]> compressed(new uint8_t[compressed_size]);
   error = lzokay::compress(data, length, compressed.get(), compressed_size,
                            compressed_size, dict);
-  if (error < lzokay::EResult::Success)
+  if (error < EResult_Success)
     return 1;
 
   std::unique_ptr<uint8_t[]> decompressed(new uint8_t[length]);
   std::size_t decompressed_size;
   error = lzokay::decompress(compressed.get(), compressed_size,
                              decompressed.get(), length, decompressed_size);
-  if (error < lzokay::EResult::Success)
+  if (error < EResult_Success)
     return 1;
 
   if (std::memcmp(data, decompressed.get(), decompressed_size) != 0)
