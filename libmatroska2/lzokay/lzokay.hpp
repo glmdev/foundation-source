@@ -55,9 +55,10 @@ struct DictBase_Data {
 namespace lzokay {
 
 class DictBase {
-protected:
+public:
   DictBase_Data* _storage;
   DictBase() = default;
+protected:
   friend EResult compress(const uint8_t* src, size_t src_size,
                           uint8_t* dst, size_t* dst_size, DictBase& dict);
 };

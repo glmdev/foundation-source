@@ -482,10 +482,10 @@ namespace lzokay {
 
 class DictImpl : public DictBase {
 public:
-  void init(struct State* s, const uint8_t* src, size_t src_size) {
+  static void init(DictBase *dict, struct State* s, const uint8_t* src, size_t src_size) {
     s->cycle1_countdown = DictBase_MaxDist;
-    Match3_init(&_storage->match3);
-    Match2_init(&_storage->match2);
+    Match3_init(&dict->_storage->match3);
+    Match2_init(&dict->_storage->match2);
 
     s->src = src;
     s->src_end = src + src_size;
@@ -493,34 +493,34 @@ public:
     s->wind_sz = min((uint32_t)src_size, DictBase_MaxMatchLen);
     s->wind_b = 0;
     s->wind_e = s->wind_sz;
-    memcpy(_storage->buffer, s->inp, s->wind_sz);
+    memcpy(dict->_storage->buffer, s->inp, s->wind_sz);
     s->inp += s->wind_sz;
 
     if (s->wind_e == DictBase_BufSize)
       s->wind_e = 0;
 
     if (s->wind_sz < 3)
-      memset(&_storage->buffer[s->wind_b + s->wind_sz], 0, 3);
+      memset(&dict->_storage->buffer[s->wind_b + s->wind_sz], 0, 3);
   }
 
-  void reset_next_input_entry(struct State* s, Match3* match3, Match2* match2) {
+  static void reset_next_input_entry(DictBase *dict, struct State* s, Match3* match3, Match2* match2) {
     /* Remove match from about-to-be-clobbered buffer entry */
     if (s->cycle1_countdown == 0) {
-      Match3_remove(match3, s->wind_e, _storage->buffer);
-      Match2_remove(match2, s->wind_e, _storage->buffer);
+      Match3_remove(match3, s->wind_e, dict->_storage->buffer);
+      Match2_remove(match2, s->wind_e, dict->_storage->buffer);
     } else {
       --s->cycle1_countdown;
     }
   }
 
-  void advance(struct State* s, uint32_t& lb_off, uint32_t& lb_len,
+  static void advance(DictBase *dict, struct State* s, uint32_t& lb_off, uint32_t& lb_len,
                uint32_t best_off[MaxMatchByLengthLen], bool skip) {
     if (skip) {
       for (uint32_t i = 0; i < lb_len - 1; ++i) {
-        reset_next_input_entry(s, &_storage->match3, &_storage->match2);
-        Match3_skip_advance(&_storage->match3, s, _storage->buffer);
-        Match2_add(&_storage->match2, uint16_t(s->wind_b), _storage->buffer);
-        get_byte(s, _storage->buffer);
+        reset_next_input_entry(dict, s, &dict->_storage->match3, &dict->_storage->match2);
+        Match3_skip_advance(&dict->_storage->match3, s, dict->_storage->buffer);
+        Match2_add(&dict->_storage->match2, uint16_t(s->wind_b), dict->_storage->buffer);
+        get_byte(s, dict->_storage->buffer);
       }
     }
 
@@ -530,20 +530,20 @@ public:
 
     uint32_t best_pos[MaxMatchByLengthLen] = {};
     uint32_t match_pos, match_count;
-    Match3_advance(&_storage->match3, s, match_pos, match_count, _storage->buffer);
+    Match3_advance(&dict->_storage->match3, s, match_pos, match_count, dict->_storage->buffer);
 
-    int best_char = _storage->buffer[s->wind_b];
+    int best_char = dict->_storage->buffer[s->wind_b];
     uint32_t best_len = lb_len;
     if (lb_len >= s->wind_sz) {
       if (s->wind_sz == 0)
         best_char = -1;
       lb_off = 0;
-      _storage->match3.best_len[s->wind_b] = DictBase_MaxMatchLen + 1;
+      dict->_storage->match3.best_len[s->wind_b] = DictBase_MaxMatchLen + 1;
     } else {
-      if (Match2_search(&_storage->match2, s, lb_pos, lb_len, best_pos, _storage->buffer) && s->wind_sz >= 3) {
-        for (uint32_t i = 0; i < match_count; ++i, match_pos = _storage->match3.chain[match_pos]) {
-          uint8_t *ref_ptr = _storage->buffer + s->wind_b;
-          uint8_t *match_ptr = _storage->buffer + match_pos;
+      if (Match2_search(&dict->_storage->match2, s, lb_pos, lb_len, best_pos, dict->_storage->buffer) && s->wind_sz >= 3) {
+        for (uint32_t i = 0; i < match_count; ++i, match_pos = dict->_storage->match3.chain[match_pos]) {
+          uint8_t *ref_ptr = dict->_storage->buffer + s->wind_b;
+          uint8_t *match_ptr = dict->_storage->buffer + match_pos;
           uint8_t *mismatch = std_mismatch(ref_ptr, ref_ptr + s->wind_sz, match_ptr);
           intptr_t match_len = mismatch - ref_ptr;
           if (match_len < 2)
@@ -553,14 +553,14 @@ public:
           if (match_len > lb_len) {
             lb_len = (uint32_t)match_len;
             lb_pos = match_pos;
-            if (match_len == s->wind_sz || match_len > _storage->match3.best_len[match_pos])
+            if (match_len == s->wind_sz || match_len > dict->_storage->match3.best_len[match_pos])
               break;
           }
         }
       }
       if (lb_len > best_len)
         lb_off = pos2off(s, lb_pos);
-      _storage->match3.best_len[s->wind_b] = uint16_t(lb_len);
+      dict->_storage->match3.best_len[s->wind_b] = uint16_t(lb_len);
       const uint32_t *end_best_pos = &best_pos[sizeof(best_pos)/sizeof(best_pos[0])];
       uint32_t *offit = best_off + 2;
       for (const uint32_t *posit = best_pos + 2;
@@ -569,11 +569,11 @@ public:
       }
     }
 
-    reset_next_input_entry(s, &_storage->match3, &_storage->match2);
+    reset_next_input_entry(dict, s, &dict->_storage->match3, &dict->_storage->match2);
 
-    Match2_add(&_storage->match2, uint16_t(s->wind_b), _storage->buffer);
+    Match2_add(&dict->_storage->match2, uint16_t(s->wind_b), dict->_storage->buffer);
 
-    get_byte(s, _storage->buffer);
+    get_byte(s, dict->_storage->buffer);
 
     if (best_char < 0) {
       s->buf_sz = 0;
@@ -619,9 +619,9 @@ EResult compress(const uint8_t* src, size_t src_size,
   uint32_t lit_len = 0;
   uint32_t lb_off, lb_len;
   uint32_t best_off[MaxMatchByLengthLen];
-  d.init(&s, src, src_size);
+  DictImpl::init(&d, &s, src, src_size);
   const uint8_t* lit_ptr = s.inp;
-  d.advance(&s, lb_off, lb_len, best_off, false);
+  DictImpl::advance(&d, &s, lb_off, lb_len, best_off, false);
   while (s.buf_sz > 0) {
     if (lit_len == 0)
       lit_ptr = s.bufp;
@@ -633,7 +633,7 @@ EResult compress(const uint8_t* src, size_t src_size,
     }
     if (lb_len == 0) {
       ++lit_len;
-      d.advance(&s, lb_off, lb_len, best_off, false);
+      DictImpl::advance(&d, &s, lb_off, lb_len, best_off, false);
       continue;
     }
     find_better_match(best_off, &lb_len, &lb_off);
@@ -642,7 +642,7 @@ EResult compress(const uint8_t* src, size_t src_size,
     if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
-    d.advance(&s, lb_off, lb_len, best_off, true);
+    DictImpl::advance(&d, &s, lb_off, lb_len, best_off, true);
   }
   if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;
