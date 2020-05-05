@@ -54,30 +54,14 @@ struct DictBase_Data {
 
 namespace lzokay {
 
-class DictBase {
-public:
-  DictBase_Data* _storage;
-  DictBase() = default;
-protected:
-  friend EResult compress(const uint8_t* src, size_t src_size,
-                          uint8_t* dst, size_t* dst_size, DictBase& dict);
-};
-template <template<typename> class _Alloc = std::allocator>
-class Dict : public DictBase {
-  _Alloc<DictBase_Data> _allocator;
-public:
-  Dict() { _storage = _allocator.allocate(1); }
-  ~Dict() { _allocator.deallocate(_storage, 1); }
-};
-
 EResult compress(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t dst_size,
-                 size_t* out_size, DictBase& dict);
+                 size_t* out_size, DictBase_Data* dict_storage);
 inline EResult compress(const uint8_t* src, size_t src_size,
                         uint8_t* dst, size_t dst_size,
                         size_t* out_size) {
-  Dict<> dict;
-  return compress(src, src_size, dst, dst_size, out_size, dict);
+  DictBase_Data dict;
+  return compress(src, src_size, dst, dst_size, out_size, &dict);
 }
 
 }

@@ -606,19 +606,18 @@ static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const
 
 EResult compress(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t init_dst_size,
-                 size_t *p_dst_size, DictBase& dict) {
+                 size_t *p_dst_size, DictBase_Data* dict_storage) {
   EResult err;
   struct State s;
-  DictBase& d = dict;
   *p_dst_size = init_dst_size;
   uint8_t* outp = dst;
   uint8_t* outp_end = dst + init_dst_size;
   uint32_t lit_len = 0;
   uint32_t lb_off, lb_len;
   uint32_t best_off[MaxMatchByLengthLen];
-  Dict_init(d._storage, &s, src, src_size);
+  Dict_init(dict_storage, &s, src, src_size);
   const uint8_t* lit_ptr = s.inp;
-  Dict_advance(d._storage, &s, lb_off, lb_len, best_off, false);
+  Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, false);
   while (s.buf_sz > 0) {
     if (lit_len == 0)
       lit_ptr = s.bufp;
@@ -630,7 +629,7 @@ EResult compress(const uint8_t* src, size_t src_size,
     }
     if (lb_len == 0) {
       ++lit_len;
-      Dict_advance(d._storage, &s, lb_off, lb_len, best_off, false);
+      Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, false);
       continue;
     }
     find_better_match(best_off, &lb_len, &lb_off);
@@ -639,7 +638,7 @@ EResult compress(const uint8_t* src, size_t src_size,
     if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
-    Dict_advance(d._storage, &s, lb_off, lb_len, best_off, true);
+    Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, true);
   }
   if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;

@@ -8,12 +8,12 @@ int compress_and_decompress(const uint8_t* data, size_t length) {
    * be reused across multiple compression runs; avoiding repeat
    * allocation/deallocation of the work memory used by the compressor.
    */
-  lzokay::Dict<> dict;
+  DictBase_Data dict;
 
   size_t compressed_size = compress_worst_size(length);
   std::unique_ptr<uint8_t[]> compressed(new uint8_t[compressed_size]);
   error = lzokay::compress(data, length, compressed.get(), compressed_size,
-                           &compressed_size, dict);
+                           &compressed_size, &dict);
   if (error < EResult_Success)
     return 1;
 
