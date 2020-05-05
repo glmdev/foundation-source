@@ -39,32 +39,31 @@ struct Match2 {
   uint16_t head[1 << 16]; /* 2-byte-data -> head-pos */
 };
 
+struct DictBase_Data {
+  Match3 match3;
+  Match2 match2;
+
+  /* Circular buffer caching enough data to access the maximum lookback
+    * distance of 48K + maximum match length of 2K. An additional 2K is
+    * allocated so the start of the buffer may be replicated at the end,
+    * therefore providing efficient circular access.
+    */
+  uint8_t buffer[DictBase_BufSize + DictBase_MaxMatchLen];
+};
 }; // "C"
 
 namespace lzokay {
 
 class DictBase {
 protected:
-  struct Data {
-    Match3 match3;
-    Match2 match2;
-
-    /* Circular buffer caching enough data to access the maximum lookback
-     * distance of 48K + maximum match length of 2K. An additional 2K is
-     * allocated so the start of the buffer may be replicated at the end,
-     * therefore providing efficient circular access.
-     */
-    uint8_t buffer[DictBase_BufSize + DictBase_MaxMatchLen];
-  };
-  using storage_type = Data;
-  storage_type* _storage;
+  DictBase_Data* _storage;
   DictBase() = default;
   friend EResult compress(const uint8_t* src, size_t src_size,
                           uint8_t* dst, size_t* dst_size, DictBase& dict);
 };
 template <template<typename> class _Alloc = std::allocator>
 class Dict : public DictBase {
-  _Alloc<DictBase::storage_type> _allocator;
+  _Alloc<DictBase_Data> _allocator;
 public:
   Dict() { _storage = _allocator.allocate(1); }
   ~Dict() { _allocator.deallocate(_storage, 1); }
