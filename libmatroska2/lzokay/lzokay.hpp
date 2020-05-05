@@ -50,18 +50,8 @@ struct DictBase_Data {
     */
   uint8_t buffer[DictBase_BufSize + DictBase_MaxMatchLen];
 };
-}; // "C"
-
-namespace lzokay {
 
 EResult compress(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t dst_size,
                  size_t* out_size, DictBase_Data* dict_storage);
-inline EResult compress(const uint8_t* src, size_t src_size,
-                        uint8_t* dst, size_t dst_size,
-                        size_t* out_size) {
-  DictBase_Data dict;
-  return compress(src, src_size, dst, dst_size, out_size, &dict);
-}
-
-}
+}; // "C"

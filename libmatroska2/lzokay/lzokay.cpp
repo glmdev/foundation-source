@@ -606,10 +606,6 @@ static EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, cons
   return EResult_Success;
 }
 
-}; // "C"
-
-namespace lzokay {
-
 EResult compress(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t init_dst_size,
                  size_t *p_dst_size, DictBase_Data* dict_storage) {
@@ -658,5 +654,4 @@ EResult compress(const uint8_t* src, size_t src_size,
   *p_dst_size = outp - dst;
   return EResult_Success;
 }
-
-}
+}; // "C"
