@@ -488,12 +488,9 @@ public:
   };
 
   void init(struct State* s, const uint8_t* src, size_t src_size) {
-    Match3Impl& match3 = static_cast<Match3Impl&>(_storage->match3);
-    Match2Impl& match2 = static_cast<Match2Impl&>(_storage->match2);
-
     s->cycle1_countdown = DictBase_MaxDist;
-    Match3Impl::Match3_init(&match3);
-    Match2Impl::Match2_init(&match2);
+    Match3Impl::Match3_init(&_storage->match3);
+    Match2Impl::Match2_init(&_storage->match2);
 
     s->src = src;
     s->src_end = src + src_size;
@@ -511,7 +508,7 @@ public:
       memset(&_storage->buffer[s->wind_b + s->wind_sz], 0, 3);
   }
 
-  void reset_next_input_entry(struct State* s, Match3Impl* match3, Match2Impl* match2) {
+  void reset_next_input_entry(struct State* s, Match3* match3, Match2* match2) {
     /* Remove match from about-to-be-clobbered buffer entry */
     if (s->cycle1_countdown == 0) {
       Match3Impl::Match3_remove(match3, s->wind_e, _storage->buffer);
