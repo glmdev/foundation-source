@@ -417,7 +417,7 @@ namespace lzokay {
 
 class DictImpl : public DictBase {
 public:
-  struct Match3Impl : DictBase::Match3 {
+  struct Match3Impl : Match3 {
     static uint32_t Match3_make_key(const uint8_t* data) {
       return ((0x9f5f * (((uint32_t(data[0]) << 5 ^ uint32_t(data[1])) << 5) ^ data[2])) >> 5) & 0x3fff;
     }
@@ -452,7 +452,7 @@ public:
     }
   };
 
-  struct Match2Impl : DictBase::Match2 {
+  struct Match2Impl : Match2 {
     static uint32_t Match2_make_key(const uint8_t* data) {
       return uint32_t(data[0]) ^ (uint32_t(data[1]) << 8);
     }
