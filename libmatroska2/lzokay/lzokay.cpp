@@ -418,63 +418,63 @@ namespace lzokay {
 class DictImpl : public DictBase {
 public:
   struct Match3Impl : DictBase::Match3 {
-    static uint32_t make_key(const uint8_t* data) {
+    static uint32_t Match3_make_key(const uint8_t* data) {
       return ((0x9f5f * (((uint32_t(data[0]) << 5 ^ uint32_t(data[1])) << 5) ^ data[2])) >> 5) & 0x3fff;
     }
 
-    uint16_t get_head(uint32_t key) const {
-      return (chain_sz[key] == 0) ? uint16_t(UINT16_MAX) : head[key];
+    static uint16_t Match3_get_head(const Match3 *match, uint32_t key) {
+      return (match->chain_sz[key] == 0) ? uint16_t(UINT16_MAX) : match->head[key];
     }
 
-    void init() {
-      memset(chain_sz, 0, sizeof(chain_sz));
+    static void Match3_init(Match3 *match) {
+      memset(match->chain_sz, 0, sizeof(match->chain_sz));
     }
 
-    void remove(uint32_t pos, const uint8_t* b) {
-      --chain_sz[make_key(b + pos)];
+    static void Match3_remove(Match3 *match, uint32_t pos, const uint8_t* b) {
+      --match->chain_sz[Match3_make_key(b + pos)];
     }
 
-    void advance(struct State* s, uint32_t& match_pos, uint32_t& match_count, const uint8_t* b) {
-      uint32_t key = make_key(b + s->wind_b);
-      match_pos = chain[s->wind_b] = get_head(key);
-      match_count = chain_sz[key]++;
+    static void Match3_advance(Match3 *match, struct State* s, uint32_t& match_pos, uint32_t& match_count, const uint8_t* b) {
+      uint32_t key = Match3_make_key(b + s->wind_b);
+      match_pos = match->chain[s->wind_b] = Match3_get_head(match, key);
+      match_count = match->chain_sz[key]++;
       if (match_count > DictBase_MaxMatchLen)
         match_count = DictBase_MaxMatchLen;
-      head[key] = uint16_t(s->wind_b);
+      match->head[key] = uint16_t(s->wind_b);
     }
 
-    void skip_advance(struct State* s, const uint8_t* b) {
-      uint32_t key = make_key(b + s->wind_b);
-      chain[s->wind_b] = get_head(key);
-      head[key] = uint16_t(s->wind_b);
-      best_len[s->wind_b] = uint16_t(DictBase_MaxMatchLen + 1);
-      chain_sz[key]++;
+    static void Match3_skip_advance(Match3 *match, struct State* s, const uint8_t* b) {
+      uint32_t key = Match3_make_key(b + s->wind_b);
+      match->chain[s->wind_b] = Match3_get_head(match, key);
+      match->head[key] = uint16_t(s->wind_b);
+      match->best_len[s->wind_b] = uint16_t(DictBase_MaxMatchLen + 1);
+      match->chain_sz[key]++;
     }
   };
 
   struct Match2Impl : DictBase::Match2 {
-    static uint32_t make_key(const uint8_t* data) {
+    static uint32_t Match2_make_key(const uint8_t* data) {
       return uint32_t(data[0]) ^ (uint32_t(data[1]) << 8);
     }
 
-    void init() {
-      for (size_t i=0; i<(sizeof(head)/sizeof(head[0])); ++i)
-        head[i] = UINT16_MAX;
+    static void Match2_init(Match2 *match) {
+      for (size_t i=0; i<(sizeof(match->head)/sizeof(match->head[0])); ++i)
+        match->head[i] = UINT16_MAX;
     }
 
-    void add(uint16_t pos, const uint8_t* b) {
-      head[make_key(b + pos)] = pos;
+    static void Match2_add(Match2 *match, uint16_t pos, const uint8_t* b) {
+      match->head[Match2_make_key(b + pos)] = pos;
     }
 
-    void remove(uint32_t pos, const uint8_t* b) {
-      uint16_t& p = head[make_key(b + pos)];
+    static void Match2_remove(Match2 *match, uint32_t pos, const uint8_t* b) {
+      uint16_t& p = match->head[Match2_make_key(b + pos)];
       if (p == pos)
         p = UINT16_MAX;
     }
 
-    bool search(struct State* s, uint32_t& lb_pos, uint32_t& lb_len,
-                uint32_t best_pos[MaxMatchByLengthLen], const uint8_t* b) const {
-      uint16_t pos = head[make_key(b + s->wind_b)];
+    static bool Match2_search(const Match2 *match, struct State* s, uint32_t& lb_pos, uint32_t& lb_len,
+                uint32_t best_pos[MaxMatchByLengthLen], const uint8_t* b) {
+      uint16_t pos = match->head[Match2_make_key(b + s->wind_b)];
       if (pos == UINT16_MAX)
         return false;
       if (best_pos[2] == 0)
@@ -492,8 +492,8 @@ public:
     Match2Impl& match2 = static_cast<Match2Impl&>(_storage->match2);
 
     s->cycle1_countdown = DictBase_MaxDist;
-    match3.init();
-    match2.init();
+    Match3Impl::Match3_init(&match3);
+    Match2Impl::Match2_init(&match2);
 
     s->src = src;
     s->src_end = src + src_size;
@@ -511,11 +511,11 @@ public:
       memset(&_storage->buffer[s->wind_b + s->wind_sz], 0, 3);
   }
 
-  void reset_next_input_entry(struct State* s, Match3Impl& match3, Match2Impl& match2) {
+  void reset_next_input_entry(struct State* s, Match3Impl* match3, Match2Impl* match2) {
     /* Remove match from about-to-be-clobbered buffer entry */
     if (s->cycle1_countdown == 0) {
-      match3.remove(s->wind_e, _storage->buffer);
-      match2.remove(s->wind_e, _storage->buffer);
+      Match3Impl::Match3_remove(match3, s->wind_e, _storage->buffer);
+      Match2Impl::Match2_remove(match2, s->wind_e, _storage->buffer);
     } else {
       --s->cycle1_countdown;
     }
@@ -523,14 +523,14 @@ public:
 
   void advance(struct State* s, uint32_t& lb_off, uint32_t& lb_len,
                uint32_t best_off[MaxMatchByLengthLen], bool skip) {
-    auto& match3 = static_cast<Match3Impl&>(_storage->match3);
-    auto& match2 = static_cast<Match2Impl&>(_storage->match2);
+    Match3Impl& match3 = static_cast<Match3Impl&>(_storage->match3);
+    Match2Impl& match2 = static_cast<Match2Impl&>(_storage->match2);
 
     if (skip) {
       for (uint32_t i = 0; i < lb_len - 1; ++i) {
-        reset_next_input_entry(s, match3, match2);
-        match3.skip_advance(s, _storage->buffer);
-        match2.add(uint16_t(s->wind_b), _storage->buffer);
+        reset_next_input_entry(s, &match3, &match2);
+        Match3Impl::Match3_skip_advance(&match3, s, _storage->buffer);
+        Match2Impl::Match2_add(&match2, uint16_t(s->wind_b), _storage->buffer);
         get_byte(s, _storage->buffer);
       }
     }
@@ -541,7 +541,7 @@ public:
 
     uint32_t best_pos[MaxMatchByLengthLen] = {};
     uint32_t match_pos, match_count;
-    match3.advance(s, match_pos, match_count, _storage->buffer);
+    Match3Impl::Match3_advance(&match3, s, match_pos, match_count, _storage->buffer);
 
     int best_char = _storage->buffer[s->wind_b];
     uint32_t best_len = lb_len;
@@ -551,7 +551,7 @@ public:
       lb_off = 0;
       match3.best_len[s->wind_b] = DictBase_MaxMatchLen + 1;
     } else {
-      if (match2.search(s, lb_pos, lb_len, best_pos, _storage->buffer) && s->wind_sz >= 3) {
+      if (Match2Impl::Match2_search(&match2, s, lb_pos, lb_len, best_pos, _storage->buffer) && s->wind_sz >= 3) {
         for (uint32_t i = 0; i < match_count; ++i, match_pos = match3.chain[match_pos]) {
           uint8_t *ref_ptr = _storage->buffer + s->wind_b;
           uint8_t *match_ptr = _storage->buffer + match_pos;
@@ -580,9 +580,9 @@ public:
       }
     }
 
-    reset_next_input_entry(s, match3, match2);
+    reset_next_input_entry(s, &match3, &match2);
 
-    match2.add(uint16_t(s->wind_b), _storage->buffer);
+    Match2Impl::Match2_add(&match2, uint16_t(s->wind_b), _storage->buffer);
 
     get_byte(s, _storage->buffer);
 
@@ -623,7 +623,7 @@ EResult compress(const uint8_t* src, size_t src_size,
                  size_t *p_dst_size, DictBase& dict) {
   EResult err;
   struct State s;
-  auto& d = static_cast<DictImpl&>(dict);
+  DictImpl& d = static_cast<DictImpl&>(dict);
   *p_dst_size = init_dst_size;
   uint8_t* outp = dst;
   uint8_t* outp_end = dst + init_dst_size;
