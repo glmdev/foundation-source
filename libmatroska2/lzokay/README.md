@@ -19,36 +19,45 @@ implementations.
 Usage
 -----
 
-```cpp
-#include <lzokay.hpp>
-#include <cstring>
+```c
+#include <lzokay.h>
+#include <string.h>
+#include <stdlib.h>
 
 int compress_and_decompress(const uint8_t* data, std::size_t length) {
-  lzokay::EResult error;
+  EResult error;
 
-  /* This variable and 6th parameter of compress() is optional, but may
+  /* This variable and 5th parameter of compress() is optional, but may
    * be reused across multiple compression runs; avoiding repeat
    * allocation/deallocation of the work memory used by the compressor.
    */
-  lzokay::Dict<> dict;
+  struct DictBase_Data dict;
 
-  std::size_t estimated_size = compress_worst_size(length);
-  std::unique_ptr<uint8_t[]> compressed(new uint8_t[estimated_size]);
-  std::size_t compressed_size;
-  error = lzokay::compress(data, length, compressed.get(), estimated_size,
-                           compressed_size, dict);
-  if (error < EResult_Success)
+  size_t estimated_size = compress_worst_size(length);
+  uint8_t * compressed = malloc(estimated_size);
+  size_t compressed_size;
+  error = lzokay_compress_dict(data, length, compressed, estimated_size,
+                           &compressed_size, &dict);
+  if (error < EResult_Success) {
+    free(compressed);
     return 1;
+  }
 
-  std::unique_ptr<uint8_t[]> decompressed(new uint8_t[length]);
-  std::size_t decompressed_size;
-  error = lzokay::decompress(compressed.get(), compressed_size,
-                             decompressed.get(), length, &decompressed_size);
-  if (error < EResult::Success)
+  uint8_t * decompressed = malloc(length);
+  size_t decompressed_size;
+  error = lzokay_decompress(compressed, compressed_size,
+                             decompressed, length, &decompressed_size);
+  free(compressed);
+  if (error < EResult_Success) {
+    free(decompressed);
     return 1;
+  }
 
-  if (std::memcmp(data, decompressed.get(), decompressed_size) != 0)
+  if (memcmp(data, decompressed, decompressed_size) != 0) {
+    free(decompressed);
     return 1;
+  }
+  free(decompressed);
 
   return 0;
 }

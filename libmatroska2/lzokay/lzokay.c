@@ -1,14 +1,12 @@
-#include "lzokay.hpp"
-#include <cstring>
-#include <algorithm>
-#include <limits>
+#include "lzokay.h"
+#include <string.h>
+#include <limits.h>
+#include <stdbool.h>
 
 /*
  * Based on documentation from the Linux sources: Documentation/lzo.txt
  * https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/lzo.txt
  */
-
-extern "C" {
 
 #if _WIN32
 #define HOST_BIG_ENDIAN 0
@@ -39,7 +37,7 @@ static uint16_t get_le16(const uint8_t* p) {
 }
 #else
 static uint16_t get_le16(const uint8_t* p) {
-  return *reinterpret_cast<const uint16_t*>(p);
+  return *(const uint16_t*)p;
 }
 #endif
 
@@ -72,7 +70,7 @@ static const uint32_t M2Marker = 0x40;
 static const uint32_t M3Marker = 0x20;
 static const uint32_t M4Marker = 0x10;
 
-static const uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
+#define MaxMatchByLengthLen 34 /* Max M3 len + 1 */
 
 #define NEEDS_IN(count) \
   if (inp + (count) > inp_end) { \
@@ -105,7 +103,7 @@ static const uint32_t MaxMatchByLengthLen = 34; /* Max M3 len + 1 */
     *outp++ = l; \
   }
 
-EResult decompress(const uint8_t* src, size_t src_size,
+EResult lzokay_decompress(const uint8_t* src, size_t src_size,
                    uint8_t* dst, size_t init_dst_size,
                    size_t *p_dst_size) {
   if (src_size < 3) {
@@ -131,7 +129,7 @@ EResult decompress(const uint8_t* src, size_t src_size,
      *           state = 4 [ don't copy extra literals ]
      *           skip byte
      */
-    size_t len = *inp++ - uint8_t(17);
+    size_t len = *inp++ - (uint8_t)(17);
     NEEDS_IN(len)
     NEEDS_OUT(len)
     for (size_t i = 0; i < len; ++i)
@@ -142,7 +140,7 @@ EResult decompress(const uint8_t* src, size_t src_size,
      *          state = (byte - 17) = 0..3  [ copy <state> literals ]
      *          skip byte
      */
-    nstate = *inp++ - uint8_t(17);
+    nstate = *inp++ - (uint8_t)(17);
     state = nstate;
     NEEDS_IN(nstate)
     NEEDS_OUT(nstate)
@@ -176,8 +174,8 @@ EResult decompress(const uint8_t* src, size_t src_size,
        */
       NEEDS_IN(1)
       lbcur = outp - ((*inp++ << 3) + ((inst >> 2) & 0x7) + 1);
-      lblen = size_t(inst >> 5) + 1;
-      nstate = inst & uint8_t(0x3);
+      lblen = (size_t)(inst >> 5) + 1;
+      nstate = inst & (uint8_t)(0x3);
     } else if (inst & M3Marker) {
       /* [M3]
        * 0 0 1 L L L L L  (32..63)
@@ -187,7 +185,7 @@ EResult decompress(const uint8_t* src, size_t src_size,
        *   distance = D + 1
        *   state = S (copy S literals after this block)
        */
-      lblen = size_t(inst & uint8_t(0x1f)) + 2;
+      lblen = (size_t)(inst & (uint8_t)(0x1f)) + 2;
       if (lblen == 2) {
         CONSUME_ZERO_BYTE_LENGTH
         NEEDS_IN(1)
@@ -208,7 +206,7 @@ EResult decompress(const uint8_t* src, size_t src_size,
        *   state = S (copy S literals after this block)
        *   End of stream is reached if distance == 16384
        */
-      lblen = size_t(inst & uint8_t(0x7)) + 2;
+      lblen = (size_t)(inst & (uint8_t)(0x7)) + 2;
       if (lblen == 2) {
         CONSUME_ZERO_BYTE_LENGTH
         NEEDS_IN(1)
@@ -261,7 +259,7 @@ EResult decompress(const uint8_t* src, size_t src_size,
          *    distance = (H << 2) + D + 1
          */
         NEEDS_IN(1)
-        nstate = inst & uint8_t(0x3);
+        nstate = inst & (uint8_t)(0x3);
         lbcur = outp - ((inst >> 2) + (*inp++ << 2) + 1);
         lblen = 2;
       } else {
@@ -276,7 +274,7 @@ EResult decompress(const uint8_t* src, size_t src_size,
          *    distance = (H << 2) + D + 2049
          */
         NEEDS_IN(1)
-        nstate = inst & uint8_t(0x3);
+        nstate = inst & (uint8_t)(0x3);
         lbcur = outp - ((inst >> 2) + (*inp++ << 2) + 2049);
         lblen = 3;
       }
@@ -367,112 +365,112 @@ static EResult encode_lookback_match(uint8_t* outp, const uint8_t* outp_end, con
   if (lb_len == 2) {
     lb_off -= 1;
     NEEDS_OUT(2);
-    *outp++ = uint8_t(M1Marker | ((lb_off & 0x3) << 2));
-    *outp++ = uint8_t(lb_off >> 2);
+    *outp++ = (uint8_t)(M1Marker | ((lb_off & 0x3) << 2));
+    *outp++ = (uint8_t)(lb_off >> 2);
   } else if (lb_len <= M2MaxLen && lb_off <= M2MaxOffset) {
     lb_off -= 1;
     NEEDS_OUT(2);
-    *outp++ = uint8_t((lb_len - 1) << 5 | ((lb_off & 0x7) << 2));
-    *outp++ = uint8_t(lb_off >> 3);
+    *outp++ = (uint8_t)((lb_len - 1) << 5 | ((lb_off & 0x7) << 2));
+    *outp++ = (uint8_t)(lb_off >> 3);
   } else if (lb_len == M2MinLen && lb_off <= M1MaxOffset + M2MaxOffset && last_lit_len >= 4) {
     lb_off -= 1 + M2MaxOffset;
     NEEDS_OUT(2);
-    *outp++ = uint8_t(M1Marker | ((lb_off & 0x3) << 2));
-    *outp++ = uint8_t(lb_off >> 2);
+    *outp++ = (uint8_t)(M1Marker | ((lb_off & 0x3) << 2));
+    *outp++ = (uint8_t)(lb_off >> 2);
   } else if (lb_off <= M3MaxOffset) {
     lb_off -= 1;
     if (lb_len <= M3MaxLen) {
       NEEDS_OUT(1);
-      *outp++ = uint8_t(M3Marker | (lb_len - 2));
+      *outp++ = (uint8_t)(M3Marker | (lb_len - 2));
     } else {
       lb_len -= M3MaxLen;
       NEEDS_OUT(lb_len / 255 + 2);
-      *outp++ = uint8_t(M3Marker);
+      *outp++ = (uint8_t)(M3Marker);
       WRITE_ZERO_BYTE_LENGTH(lb_len);
     }
     NEEDS_OUT(2);
-    *outp++ = uint8_t(lb_off << 2);
-    *outp++ = uint8_t(lb_off >> 6);
+    *outp++ = (uint8_t)(lb_off << 2);
+    *outp++ = (uint8_t)(lb_off >> 6);
   } else {
     lb_off -= 0x4000;
     if (lb_len <= M4MaxLen) {
       NEEDS_OUT(1);
-      *outp++ = uint8_t(M4Marker | ((lb_off & 0x4000) >> 11) | (lb_len - 2));
+      *outp++ = (uint8_t)(M4Marker | ((lb_off & 0x4000) >> 11) | (lb_len - 2));
     } else {
       lb_len -= M4MaxLen;
       NEEDS_OUT(lb_len / 255 + 2);
-      *outp++ = uint8_t(M4Marker | ((lb_off & 0x4000) >> 11));
+      *outp++ = (uint8_t)(M4Marker | ((lb_off & 0x4000) >> 11));
       WRITE_ZERO_BYTE_LENGTH(lb_len);
     }
     NEEDS_OUT(2);
-    *outp++ = uint8_t(lb_off << 2);
-    *outp++ = uint8_t(lb_off >> 6);
+    *outp++ = (uint8_t)(lb_off << 2);
+    *outp++ = (uint8_t)(lb_off >> 6);
   }
   return EResult_Success;
 }
 
 static uint32_t Match3_make_key(const uint8_t* data) {
-  return ((0x9f5f * (((uint32_t(data[0]) << 5 ^ uint32_t(data[1])) << 5) ^ data[2])) >> 5) & 0x3fff;
+  return ((0x9f5f * ((((uint32_t)(data[0]) << 5 ^ (uint32_t)(data[1])) << 5) ^ data[2])) >> 5) & 0x3fff;
 }
 
-static uint16_t Match3_get_head(const Match3 *match, uint32_t key) {
-  return (match->chain_sz[key] == 0) ? uint16_t(UINT16_MAX) : match->head[key];
+static uint16_t Match3_get_head(const struct Match3 *match, uint32_t key) {
+  return (match->chain_sz[key] == 0) ? (uint16_t)(UINT16_MAX) : match->head[key];
 }
 
-static void Match3_init(Match3 *match) {
+static void Match3_init(struct Match3 *match) {
   memset(match->chain_sz, 0, sizeof(match->chain_sz));
 }
 
-static void Match3_remove(Match3 *match, uint32_t pos, const uint8_t* b) {
+static void Match3_remove(struct Match3 *match, uint32_t pos, const uint8_t* b) {
   --match->chain_sz[Match3_make_key(b + pos)];
 }
 
-static void Match3_advance(Match3 *match, struct State* s, uint32_t& match_pos, uint32_t& match_count, const uint8_t* b) {
+static void Match3_advance(struct Match3 *match, struct State* s, uint32_t *match_pos, uint32_t *match_count, const uint8_t* b) {
   uint32_t key = Match3_make_key(b + s->wind_b);
-  match_pos = match->chain[s->wind_b] = Match3_get_head(match, key);
-  match_count = match->chain_sz[key]++;
-  if (match_count > DictBase_MaxMatchLen)
-    match_count = DictBase_MaxMatchLen;
-  match->head[key] = uint16_t(s->wind_b);
+  *match_pos = match->chain[s->wind_b] = Match3_get_head(match, key);
+  *match_count = match->chain_sz[key]++;
+  if (*match_count > DictBase_MaxMatchLen)
+    *match_count = DictBase_MaxMatchLen;
+  match->head[key] = (uint16_t)(s->wind_b);
 }
 
-static void Match3_skip_advance(Match3 *match, struct State* s, const uint8_t* b) {
+static void Match3_skip_advance(struct Match3 *match, struct State* s, const uint8_t* b) {
   uint32_t key = Match3_make_key(b + s->wind_b);
   match->chain[s->wind_b] = Match3_get_head(match, key);
-  match->head[key] = uint16_t(s->wind_b);
-  match->best_len[s->wind_b] = uint16_t(DictBase_MaxMatchLen + 1);
+  match->head[key] = (uint16_t)(s->wind_b);
+  match->best_len[s->wind_b] = (uint16_t)(DictBase_MaxMatchLen + 1);
   match->chain_sz[key]++;
 }
 
 static uint32_t Match2_make_key(const uint8_t* data) {
-  return uint32_t(data[0]) ^ (uint32_t(data[1]) << 8);
+  return (uint32_t)(data[0]) ^ ((uint32_t)(data[1]) << 8);
 }
 
-static void Match2_init(Match2 *match) {
+static void Match2_init(struct Match2 *match) {
   for (size_t i=0; i<(sizeof(match->head)/sizeof(match->head[0])); ++i)
     match->head[i] = UINT16_MAX;
 }
 
-static void Match2_add(Match2 *match, uint16_t pos, const uint8_t* b) {
+static void Match2_add(struct Match2 *match, uint16_t pos, const uint8_t* b) {
   match->head[Match2_make_key(b + pos)] = pos;
 }
 
-static void Match2_remove(Match2 *match, uint32_t pos, const uint8_t* b) {
-  uint16_t& p = match->head[Match2_make_key(b + pos)];
-  if (p == pos)
-    p = UINT16_MAX;
+static void Match2_remove(struct Match2 *match, uint32_t pos, const uint8_t* b) {
+  uint16_t *p = &match->head[Match2_make_key(b + pos)];
+  if (*p == pos)
+    *p = UINT16_MAX;
 }
 
-static bool Match2_search(const Match2 *match, struct State* s, uint32_t& lb_pos, uint32_t& lb_len,
-            uint32_t best_pos[MaxMatchByLengthLen], const uint8_t* b) {
+static bool Match2_search(const struct Match2 *match, struct State* s, uint32_t *lb_pos, uint32_t *lb_len,
+                          uint32_t best_pos[MaxMatchByLengthLen], const uint8_t* b) {
   uint16_t pos = match->head[Match2_make_key(b + s->wind_b)];
   if (pos == UINT16_MAX)
     return false;
   if (best_pos[2] == 0)
     best_pos[2] = pos + 1;
-  if (lb_len < 2) {
-    lb_len = 2;
-    lb_pos = pos;
+  if (*lb_len < 2) {
+    *lb_len = 2;
+    *lb_pos = pos;
   }
   return true;
 }
@@ -498,7 +496,7 @@ static void Dict_init(struct DictBase_Data *dict, struct State* s, const uint8_t
     memset(&dict->buffer[s->wind_b + s->wind_sz], 0, 3);
 }
 
-static void Dict_reset_next_input_entry(struct DictBase_Data *dict, struct State* s, Match3* match3, Match2* match2) {
+static void Dict_reset_next_input_entry(struct DictBase_Data *dict, struct State* s, struct Match3* match3, struct Match2* match2) {
   /* Remove match from about-to-be-clobbered buffer entry */
   if (s->cycle1_countdown == 0) {
     Match3_remove(match3, s->wind_e, dict->buffer);
@@ -508,34 +506,34 @@ static void Dict_reset_next_input_entry(struct DictBase_Data *dict, struct State
   }
 }
 
-static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t& lb_off, uint32_t& lb_len,
+static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t *lb_off, uint32_t *lb_len,
               uint32_t best_off[MaxMatchByLengthLen], bool skip) {
   if (skip) {
-    for (uint32_t i = 0; i < lb_len - 1; ++i) {
+    for (uint32_t i = 0; i < *lb_len - 1; ++i) {
       Dict_reset_next_input_entry(dict, s, &dict->match3, &dict->match2);
       Match3_skip_advance(&dict->match3, s, dict->buffer);
-      Match2_add(&dict->match2, uint16_t(s->wind_b), dict->buffer);
+      Match2_add(&dict->match2, (uint16_t)(s->wind_b), dict->buffer);
       get_byte(s, dict->buffer);
     }
   }
 
-  lb_len = 1;
-  lb_off = 0;
+  *lb_len = 1;
+  *lb_off = 0;
   uint32_t lb_pos;
 
-  uint32_t best_pos[MaxMatchByLengthLen] = {};
+  uint32_t best_pos[MaxMatchByLengthLen] = {0};
   uint32_t match_pos, match_count;
-  Match3_advance(&dict->match3, s, match_pos, match_count, dict->buffer);
+  Match3_advance(&dict->match3, s, &match_pos, &match_count, dict->buffer);
 
   int best_char = dict->buffer[s->wind_b];
-  uint32_t best_len = lb_len;
-  if (lb_len >= s->wind_sz) {
+  uint32_t best_len = *lb_len;
+  if (*lb_len >= s->wind_sz) {
     if (s->wind_sz == 0)
       best_char = -1;
-    lb_off = 0;
+    *lb_off = 0;
     dict->match3.best_len[s->wind_b] = DictBase_MaxMatchLen + 1;
   } else {
-    if (Match2_search(&dict->match2, s, lb_pos, lb_len, best_pos, dict->buffer) && s->wind_sz >= 3) {
+    if (Match2_search(&dict->match2, s, &lb_pos, lb_len, best_pos, dict->buffer) && s->wind_sz >= 3) {
       for (uint32_t i = 0; i < match_count; ++i, match_pos = dict->match3.chain[match_pos]) {
         uint8_t *ref_ptr = dict->buffer + s->wind_b;
         uint8_t *match_ptr = dict->buffer + match_pos;
@@ -545,17 +543,17 @@ static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t& 
           continue;
         if (match_len < MaxMatchByLengthLen && best_pos[match_len] == 0)
           best_pos[match_len] = match_pos + 1;
-        if (match_len > lb_len) {
-          lb_len = (uint32_t)match_len;
+        if (match_len > *lb_len) {
+          *lb_len = (uint32_t)match_len;
           lb_pos = match_pos;
           if (match_len == s->wind_sz || match_len > dict->match3.best_len[match_pos])
             break;
         }
       }
     }
-    if (lb_len > best_len)
-      lb_off = pos2off(s, lb_pos);
-    dict->match3.best_len[s->wind_b] = uint16_t(lb_len);
+    if (*lb_len > best_len)
+      *lb_off = pos2off(s, lb_pos);
+    dict->match3.best_len[s->wind_b] = (uint16_t)(*lb_len);
     const uint32_t *end_best_pos = &best_pos[sizeof(best_pos)/sizeof(best_pos[0])];
     uint32_t *offit = best_off + 2;
     for (const uint32_t *posit = best_pos + 2;
@@ -566,13 +564,13 @@ static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t& 
 
   Dict_reset_next_input_entry(dict, s, &dict->match3, &dict->match2);
 
-  Match2_add(&dict->match2, uint16_t(s->wind_b), dict->buffer);
+  Match2_add(&dict->match2, (uint16_t)(s->wind_b), dict->buffer);
 
   get_byte(s, dict->buffer);
 
   if (best_char < 0) {
     s->buf_sz = 0;
-    lb_len = 0;
+    *lb_len = 0;
     /* Signal exit */
   } else {
     s->buf_sz = s->wind_sz + 1;
@@ -585,13 +583,13 @@ static EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, cons
   uint8_t* outp = *outpp;
   if (outp == dst && lit_len <= 238) {
     NEEDS_OUT(1);
-    *outp++ = uint8_t(17 + lit_len);
+    *outp++ = (uint8_t)(17 + lit_len);
     *outpp = outp;
   } else if (lit_len <= 3) {
-    outp[-2] = uint8_t(outp[-2] | lit_len);
+    outp[-2] = (uint8_t)(outp[-2] | lit_len);
   } else if (lit_len <= 18) {
     NEEDS_OUT(1);
-    *outp++ = uint8_t(lit_len - 3);
+    *outp++ = (uint8_t)(lit_len - 3);
     *outpp = outp;
   } else {
     NEEDS_OUT((lit_len - 18) / 255 + 2);
@@ -606,9 +604,9 @@ static EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, cons
   return EResult_Success;
 }
 
-EResult compress(const uint8_t* src, size_t src_size,
+EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t init_dst_size,
-                 size_t *p_dst_size, DictBase_Data* dict_storage) {
+                 size_t *p_dst_size, struct DictBase_Data* dict_storage) {
   EResult err;
   struct State s;
   *p_dst_size = init_dst_size;
@@ -619,7 +617,7 @@ EResult compress(const uint8_t* src, size_t src_size,
   uint32_t best_off[MaxMatchByLengthLen];
   Dict_init(dict_storage, &s, src, src_size);
   const uint8_t* lit_ptr = s.inp;
-  Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, false);
+  Dict_advance(dict_storage, &s, &lb_off, &lb_len, best_off, false);
   while (s.buf_sz > 0) {
     if (lit_len == 0)
       lit_ptr = s.bufp;
@@ -631,7 +629,7 @@ EResult compress(const uint8_t* src, size_t src_size,
     }
     if (lb_len == 0) {
       ++lit_len;
-      Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, false);
+      Dict_advance(dict_storage, &s, &lb_off, &lb_len, best_off, false);
       continue;
     }
     find_better_match(best_off, &lb_len, &lb_off);
@@ -640,7 +638,7 @@ EResult compress(const uint8_t* src, size_t src_size,
     if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
-    Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, true);
+    Dict_advance(dict_storage, &s, &lb_off, &lb_len, best_off, true);
   }
   if ((err = encode_literal_run(&outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;
@@ -654,4 +652,3 @@ EResult compress(const uint8_t* src, size_t src_size,
   *p_dst_size = outp - dst;
   return EResult_Success;
 }
-}; // "C"

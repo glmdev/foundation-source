@@ -1,9 +1,19 @@
-#pragma once
-#include <cstddef>
-#include <cstdint>
-#include <memory>
+#ifndef LZOKAY_H_INCLUDED
+#define LZOKAY_H_INCLUDED
 
+#include <stddef.h>
+#include <stdint.h>
+#include <memory.h>
+
+#ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef _MSC_VER
+#ifndef inline
+#define inline __inline
+#endif
+#endif
 
 typedef enum {
   EResult_LookbehindOverrun = -4,
@@ -14,16 +24,16 @@ typedef enum {
   EResult_InputNotConsumed = 1,
 } EResult;
 
-static const uint32_t HashSize = 0x4000;
-static const uint32_t DictBase_MaxDist = 0xbfff;
-static const uint32_t DictBase_MaxMatchLen = 0x800;
-static const uint32_t DictBase_BufSize = DictBase_MaxDist + DictBase_MaxMatchLen;
+#define HashSize             0x4000
+#define DictBase_MaxDist     0xbfff
+#define DictBase_MaxMatchLen  0x800
+#define DictBase_BufSize (DictBase_MaxDist + DictBase_MaxMatchLen)
 
 static size_t compress_worst_size(size_t s) {
   return s + s / 16 + 64 + 3;
 }
 
-EResult decompress(const uint8_t* src, size_t src_size,
+EResult lzokay_decompress(const uint8_t* src, size_t src_size,
                    uint8_t* dst, size_t dst_size,
                    size_t* out_size);
 
@@ -40,8 +50,8 @@ struct Match2 {
 };
 
 struct DictBase_Data {
-  Match3 match3;
-  Match2 match2;
+  struct Match3 match3;
+  struct Match2 match2;
 
   /* Circular buffer caching enough data to access the maximum lookback
     * distance of 48K + maximum match length of 2K. An additional 2K is
@@ -51,7 +61,19 @@ struct DictBase_Data {
   uint8_t buffer[DictBase_BufSize + DictBase_MaxMatchLen];
 };
 
-EResult compress(const uint8_t* src, size_t src_size,
+EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t dst_size,
-                 size_t* out_size, DictBase_Data* dict_storage);
-}; // "C"
+                 size_t* out_size, struct DictBase_Data* dict_storage);
+
+static inline EResult lzokay_compress(const uint8_t* src, size_t src_size,
+                 uint8_t* dst, size_t dst_size, size_t* out_size)
+{
+  struct DictBase_Data dict;
+  return lzokay_compress_dict(src, src_size, dst, dst_size, out_size, &dict);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // LZOKAY_H_INCLUDED
