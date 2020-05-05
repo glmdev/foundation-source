@@ -583,10 +583,6 @@ static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t& 
 
 namespace lzokay {
 
-class DictImpl : public DictBase {
-public:
-};
-
 static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
                                   const uint8_t* lit_ptr, uint32_t lit_len) {
   if (outp == dst && lit_len <= 238) {
@@ -613,7 +609,7 @@ EResult compress(const uint8_t* src, size_t src_size,
                  size_t *p_dst_size, DictBase& dict) {
   EResult err;
   struct State s;
-  DictImpl& d = static_cast<DictImpl&>(dict);
+  DictBase& d = dict;
   *p_dst_size = init_dst_size;
   uint8_t* outp = dst;
   uint8_t* outp_end = dst + init_dst_size;
