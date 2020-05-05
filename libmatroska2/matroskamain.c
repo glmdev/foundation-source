@@ -37,7 +37,7 @@
 #include <bzlib.h>
 #endif
 #if defined(CONFIG_LZO1X)
-#include "lzokay-c/lzokay-c.h"
+#include "lzokay/lzokay.h"
 #endif
 
 const ebml_semantic EBML_SemanticMatroska[] = {
@@ -1026,7 +1026,8 @@ err_t MATROSKA_BlockReadData(matroska_block *Element, stream *Input)
                                 Err = ERR_OUT_OF_MEMORY;
                             else
                             {
-                                if (lzokay_decompress(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[0], ARRAYBEGIN(Element->Data,uint8_t), &outSize) != LZOKAY_SUCCESS)
+                                if (lzokay_decompress(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[0],
+                                                      ARRAYBEGIN(Element->Data,uint8_t), outSize, &outSize) < EResult_Success)
                                     Err = ERR_INVALID_DATA;
                                 else
                                 {
@@ -1188,7 +1189,8 @@ err_t MATROSKA_BlockReadData(matroska_block *Element, stream *Input)
                             Err = ERR_OUT_OF_MEMORY;
                         else
                         {
-                            if (lzokay_decompress(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame], ARRAYBEGIN(Element->Data,uint8_t) + OutSize, &outSize) != LZOKAY_SUCCESS)
+                            if (lzokay_decompress(InBuf, ARRAYBEGIN(Element->SizeList,int32_t)[NumFrame],
+                                                  ARRAYBEGIN(Element->Data,uint8_t) + OutSize, outSize, &outSize) < EResult_Success)
                                 Err = ERR_INVALID_DATA;
                             else
                             {
