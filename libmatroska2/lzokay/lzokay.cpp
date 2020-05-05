@@ -579,30 +579,36 @@ static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t& 
   }
   s->bufp = s->inp - s->buf_sz;
 }
-}; // "C"
 
-namespace lzokay {
-
-static EResult encode_literal_run(uint8_t*& outp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
+static EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
                                   const uint8_t* lit_ptr, uint32_t lit_len) {
+  uint8_t* outp = *outpp;
   if (outp == dst && lit_len <= 238) {
     NEEDS_OUT(1);
     *outp++ = uint8_t(17 + lit_len);
+    *outpp = outp;
   } else if (lit_len <= 3) {
     outp[-2] = uint8_t(outp[-2] | lit_len);
   } else if (lit_len <= 18) {
     NEEDS_OUT(1);
     *outp++ = uint8_t(lit_len - 3);
+    *outpp = outp;
   } else {
     NEEDS_OUT((lit_len - 18) / 255 + 2);
     *outp++ = 0;
+    *outpp = outp;
     WRITE_ZERO_BYTE_LENGTH(lit_len - 18);
   }
   NEEDS_OUT(lit_len);
   memcpy(outp, lit_ptr, lit_len);
   outp += lit_len;
+  *outpp = outp;
   return EResult_Success;
 }
+
+}; // "C"
+
+namespace lzokay {
 
 EResult compress(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t init_dst_size,
@@ -633,14 +639,14 @@ EResult compress(const uint8_t* src, size_t src_size,
       continue;
     }
     find_better_match(best_off, &lb_len, &lb_off);
-    if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
+    if ((err = encode_literal_run(&outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
       return err;
     if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
     Dict_advance(dict_storage, &s, lb_off, lb_len, best_off, true);
   }
-  if ((err = encode_literal_run(outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
+  if ((err = encode_literal_run(&outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;
 
   /* Terminating M4 */
