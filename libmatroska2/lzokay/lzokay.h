@@ -22,18 +22,14 @@ typedef enum {
   EResult_Error = -1,
   EResult_Success = 0,
   EResult_InputNotConsumed = 1,
-} EResult;
+} lzokay_EResult;
 
 #define HashSize             0x4000
 #define DictBase_MaxDist     0xbfff
 #define DictBase_MaxMatchLen  0x800
 #define DictBase_BufSize (DictBase_MaxDist + DictBase_MaxMatchLen)
 
-static size_t compress_worst_size(size_t s) {
-  return s + s / 16 + 64 + 3;
-}
-
-EResult lzokay_decompress(const uint8_t* src, size_t src_size,
+lzokay_EResult lzokay_decompress(const uint8_t* src, size_t src_size,
                    uint8_t* dst, size_t dst_size,
                    size_t* out_size);
 
@@ -49,7 +45,7 @@ struct Match2 {
   uint16_t head[1 << 16]; /* 2-byte-data -> head-pos */
 };
 
-struct DictBase_Data {
+struct lzokay_Dict {
   struct Match3 match3;
   struct Match2 match2;
 
@@ -61,15 +57,19 @@ struct DictBase_Data {
   uint8_t buffer[DictBase_BufSize + DictBase_MaxMatchLen];
 };
 
-EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
+lzokay_EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t dst_size,
-                 size_t* out_size, struct DictBase_Data* dict_storage);
+                 size_t* out_size, struct lzokay_Dict* dict_storage);
 
-static inline EResult lzokay_compress(const uint8_t* src, size_t src_size,
+static inline lzokay_EResult lzokay_compress(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t dst_size, size_t* out_size)
 {
-  struct DictBase_Data dict;
+  struct lzokay_Dict dict;
   return lzokay_compress_dict(src, src_size, dst, dst_size, out_size, &dict);
+}
+
+static inline size_t lzokay_compress_worst_size(size_t s) {
+  return s + s / 16 + 64 + 3;
 }
 
 #ifdef __cplusplus

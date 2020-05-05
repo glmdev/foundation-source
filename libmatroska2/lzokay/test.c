@@ -3,15 +3,15 @@
 #include <stdlib.h>
 
 int compress_and_decompress(const uint8_t* data, size_t length) {
-  EResult error;
+  lzokay_EResult error;
 
   /* This variable and 5th parameter of compress() is optional, but may
    * be reused across multiple compression runs; avoiding repeat
    * allocation/deallocation of the work memory used by the compressor.
    */
-  struct DictBase_Data dict;
+  struct lzokay_Dict dict;
 
-  size_t compressed_size = compress_worst_size(length);
+  size_t compressed_size = lzokay_compress_worst_size(length);
   uint8_t * compressed = malloc(compressed_size);
   error = lzokay_compress_dict(data, length, compressed, compressed_size,
                            &compressed_size, &dict);

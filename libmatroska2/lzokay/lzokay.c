@@ -3,6 +3,14 @@
 #include <limits.h>
 #include <stdbool.h>
 
+static uint8_t* std_mismatch(uint8_t* first1, uint8_t* last1, uint8_t* first2)
+{
+    while (first1 != last1 && *first1 == *first2) {
+        ++first1, ++first2;
+    }
+    return first1;
+}
+
 /*
  * Based on documentation from the Linux sources: Documentation/lzo.txt
  * https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/lzo.txt
@@ -41,15 +49,38 @@ static uint16_t get_le16(const uint8_t* p) {
 }
 #endif
 
-static uint8_t* std_mismatch(uint8_t* first1, uint8_t* last1, uint8_t* first2)
-{
-    while (first1 != last1 && *first1 == *first2) {
-        ++first1, ++first2;
-    }
-    return first1;
-}
-
 static const size_t Max255Count = SIZE_MAX / 255 - 2;
+
+#define NEEDS_IN(count) \
+  if (inp + (count) > inp_end) { \
+    *dst_size = outp - dst; \
+    return EResult_InputOverrun; \
+  }
+
+#define NEEDS_OUT(count) \
+  if (outp + (count) > outp_end) { \
+    *dst_size = outp - dst; \
+    return EResult_OutputOverrun; \
+  }
+
+#define CONSUME_ZERO_BYTE_LENGTH \
+  size_t offset; \
+  { \
+    const uint8_t *old_inp = inp; \
+    while (*inp == 0) ++inp; \
+    offset = inp - old_inp; \
+    if (offset > Max255Count) { \
+      *dst_size = outp - dst; \
+      return EResult_Error; \
+    } \
+  }
+
+#define WRITE_ZERO_BYTE_LENGTH(length) \
+  { \
+    uint32_t l; \
+    for (l = length; l > 255; l -= 255) { *outp++ = 0; } \
+    *outp++ = l; \
+  }
 
 static const uint32_t M1MaxOffset = 0x0400;
 static const uint32_t M2MaxOffset = 0x0800;
@@ -72,51 +103,20 @@ static const uint32_t M4Marker = 0x10;
 
 #define MaxMatchByLengthLen 34 /* Max M3 len + 1 */
 
-#define NEEDS_IN(count) \
-  if (inp + (count) > inp_end) { \
-    *p_dst_size = outp - dst; \
-    return EResult_InputOverrun; \
-  }
-
-#define NEEDS_OUT(count) \
-  if (outp + (count) > outp_end) { \
-    *p_dst_size = outp - dst; \
-    return EResult_OutputOverrun; \
-  }
-
-#define CONSUME_ZERO_BYTE_LENGTH \
-  size_t offset; \
-  { \
-    const uint8_t *old_inp = inp; \
-    while (*inp == 0) ++inp; \
-    offset = inp - old_inp; \
-    if (offset > Max255Count) { \
-      *p_dst_size = outp - dst; \
-      return EResult_Error; \
-    } \
-  }
-
-#define WRITE_ZERO_BYTE_LENGTH(length) \
-  { \
-    uint32_t l; \
-    for (l = length; l > 255; l -= 255) { *outp++ = 0; } \
-    *outp++ = l; \
-  }
-
-EResult lzokay_decompress(const uint8_t* src, size_t src_size,
+lzokay_EResult lzokay_decompress(const uint8_t* src, size_t src_size,
                    uint8_t* dst, size_t init_dst_size,
-                   size_t *p_dst_size) {
+                   size_t *dst_size) {
+  *dst_size = init_dst_size;
+
   if (src_size < 3) {
-    *p_dst_size = 0;
+    *dst_size = 0;
     return EResult_InputOverrun;
   }
-
-  *p_dst_size = init_dst_size;
 
   const uint8_t* inp = src;
   const uint8_t* inp_end = src + src_size;
   uint8_t* outp = dst;
-  uint8_t* outp_end = dst + init_dst_size;
+  uint8_t* outp_end = dst + *dst_size;
   uint8_t* lbcur;
   size_t lblen;
   size_t state = 0;
@@ -280,7 +280,7 @@ EResult lzokay_decompress(const uint8_t* src, size_t src_size,
       }
     }
     if (lbcur < dst) {
-      *p_dst_size = outp - dst;
+      *dst_size = outp - dst;
       return EResult_LookbehindOverrun;
     }
     NEEDS_IN(nstate)
@@ -294,7 +294,7 @@ EResult lzokay_decompress(const uint8_t* src, size_t src_size,
       *outp++ = *inp++;
   }
 
-  *p_dst_size = outp - dst;
+  *dst_size = outp - dst;
   if (lblen != 3) /* Ensure terminating M4 was encountered */
     return EResult_Error;
   if (inp == inp_end)
@@ -340,73 +340,6 @@ void get_byte(struct State *s, uint8_t* buf) {
 
 uint32_t pos2off(const struct State *s, uint32_t pos) {
   return s->wind_b > pos ? s->wind_b - pos : DictBase_BufSize - (pos - s->wind_b);
-}
-
-static void find_better_match(const uint32_t best_off[MaxMatchByLengthLen], uint32_t* p_lb_len, uint32_t* p_lb_off) {
-  if (*p_lb_len <= M2MinLen || *p_lb_off <= M2MaxOffset)
-    return;
-  if (*p_lb_off > M2MaxOffset && *p_lb_len >= M2MinLen + 1 && *p_lb_len <= M2MaxLen + 1 &&
-      best_off[*p_lb_len - 1] != 0 && best_off[*p_lb_len - 1] <= M2MaxOffset) {
-    *p_lb_len -= 1;
-    *p_lb_off = best_off[*p_lb_len];
-  } else if (*p_lb_off > M3MaxOffset && *p_lb_len >= M4MaxLen + 1 && *p_lb_len <= M2MaxLen + 2 &&
-             best_off[*p_lb_len - 2] && best_off[*p_lb_len] <= M2MaxOffset) {
-    *p_lb_len -= 2;
-    *p_lb_off = best_off[*p_lb_len];
-  } else if (*p_lb_off > M3MaxOffset && *p_lb_len >= M4MaxLen + 1 && *p_lb_len <= M3MaxLen + 1 &&
-             best_off[*p_lb_len - 1] != 0 && best_off[*p_lb_len - 2] <= M3MaxOffset) {
-    *p_lb_len -= 1;
-    *p_lb_off = best_off[*p_lb_len];
-  }
-}
-
-static EResult encode_lookback_match(uint8_t* outp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
-                                     uint32_t lb_len, uint32_t lb_off, uint32_t last_lit_len) {
-  if (lb_len == 2) {
-    lb_off -= 1;
-    NEEDS_OUT(2);
-    *outp++ = (uint8_t)(M1Marker | ((lb_off & 0x3) << 2));
-    *outp++ = (uint8_t)(lb_off >> 2);
-  } else if (lb_len <= M2MaxLen && lb_off <= M2MaxOffset) {
-    lb_off -= 1;
-    NEEDS_OUT(2);
-    *outp++ = (uint8_t)((lb_len - 1) << 5 | ((lb_off & 0x7) << 2));
-    *outp++ = (uint8_t)(lb_off >> 3);
-  } else if (lb_len == M2MinLen && lb_off <= M1MaxOffset + M2MaxOffset && last_lit_len >= 4) {
-    lb_off -= 1 + M2MaxOffset;
-    NEEDS_OUT(2);
-    *outp++ = (uint8_t)(M1Marker | ((lb_off & 0x3) << 2));
-    *outp++ = (uint8_t)(lb_off >> 2);
-  } else if (lb_off <= M3MaxOffset) {
-    lb_off -= 1;
-    if (lb_len <= M3MaxLen) {
-      NEEDS_OUT(1);
-      *outp++ = (uint8_t)(M3Marker | (lb_len - 2));
-    } else {
-      lb_len -= M3MaxLen;
-      NEEDS_OUT(lb_len / 255 + 2);
-      *outp++ = (uint8_t)(M3Marker);
-      WRITE_ZERO_BYTE_LENGTH(lb_len);
-    }
-    NEEDS_OUT(2);
-    *outp++ = (uint8_t)(lb_off << 2);
-    *outp++ = (uint8_t)(lb_off >> 6);
-  } else {
-    lb_off -= 0x4000;
-    if (lb_len <= M4MaxLen) {
-      NEEDS_OUT(1);
-      *outp++ = (uint8_t)(M4Marker | ((lb_off & 0x4000) >> 11) | (lb_len - 2));
-    } else {
-      lb_len -= M4MaxLen;
-      NEEDS_OUT(lb_len / 255 + 2);
-      *outp++ = (uint8_t)(M4Marker | ((lb_off & 0x4000) >> 11));
-      WRITE_ZERO_BYTE_LENGTH(lb_len);
-    }
-    NEEDS_OUT(2);
-    *outp++ = (uint8_t)(lb_off << 2);
-    *outp++ = (uint8_t)(lb_off >> 6);
-  }
-  return EResult_Success;
 }
 
 static uint32_t Match3_make_key(const uint8_t* data) {
@@ -475,7 +408,7 @@ static bool Match2_search(const struct Match2 *match, struct State* s, uint32_t 
   return true;
 }
 
-static void Dict_init(struct DictBase_Data *dict, struct State* s, const uint8_t* src, size_t src_size) {
+static void Dict_init(struct lzokay_Dict *dict, struct State* s, const uint8_t* src, size_t src_size) {
   s->cycle1_countdown = DictBase_MaxDist;
   Match3_init(&dict->match3);
   Match2_init(&dict->match2);
@@ -496,7 +429,7 @@ static void Dict_init(struct DictBase_Data *dict, struct State* s, const uint8_t
     memset(&dict->buffer[s->wind_b + s->wind_sz], 0, 3);
 }
 
-static void Dict_reset_next_input_entry(struct DictBase_Data *dict, struct State* s, struct Match3* match3, struct Match2* match2) {
+static void Dict_reset_next_input_entry(struct lzokay_Dict *dict, struct State* s, struct Match3* match3, struct Match2* match2) {
   /* Remove match from about-to-be-clobbered buffer entry */
   if (s->cycle1_countdown == 0) {
     Match3_remove(match3, s->wind_e, dict->buffer);
@@ -506,7 +439,7 @@ static void Dict_reset_next_input_entry(struct DictBase_Data *dict, struct State
   }
 }
 
-static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t *lb_off, uint32_t *lb_len,
+static void Dict_advance(struct lzokay_Dict *dict, struct State* s, uint32_t *lb_off, uint32_t *lb_len,
               uint32_t best_off[MaxMatchByLengthLen], bool skip) {
   if (skip) {
     for (uint32_t i = 0; i < *lb_len - 1; ++i) {
@@ -544,7 +477,7 @@ static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t *
         if (match_len < MaxMatchByLengthLen && best_pos[match_len] == 0)
           best_pos[match_len] = match_pos + 1;
         if (match_len > *lb_len) {
-          *lb_len = (uint32_t)match_len;
+          *lb_len = match_len;
           lb_pos = match_pos;
           if (match_len == s->wind_sz || match_len > dict->match3.best_len[match_pos])
             break;
@@ -578,7 +511,25 @@ static void Dict_advance(struct DictBase_Data *dict, struct State* s, uint32_t *
   s->bufp = s->inp - s->buf_sz;
 }
 
-static EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, const uint8_t* dst, size_t *p_dst_size,
+static void find_better_match(const uint32_t best_off[MaxMatchByLengthLen], uint32_t* p_lb_len, uint32_t* p_lb_off) {
+  if (*p_lb_len <= M2MinLen || *p_lb_off <= M2MaxOffset)
+    return;
+  if (*p_lb_off > M2MaxOffset && *p_lb_len >= M2MinLen + 1 && *p_lb_len <= M2MaxLen + 1 &&
+      best_off[*p_lb_len - 1] != 0 && best_off[*p_lb_len - 1] <= M2MaxOffset) {
+    *p_lb_len -= 1;
+    *p_lb_off = best_off[*p_lb_len];
+  } else if (*p_lb_off > M3MaxOffset && *p_lb_len >= M4MaxLen + 1 && *p_lb_len <= M2MaxLen + 2 &&
+             best_off[*p_lb_len - 2] && best_off[*p_lb_len] <= M2MaxOffset) {
+    *p_lb_len -= 2;
+    *p_lb_off = best_off[*p_lb_len];
+  } else if (*p_lb_off > M3MaxOffset && *p_lb_len >= M4MaxLen + 1 && *p_lb_len <= M3MaxLen + 1 &&
+             best_off[*p_lb_len - 1] != 0 && best_off[*p_lb_len - 2] <= M3MaxOffset) {
+    *p_lb_len -= 1;
+    *p_lb_off = best_off[*p_lb_len];
+  }
+}
+
+static lzokay_EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, const uint8_t* dst, size_t *dst_size,
                                   const uint8_t* lit_ptr, uint32_t lit_len) {
   uint8_t* outp = *outpp;
   if (outp == dst && lit_len <= 238) {
@@ -604,12 +555,61 @@ static EResult encode_literal_run(uint8_t** outpp, const uint8_t* outp_end, cons
   return EResult_Success;
 }
 
-EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
+static lzokay_EResult encode_lookback_match(uint8_t* outp, const uint8_t* outp_end, const uint8_t* dst, size_t *dst_size,
+                                     uint32_t lb_len, uint32_t lb_off, uint32_t last_lit_len) {
+  if (lb_len == 2) {
+    lb_off -= 1;
+    NEEDS_OUT(2);
+    *outp++ = (uint8_t)(M1Marker | ((lb_off & 0x3) << 2));
+    *outp++ = (uint8_t)(lb_off >> 2);
+  } else if (lb_len <= M2MaxLen && lb_off <= M2MaxOffset) {
+    lb_off -= 1;
+    NEEDS_OUT(2);
+    *outp++ = (uint8_t)((lb_len - 1) << 5 | ((lb_off & 0x7) << 2));
+    *outp++ = (uint8_t)(lb_off >> 3);
+  } else if (lb_len == M2MinLen && lb_off <= M1MaxOffset + M2MaxOffset && last_lit_len >= 4) {
+    lb_off -= 1 + M2MaxOffset;
+    NEEDS_OUT(2);
+    *outp++ = (uint8_t)(M1Marker | ((lb_off & 0x3) << 2));
+    *outp++ = (uint8_t)(lb_off >> 2);
+  } else if (lb_off <= M3MaxOffset) {
+    lb_off -= 1;
+    if (lb_len <= M3MaxLen) {
+      NEEDS_OUT(1);
+      *outp++ = (uint8_t)(M3Marker | (lb_len - 2));
+    } else {
+      lb_len -= M3MaxLen;
+      NEEDS_OUT(lb_len / 255 + 2);
+      *outp++ = (uint8_t)(M3Marker);
+      WRITE_ZERO_BYTE_LENGTH(lb_len);
+    }
+    NEEDS_OUT(2);
+    *outp++ = (uint8_t)(lb_off << 2);
+    *outp++ = (uint8_t)(lb_off >> 6);
+  } else {
+    lb_off -= 0x4000;
+    if (lb_len <= M4MaxLen) {
+      NEEDS_OUT(1);
+      *outp++ = (uint8_t)(M4Marker | ((lb_off & 0x4000) >> 11) | (lb_len - 2));
+    } else {
+      lb_len -= M4MaxLen;
+      NEEDS_OUT(lb_len / 255 + 2);
+      *outp++ = (uint8_t)(M4Marker | ((lb_off & 0x4000) >> 11));
+      WRITE_ZERO_BYTE_LENGTH(lb_len);
+    }
+    NEEDS_OUT(2);
+    *outp++ = (uint8_t)(lb_off << 2);
+    *outp++ = (uint8_t)(lb_off >> 6);
+  }
+  return EResult_Success;
+}
+
+lzokay_EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
                  uint8_t* dst, size_t init_dst_size,
-                 size_t *p_dst_size, struct DictBase_Data* dict_storage) {
-  EResult err;
+                 size_t *dst_size, struct lzokay_Dict* dict_storage) {
+  lzokay_EResult err;
   struct State s;
-  *p_dst_size = init_dst_size;
+  *dst_size = init_dst_size;
   uint8_t* outp = dst;
   uint8_t* outp_end = dst + init_dst_size;
   uint32_t lit_len = 0;
@@ -633,14 +633,14 @@ EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
       continue;
     }
     find_better_match(best_off, &lb_len, &lb_off);
-    if ((err = encode_literal_run(&outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
+    if ((err = encode_literal_run(&outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult_Success)
       return err;
-    if ((err = encode_lookback_match(outp, outp_end, dst, p_dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
+    if ((err = encode_lookback_match(outp, outp_end, dst, dst_size, lb_len, lb_off, lit_len)) < EResult_Success)
       return err;
     lit_len = 0;
     Dict_advance(dict_storage, &s, &lb_off, &lb_len, best_off, true);
   }
-  if ((err = encode_literal_run(&outp, outp_end, dst, p_dst_size, lit_ptr, lit_len)) < EResult_Success)
+  if ((err = encode_literal_run(&outp, outp_end, dst, dst_size, lit_ptr, lit_len)) < EResult_Success)
     return err;
 
   /* Terminating M4 */
@@ -649,6 +649,6 @@ EResult lzokay_compress_dict(const uint8_t* src, size_t src_size,
   *outp++ = 0;
   *outp++ = 0;
 
-  *p_dst_size = outp - dst;
+  *dst_size = outp - dst;
   return EResult_Success;
 }
