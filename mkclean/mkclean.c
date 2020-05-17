@@ -1386,6 +1386,16 @@ static void WriteJunk(stream *Output, size_t Amount)
 		Stream_Write(Output,&Val,1,NULL);
 }
 
+static filepos_t AddMetaSeek(ebml_master *WMetaSeek, ebml_master *SeekElement, filepos_t StartPos, filepos_t Size)
+{
+    matroska_seekpoint *WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
+    EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
+    EBML_ElementForcePosition(&SeekElement->Base, StartPos);
+    StartPos += EBML_ElementFullSize(&SeekElement->Base,0) + Size;
+    MATROSKA_LinkMetaSeekElement(WSeekPoint,&SeekElement->Base);
+    return StartPos;
+}
+
 #if defined(TARGET_WIN) && defined(UNICODE)
 int wmain(int argc, const wchar_t *argv[])
 #else
@@ -1404,7 +1414,6 @@ int main(int argc, const char *argv[])
     ebml_master *RSegmentInfo = NULL, *RTrackInfo = NULL, *RChapters = NULL, *RTags = NULL, *RCues = NULL, *RAttachments = NULL;
     ebml_master *WSegment = NULL, *WMetaSeek = NULL, *WSegmentInfo = NULL, *WTrackInfo = NULL;
     ebml_element *Elt, *Elt2;
-    matroska_seekpoint *WSeekPoint = NULL, *W1stClusterSeek = NULL;
     ebml_string *LibName, *AppName;
     array RClusters, WClusters, *Clusters, WTracks;
     ebml_parser_context RContext;
@@ -1981,21 +1990,13 @@ int main(int argc, const char *argv[])
             NextPos += Unsafe ? 17 : 23;
 
 		// segment info
-		WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-        EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
-		EBML_ElementForcePosition((ebml_element*)WSegmentInfo, NextPos);
-		NextPos += EBML_ElementFullSize((ebml_element*)WSegmentInfo,0) + 60; // 60 for the extra string we add
-		MATROSKA_LinkMetaSeekElement(WSeekPoint,(ebml_element*)WSegmentInfo);
+        NextPos = AddMetaSeek(WMetaSeek, WSegmentInfo, NextPos, 60);
 
 		// track info
 		if (WTrackInfo)
 		{
-			WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-            EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
-			EBML_ElementForcePosition((ebml_element*)WTrackInfo, NextPos);
             EBML_ElementUpdateSize(WTrackInfo, 0, 0);
-			NextPos += EBML_ElementFullSize((ebml_element*)WTrackInfo,0);
-			MATROSKA_LinkMetaSeekElement(WSeekPoint,(ebml_element*)WTrackInfo);
+            NextPos = AddMetaSeek(WMetaSeek, WTrackInfo, NextPos, 0);
 		}
 		else
 		{
@@ -2016,11 +2017,7 @@ int main(int argc, const char *argv[])
 			}
 			else
 			{
-				WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-                EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
-				EBML_ElementForcePosition((ebml_element*)RChapters, NextPos);
-				NextPos += EBML_ElementFullSize((ebml_element*)RChapters,0);
-				MATROSKA_LinkMetaSeekElement(WSeekPoint,(ebml_element*)RChapters);
+                NextPos = AddMetaSeek(WMetaSeek, RChapters, NextPos, 0);
 			}
 		}
 
@@ -2039,11 +2036,7 @@ int main(int argc, const char *argv[])
 			}
 			else
 			{
-				WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-                EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
-				EBML_ElementForcePosition((ebml_element*)RAttachments, NextPos);
-				NextPos += EBML_ElementFullSize((ebml_element*)RAttachments,0);
-				MATROSKA_LinkMetaSeekElement(WSeekPoint,(ebml_element*)RAttachments);
+                NextPos = AddMetaSeek(WMetaSeek, RAttachments, NextPos, 0);
 			}
 		}
 
@@ -2061,11 +2054,7 @@ int main(int argc, const char *argv[])
 			}
 			else
 			{
-				WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-                EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
-				EBML_ElementForcePosition((ebml_element*)RTags, NextPos);
-				NextPos += EBML_ElementFullSize((ebml_element*)RTags,0);
-				MATROSKA_LinkMetaSeekElement(WSeekPoint,(ebml_element*)RTags);
+                NextPos = AddMetaSeek(WMetaSeek, RTags, NextPos, 0);
 			}
 		}
 	}
@@ -2790,11 +2779,7 @@ int main(int argc, const char *argv[])
 
 		if (RCues)
 		{
-			WSeekPoint = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-            EBML_MasterUseChecksum((ebml_master*)WSeekPoint,!Unsafe);
-			EBML_ElementForcePosition((ebml_element*)RCues, NextPos);
-			NextPos += EBML_ElementFullSize((ebml_element*)RCues,0);
-			MATROSKA_LinkMetaSeekElement(WSeekPoint,(ebml_element*)RCues);
+            NextPos = AddMetaSeek(WMetaSeek, RCues, NextPos, 0);
 		}
 
         ExtraVoidSize = 2 * EXTRA_SEEK_SPACE; // leave room for 2 unknown level1 elements
@@ -2810,11 +2795,7 @@ int main(int argc, const char *argv[])
         // first cluster
         if (ARRAYCOUNT(RClusters,matroska_cluster*))
         {
-			W1stClusterSeek = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
-            EBML_MasterUseChecksum((ebml_master*)W1stClusterSeek,!Unsafe);
-			EBML_ElementForcePosition(ARRAYBEGIN(*Clusters,ebml_master*)[0], NextPos + ExtraVoidSize);
-			NextPos += EBML_ElementFullSize(ARRAYBEGIN(*Clusters,ebml_master*)[0],0);
-			MATROSKA_LinkMetaSeekElement(W1stClusterSeek,ARRAYBEGIN(*Clusters,ebml_master*)[0]);
+            NextPos = AddMetaSeek(WMetaSeek, ARRAYBEGIN(*Clusters,ebml_master*)[0], NextPos + ExtraVoidSize, 0);
         }
 
 		// first estimation of the MetaSeek size
