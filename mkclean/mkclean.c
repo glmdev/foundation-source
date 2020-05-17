@@ -192,7 +192,7 @@ static void ReduceSize(ebml_element *Element)
         if (Unsafe)
             EBML_MasterUseChecksum((ebml_master*)Element,0);
 
-        if (EBML_ElementIsType(Element, &MATROSKA_ContextBlockGroup) && !EBML_MasterCheckMandatory((ebml_master*)Element, 0))
+        if (EBML_ElementIsType(Element, &MATROSKA_ContextBlockGroup) && !EBML_MasterCheckMandatory(Element))
         {
             NodeDelete((node*)Element);
             return;
@@ -219,7 +219,7 @@ static void ReduceSize(ebml_element *Element)
             ReduceSize(i);
 		}
 
-        if (!EBML_MasterChildren(Element) && !EBML_MasterCheckMandatory((ebml_master*)Element, 0))
+        if (!EBML_MasterChildren(Element) && !EBML_MasterCheckMandatory(Element))
         {
             NodeDelete((node*)Element);
             return;
@@ -2008,7 +2008,7 @@ int main(int argc, const char *argv[])
 			ReduceSize((ebml_element*)RChapters);
             if (EBML_MasterUseChecksum(RChapters,!Unsafe))
                 EBML_ElementUpdateSize(RChapters, 0, 0);
-			if (!EBML_MasterCheckMandatory(RChapters,0))
+			if (!EBML_MasterCheckMandatory(RChapters))
 			{
 				TextWrite(StdErr,T("The Chapters section is missing mandatory elements, skipping\r\n"));
 				NodeDelete((node*)RChapters);
@@ -2031,7 +2031,7 @@ int main(int argc, const char *argv[])
 			ReduceSize((ebml_element*)RAttachments);
             if (EBML_MasterUseChecksum(RAttachments,!Unsafe))
                 EBML_ElementUpdateSize(RAttachments, 0, 0);
-			if (!EBML_MasterCheckMandatory(RAttachments,0))
+			if (!EBML_MasterCheckMandatory(RAttachments))
 			{
 				TextWrite(StdErr,T("The Attachments section is missing mandatory elements, skipping\r\n"));
 				NodeDelete((node*)RAttachments);
@@ -2053,7 +2053,7 @@ int main(int argc, const char *argv[])
 			ReduceSize((ebml_element*)RTags);
             if (EBML_MasterUseChecksum(RTags,!Unsafe))
                 EBML_ElementUpdateSize(RTags, 0, 0);
-			if (!EBML_MasterCheckMandatory(RTags,0))
+			if (!EBML_MasterCheckMandatory(RTags))
 			{
 				TextWrite(StdErr,T("The Tags section is missing mandatory elements, skipping\r\n"));
 				NodeDelete((node*)RTags);
@@ -2764,7 +2764,7 @@ int main(int argc, const char *argv[])
 		else if (RCues)
 		{
 			ReduceSize((ebml_element*)RCues);
-			if (!EBML_MasterCheckMandatory(RCues,0))
+			if (!EBML_MasterCheckMandatory(RCues))
 			{
 				TextWrite(StdErr,T("The original Cues are missing mandatory elements, creating from scratch\r\n"));
 				NodeDelete((node*)RCues);
