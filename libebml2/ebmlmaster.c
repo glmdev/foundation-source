@@ -192,26 +192,26 @@ static bool_t IsDefaultValue(const ebml_element *Element)
 #endif
 }
 
-static bool_t CheckMandatory(const ebml_master *Element, bool_t bWithDefault)
+static bool_t CheckMandatory(const ebml_master *Element)
 {
     const ebml_semantic *i;
     for (i=Element->Base.Context->Semantic;i->eClass;++i)
     {
-        if (i->Mandatory && !EBML_MasterFindChild(Element,i->eClass) && (bWithDefault || !i->eClass->HasDefault))
+        if (i->Mandatory && !i->eClass->HasDefault && !EBML_MasterFindChild(Element,i->eClass))
             return 0;
     }
     return 1;
 }
 
-bool_t EBML_MasterCheckMandatory(const ebml_master *Element, bool_t bWithDefault)
+bool_t EBML_MasterCheckMandatory(const ebml_master *Element)
 {
 	ebml_element *Child;
-	if (!CheckMandatory(Element, bWithDefault))
+	if (!CheckMandatory(Element))
 		return 0;
 
 	for (Child = EBML_MasterChildren(Element); Child; Child = EBML_MasterNext(Child))
 	{
-		if (Node_IsPartOf(Child,EBML_MASTER_CLASS) && !EBML_MasterCheckMandatory((ebml_master*)Child, bWithDefault))
+		if (Node_IsPartOf(Child,EBML_MASTER_CLASS) && !EBML_MasterCheckMandatory((ebml_master*)Child))
 			return 0;
 	}
     return 1;
@@ -241,7 +241,7 @@ static filepos_t UpdateDataSize(ebml_master *Element, bool_t bWithDefault, bool_
 	    //	return INVALID_FILEPOS_T;
 
 	    if (!bForceWithoutMandatory) {
-		    assert(CheckMandatory((ebml_master*)Element, bWithDefault));
+		    assert(CheckMandatory(Element));
         }
 
         if (Element->CheckSumStatus)
@@ -480,7 +480,7 @@ static err_t RenderData(ebml_master *Element, stream *Output, bool_t bForceWitho
     *Rendered = 0;
 
 	if (!bForceWithoutMandatory) {
-		assert(CheckMandatory((ebml_master*)Element, bWithDefault));
+		assert(CheckMandatory(Element));
 	}
 
 	if (!Element->CheckSumStatus)
