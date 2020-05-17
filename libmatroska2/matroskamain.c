@@ -150,6 +150,29 @@ static err_t ClusterTimeChanged(matroska_cluster *Cluster)
     return ERR_NONE;
 }
 
+static bool_t CheckKnownCompression(int64_t compression_mode)
+{
+    switch (compression_mode)
+    {
+#if defined(CONFIG_ZLIB)
+        case MATROSKA_BLOCK_COMPR_ZLIB:
+            return 1;
+#endif // CONFIG_ZLIB
+#if defined(CONFIG_BZLIB)
+        case MATROSKA_BLOCK_COMPR_BZLIB:
+            return 1;
+#endif // CONFIG_BZLIB
+#if defined(CONFIG_LZO1X)
+        case MATROSKA_BLOCK_COMPR_LZO1X:
+            return 1;
+#endif // CONFIG_LZO1X
+        case MATROSKA_BLOCK_COMPR_HEADER:
+        case MATROSKA_BLOCK_COMPR_NONE:
+        default:
+            return 1;
+    }
+}
+
 static err_t CheckCompression(matroska_block *Block)
 {
     ebml_master *Elt, *Header;
@@ -171,20 +194,7 @@ static err_t CheckCompression(matroska_block *Block)
                 return ERR_INVALID_DATA; // TODO: support encryption
 
             Header = (ebml_master*)EBML_MasterGetChild(Elt, &MATROSKA_ContextContentCompAlgo);
-#if defined(CONFIG_ZLIB) || defined(CONFIG_LZO1X) || defined(CONFIG_BZLIB)
-            if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#if defined(CONFIG_ZLIB)
-                    if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_ZLIB)
-#endif
-#if defined(CONFIG_LZO1X)
-                    if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_LZO1X)
-#endif
-#if defined(CONFIG_BZLIB)
-                    if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_BZLIB)
-#endif
-#else
-            if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#endif
+            if (!CheckKnownCompression(EBML_IntegerValue((ebml_integer*)Header)))
                 return ERR_INVALID_DATA;
 
             if (EBML_IntegerValue((ebml_integer*)Header)==MATROSKA_BLOCK_COMPR_HEADER)
@@ -930,20 +940,7 @@ err_t MATROSKA_BlockReadData(matroska_block *Element, stream *Input)
                     return ERR_NOT_SUPPORTED; // TODO: support encryption
 
                 Header = EBML_MasterGetChild((ebml_master*)Elt, &MATROSKA_ContextContentCompAlgo);
-#if defined(CONFIG_ZLIB) || defined(CONFIG_LZO1X) || defined(CONFIG_BZLIB)
-                if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#if defined(CONFIG_ZLIB)
-                    if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_ZLIB)
-#endif
-#if defined(CONFIG_LZO1X)
-                    if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_LZO1X)
-#endif
-#if defined(CONFIG_BZLIB)
-                    if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_BZLIB)
-#endif
-#else
-                if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#endif
+                if (!CheckKnownCompression(EBML_IntegerValue((ebml_integer*)Header)))
                     return ERR_INVALID_DATA;
 
                 if (EBML_IntegerValue((ebml_integer*)Header)==MATROSKA_BLOCK_COMPR_HEADER)
@@ -1689,11 +1686,7 @@ static char GetBestLacingType(const matroska_block *Element)
                 return 0; // TODO: support encryption
 
             Header = EBML_MasterGetChild((ebml_master*)Elt, &MATROSKA_ContextContentCompAlgo);
-#if defined(CONFIG_ZLIB)
-            if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER && EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_ZLIB)
-#else
-            if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#endif
+            if (!CheckKnownCompression(EBML_IntegerValue((ebml_integer*)Header)))
                 return 0;
 
             if (EBML_IntegerValue((ebml_integer*)Header)==MATROSKA_BLOCK_COMPR_HEADER)
@@ -1796,11 +1789,7 @@ static err_t RenderBlockData(matroska_block *Element, stream *Output, bool_t bFo
                 return ERR_INVALID_DATA; // TODO: support encryption
 
             Header = EBML_MasterGetChild((ebml_master*)Elt, &MATROSKA_ContextContentCompAlgo);
-#if defined(CONFIG_ZLIB)
-            if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER && EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_ZLIB)
-#else
-            if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#endif
+            if (!CheckKnownCompression(EBML_IntegerValue((ebml_integer*)Header)))
 			{
 				Err = ERR_NOT_SUPPORTED;
 				goto failed;
@@ -2000,11 +1989,7 @@ static filepos_t UpdateBlockSize(matroska_block *Element, bool_t bWithDefault, b
                     return ERR_INVALID_DATA; // TODO: support encryption
 
                 Header = EBML_MasterGetChild((ebml_master*)Elt, &MATROSKA_ContextContentCompAlgo);
-#if defined(CONFIG_ZLIB)
-                if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER && EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_ZLIB)
-#else
-                if (EBML_IntegerValue((ebml_integer*)Header)!=MATROSKA_BLOCK_COMPR_HEADER)
-#endif
+                if (!CheckKnownCompression(EBML_IntegerValue((ebml_integer*)Header)))
                     return ERR_INVALID_DATA;
 
                 if (EBML_IntegerValue((ebml_integer*)Header)==MATROSKA_BLOCK_COMPR_HEADER)
