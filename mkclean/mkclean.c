@@ -760,7 +760,7 @@ static bool_t GenerateCueEntries(ebml_master *Cues, array *Clusters, ebml_master
 	ebml_master *Track;
 	ebml_element *Elt;
 	matroska_block *Block;
-	ebml_element **Cluster;
+	ebml_master **Cluster;
 	matroska_cuepoint *CuePoint;
 	int64_t TrackNum;
 	timecode_t PrevTimecode = INVALID_TIMECODE_T, BlockTimecode;
@@ -779,7 +779,7 @@ static bool_t GenerateCueEntries(ebml_master *Cues, array *Clusters, ebml_master
 
 	// find all the keyframes
     ++CurrentPhase;
-	for (Cluster = ARRAYBEGIN(*Clusters,ebml_element*);Cluster != ARRAYEND(*Clusters,ebml_element*); ++Cluster)
+	for (Cluster = ARRAYBEGIN(*Clusters,ebml_master*);Cluster != ARRAYEND(*Clusters,ebml_master*); ++Cluster)
 	{
         ShowProgress((ebml_element*)(*Cluster), TotalSize);
 		MATROSKA_LinkClusterWriteSegmentInfo((matroska_cluster*)*Cluster,WSegmentInfo);
@@ -2755,7 +2755,7 @@ int main(int argc, const char *argv[])
 	if (!Live)
 	{
         // cues
-        if (ARRAYCOUNT(*Clusters,ebml_element*) < 2)
+        if (ARRAYCOUNT(*Clusters,ebml_master*) < 2)
         {
             NodeDelete((node*)RCues);
             RCues = NULL;
@@ -2773,7 +2773,7 @@ int main(int argc, const char *argv[])
                 EBML_ElementUpdateSize(RCues,0,0);
 		}
 
-		if (!RCues && WTrackInfo && ARRAYCOUNT(*Clusters,ebml_element*) > 1)
+		if (!RCues && WTrackInfo && ARRAYCOUNT(*Clusters,ebml_master*) > 1)
 		{
 			// generate the cues
 			RCues = (ebml_master*)EBML_ElementCreate(&p,&MATROSKA_ContextCues,0,NULL);
@@ -2811,9 +2811,9 @@ int main(int argc, const char *argv[])
         {
 			W1stClusterSeek = (matroska_seekpoint*)EBML_MasterAddElt(WMetaSeek,&MATROSKA_ContextSeek,0);
             EBML_MasterUseChecksum((ebml_master*)W1stClusterSeek,!Unsafe);
-			EBML_ElementForcePosition(ARRAYBEGIN(*Clusters,ebml_element*)[0], NextPos + ExtraVoidSize);
-			NextPos += EBML_ElementFullSize(ARRAYBEGIN(*Clusters,ebml_element*)[0],0);
-			MATROSKA_LinkMetaSeekElement(W1stClusterSeek,ARRAYBEGIN(*Clusters,ebml_element*)[0]);
+			EBML_ElementForcePosition(ARRAYBEGIN(*Clusters,ebml_master*)[0], NextPos + ExtraVoidSize);
+			NextPos += EBML_ElementFullSize(ARRAYBEGIN(*Clusters,ebml_master*)[0],0);
+			MATROSKA_LinkMetaSeekElement(W1stClusterSeek,ARRAYBEGIN(*Clusters,ebml_master*)[0]);
         }
 
 		// first estimation of the MetaSeek size
@@ -2876,8 +2876,8 @@ int main(int argc, const char *argv[])
 			EBML_ElementForcePosition((ebml_element*)RCues, NextPos);
 			NextPos += EBML_ElementFullSize((ebml_element*)RCues,0);
 		}
-        else if (ARRAYCOUNT(*Clusters,ebml_element*)==1)
-            EBML_ElementForcePosition(ARRAYBEGIN(*Clusters,ebml_element*)[0], NextPos);
+        else if (ARRAYCOUNT(*Clusters,ebml_master*)==1)
+            EBML_ElementForcePosition(ARRAYBEGIN(*Clusters,ebml_master*)[0], NextPos);
 
 		// update and write the MetaSeek and the elements following
         // write without the fake Tags pointer
