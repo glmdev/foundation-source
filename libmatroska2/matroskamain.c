@@ -1613,6 +1613,35 @@ err_t CompressFrameZLib(const uint8_t *Cursor, size_t CursorSize, uint8_t **OutB
 #endif // CONFIG_EBML_WRITING
 #endif // CONFIG_ZLIB
 
+#if defined(CONFIG_LZO1X) && defined(CONFIG_EBML_WRITING)
+err_t CompressFrameLZO(const uint8_t *Cursor, size_t CursorSize, array *TmpBuf, size_t *OutSize)
+{
+    err_t Err = ERR_NONE;
+
+    struct lzokay_Dict dict;
+    lzokay_EResult error;
+
+    size_t compressed_size = lzokay_compress_worst_size(CursorSize);
+
+    if (!ArrayResize(TmpBuf,compressed_size,0))
+    {
+        Err = ERR_OUT_OF_MEMORY;
+    }
+    else
+    {
+        uint8_t *compressed = ARRAYBEGIN(*TmpBuf,uint8_t);
+        error = lzokay_compress_dict(Cursor, CursorSize, compressed, compressed_size,
+                                OutSize, &dict);
+        if (error < EResult_Success) {
+            Err = ERR_WRITE;
+        }
+    }
+
+    return Err;
+}
+#endif
+
+
 static filepos_t GetBlockFrameSize(const matroska_block *Element, size_t Frame, const ebml_element *Header, int CompScope)
 {
     if (Frame >= ARRAYCOUNT(Element->SizeList,int32_t))
@@ -1800,7 +1829,7 @@ static err_t RenderBlockData(matroska_block *Element, stream *Output, bool_t bFo
         }
     }
 
-#if !defined(CONFIG_ZLIB)
+#if !defined(CONFIG_ZLIB) && !defined(CONFIG_LZO1X)
     if (Header && Header->Context==&MATROSKA_ContextContentCompAlgo)
     {
         Err = ERR_NOT_SUPPORTED;
@@ -1864,6 +1893,8 @@ static err_t RenderBlockData(matroska_block *Element, stream *Output, bool_t bFo
     {
         if (Header && Header->Context==&MATROSKA_ContextContentCompAlgo)
         {
+            if (EBML_IntegerValue((ebml_integer*)Header) == MATROSKA_BLOCK_COMPR_ZLIB)
+            {
 #if defined(CONFIG_ZLIB)
             uint8_t *OutBuf;
             array TmpBuf;
@@ -1894,6 +1925,32 @@ static err_t RenderBlockData(matroska_block *Element, stream *Output, bool_t bFo
                     break;
             }
 #endif
+            }
+            else if (EBML_IntegerValue((ebml_integer*)Header) == MATROSKA_BLOCK_COMPR_LZO1X)
+            {
+#if defined(CONFIG_LZO1X)
+                array TmpBuf;
+                ArrayInit(&TmpBuf);
+                for (i=ARRAYBEGIN(Element->SizeList,int32_t);i!=ARRAYEND(Element->SizeList,int32_t);++i)
+                {
+                    ToWrite = ARRAYCOUNT(TmpBuf,uint8_t);
+                    if (CompressFrameLZO(Cursor, *i, &TmpBuf, &ToWrite) != ERR_NONE)
+                    {
+                        ArrayClear(&TmpBuf);
+                        Err = ERR_OUT_OF_MEMORY;
+                        break;
+                    }
+
+                    Err = Stream_Write(Output,ARRAYBEGIN(TmpBuf,uint8_t),ToWrite,&Written);
+                    ArrayClear(&TmpBuf);
+                    if (Rendered)
+                        *Rendered += Written;
+                    Cursor += *i;
+                    if (Err!=ERR_NONE)
+                        break;
+                }
+#endif
+            }
         }
         else
         {
