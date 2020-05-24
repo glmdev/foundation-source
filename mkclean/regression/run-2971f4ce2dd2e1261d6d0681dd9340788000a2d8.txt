@@ -1,0 +1,272 @@
+-------------------------------------------------------------------
+You may only use the C/C++ Extension for Visual Studio Code
+with Visual Studio Code, Visual Studio or Visual Studio for Mac
+software to help you develop and test your applications.
+-------------------------------------------------------------------
+Loaded 'C:\Users\robux\Documents\Program\Matroska\foundation-source\build\mkclean\regression\mkcleanreg.exe'. Symbols loaded.
+Loaded 'C:\Windows\System32\ntdll.dll'.
+Loaded 'C:\Windows\System32\kernel32.dll'.
+Loaded 'C:\Windows\System32\KernelBase.dll'.
+Loaded 'C:\Windows\System32\shell32.dll'.
+Loaded 'C:\Windows\System32\msvcp_win.dll'.
+Loaded 'C:\Windows\System32\ucrtbase.dll'.
+Loaded 'C:\Windows\System32\user32.dll'.
+Loaded 'C:\Windows\System32\win32u.dll'.
+Loaded 'C:\Windows\System32\gdi32.dll'.
+Loaded 'C:\Windows\System32\gdi32full.dll'.
+Loaded 'C:\Windows\System32\vcruntime140d.dll'.
+Loaded 'C:\Windows\System32\ucrtbased.dll'.
+Loaded 'C:\Windows\System32\imm32.dll'.
+Loaded 'C:\Windows\System32\sechost.dll'.
+Loaded 'C:\Windows\System32\rpcrt4.dll'.
+Success:0:1: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-odd.mkv
+Success:0:2: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-odd.mkv --remux
+Success:0:3: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-odd.mkv --optimize
+Success:0:4: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-odd.mkv --remux --optimize
+Success:0:5: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-odd.mkv --unsafe
+Success:0:6: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-odd.mkv --remux --unsafe
+Success:0:7: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\null-junk.mkv
+Success:0:8: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\null-junk.mkv --remux
+Success:0:9: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\null-junk.mkv --optimize
+Success:0:10: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\null-junk.mkv --unsafe
+Success:0:11: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-set_to_0.mkv
+Success:0:12: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-set_to_0.mkv --remux
+Success:0:13: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-set_to_0.mkv --optimize
+Success:0:14: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-set_to_0.mkv --remux --optimize
+Success:0:15: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-set_to_0.mkv --unsafe
+Success:0:16: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar-set_to_0.mkv --remux --unsafe
+Success:0:17: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\3D-v2-left.mkv
+Success:0:18: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\3D-v2-left.mkv --remux
+Success:0:19: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\3D-v2-left-right.mkv
+
+WRN0C0: First Block for video track #3 in Cluster at 147159 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 303056 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 459014 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 612165 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 774739 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 932935 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 1105317 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 1245470 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 1409175 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 1565888 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 1738279 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 1878718 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 2033555 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 2195243 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 2351935 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 2524030 is not a keyframe
+
+WRN0C0: First Block for video track #3 in Cluster at 2665213 is not a keyframe
+Success:0:20: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\3D-v2-left-right.mkv --remux --unsafe
+Success:0:21: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mkclean-crash.mkv
+Success:0:22: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mkclean-crash.mkv --remux
+Success:0:23: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mkclean-crash.mkv --optimize
+Success:0:24: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mkclean-crash.mkv --remux --optimize
+Success:0:25: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mkclean-crash.mkv --unsafe
+Success:0:26: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mkclean-crash.mkv --remux --unsafe
+Success:0:27: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\haali.mkv
+Success:0:28: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\haali.mkv --remux
+Success:0:29: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\haali.mkv --optimize
+Success:0:30: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\haali.mkv --remux --optimize
+Success:0:31: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\haali.mkv --unsafe
+Success:0:32: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\haali.mkv --remux --unsafe
+Success:0:33: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\video-only.mkv --doctype 2 --remux
+Success:0:34: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\video-only.mkv --doctype 2 --optimize
+Success:0:35: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\video-only.mkv --doctype 2 --remux --optimize
+Success:0:36: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\video-only.mkv --doctype 2 --remux --unsafe
+Success:0:37: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\sample252kb.mkv --doctype 2
+Success:0:38: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\sample252kb.mkv --doctype 2 --remux
+Success:0:39: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\sample252kb.mkv --doctype 2 --optimize
+Success:0:40: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\sample252kb.mkv --doctype 2 --remux --optimize
+Success:0:41: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\sample252kb.mkv --doctype 2 --unsafe
+Success:0:42: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\sample252kb.mkv --doctype 2 --remux --unsafe
+Success:0:43: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\live-stream.webm --live
+Success:0:44: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\live-stream.webm --live --remux
+Success:0:45: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\live-stream.webm --live --unsafe
+Success:0:46: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\live-stream.webm --live --remux --unsafe
+Success:0:47: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\bad-stereo.mkv
+Success:0:48: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\bad-stereo.mkv --remux
+Success:0:49: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\bad-stereo.mkv --optimize
+Success:0:50: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\bad-stereo.mkv --remux --optimize
+Success:0:51: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\bad-stereo.mkv --unsafe
+Success:0:52: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\bad-stereo.mkv --remux --unsafe
+Success:0:53: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\audio-only.mka
+Success:0:54: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\audio-only.mka --remux
+Success:0:55: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\audio-only.mka --optimize
+Success:0:56: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\audio-only.mka --remux --optimize
+Success:0:57: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\audio-only.mka --unsafe
+Success:0:58: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\audio-only.mka --remux --unsafe
+Warn:5:59: wanted 5079761 got 5079690 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\FTDcom30-WebM_640x480.webm
+Success:0:59: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\FTDcom30-WebM_640x480.webm --doctype 2 --optimize
+Success:0:60: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\FTDcom30-WebM_640x480_optimized.mkv --doctype 4
+Success:0:61: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\odd-cues.mkv
+Success:0:62: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\odd-cues.mkv --remux
+Success:0:63: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\odd-cues.mkv --optimize
+Success:0:64: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\odd-cues.mkv --remux --unsafe
+Success:0:65: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\crc.mkv
+Success:0:66: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\crc.mkv --remux
+Success:0:67: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\crc.mkv --optimize
+Success:0:68: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\crc.mkv --remux --optimize
+Success:0:69: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\crc.mkv --unsafe
+Success:0:70: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\crc.mkv --remux --unsafe
+Warn:5:71: wanted 14622599 got 14622494 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv
+Success:0:71: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv
+Warn:5:72: wanted 14622606 got 14622501 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv
+Success:0:72: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv --remux
+Success:0:73: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv --optimize
+Success:0:74: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv --remux --optimize
+Warn:5:75: wanted 14622350 got 14622245 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv
+Success:0:75: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv --unsafe
+Warn:5:76: wanted 14622387 got 14622282 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv
+Success:0:76: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\lzo.mkv --remux --unsafe
+Success:0:77: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\WorldFontsDemo.mkv
+Success:0:78: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\WorldFontsDemo.mkv --remux
+Success:0:79: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\WorldFontsDemo.mkv --optimize
+Success:0:80: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\WorldFontsDemo.mkv --remux --optimize
+Success:0:81: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\WorldFontsDemo.mkv --unsafe
+Success:0:82: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\WorldFontsDemo.mkv --remux --unsafe
+Success:0:83: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\SmoothFFRWDemo.mkv
+Success:0:84: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\SmoothFFRWDemo.mkv --remux
+Success:0:85: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\SmoothFFRWDemo.mkv --optimize
+Success:0:86: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\SmoothFFRWDemo.mkv --remux --optimize
+Success:0:87: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\SmoothFFRWDemo.mkv --unsafe
+Success:0:88: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\SmoothFFRWDemo.mkv --remux --unsafe
+Success:0:89: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\Handbrake-3441.mkv
+Success:0:90: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\Handbrake-3441.mkv --remux
+Success:0:91: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\Handbrake-3441.mkv --optimize
+Success:0:92: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\Handbrake-3441.mkv --remux --optimize
+Success:0:93: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\Handbrake-3441.mkv --unsafe
+Success:0:94: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\Handbrake-3441.mkv --remux --unsafe
+Success:0:95: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mp3-compr.mkv
+Success:0:96: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mp3-compr.mkv --remux
+Success:0:97: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mp3-compr.mkv --optimize
+Success:0:98: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mp3-compr.mkv --remux --optimize
+Success:0:99: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mp3-compr.mkv --unsafe
+Success:0:100: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\mp3-compr.mkv --remux --unsafe
+Success:0:101: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\attachment.mkv
+Success:0:102: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\attachment.mkv --remux
+Success:0:103: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\attachment.mkv --optimize
+Success:0:104: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\attachment.mkv --remux --optimize
+Success:0:105: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\attachment.mkv --unsafe
+Success:0:106: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\attachment.mkv --remux --unsafe
+Success:0:107: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ac3.mkv
+Success:0:108: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ac3.mkv --remux
+Success:0:109: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ac3.mkv --optimize
+Success:0:110: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ac3.mkv --remux --optimize
+Success:0:111: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ac3.mkv --remux --unsafe
+Warn:5:112: wanted 25842518 got 25842205 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv
+Success:0:112: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv
+Warn:5:113: wanted 25842220 got 25841907 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv
+Success:0:113: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --remux
+Success:0:114: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --optimize
+Success:0:115: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --remux --optimize
+Warn:5:116: wanted 25842201 got 25841888 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv
+Success:0:116: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --unsafe
+Warn:5:117: wanted 25842048 got 25841735 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv
+Success:0:117: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --remux --unsafe
+Success:0:118: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --no-optimize
+Success:0:119: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --remux --no-optimize
+Success:0:120: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --unsafe --no-optimize
+Success:0:121: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\zlib-audio.mkv --remux --unsafe --no-optimize
+Success:0:122: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar.mkv
+
+WRN0E3: The output pixels for Video track #1 seem wrong 606x359px from 1212x718
+Success:0:123: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar.mkv --remux
+Success:0:124: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar.mkv --optimize
+
+WRN0E3: The output pixels for Video track #1 seem wrong 606x359px from 1212x718
+Success:0:125: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar.mkv --remux --optimize
+Success:0:126: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar.mkv --unsafe
+
+WRN0E3: The output pixels for Video track #1 seem wrong 606x359px from 1212x718
+Success:0:127: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\ar.mkv --remux --unsafe
+Success:0:128: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts.mkv
+Success:0:129: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts.mkv --remux
+Success:0:130: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts.mkv --optimize
+Success:0:131: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts.mkv --remux --optimize
+Success:0:132: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts.mkv --unsafe
+Success:0:133: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts.mkv --remux --unsafe
+Warn:5:134: wanted 59755645 got 59750578 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv
+Success:0:134: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv
+Warn:5:135: wanted 59754892 got 59749825 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv
+Success:0:135: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv --remux
+Success:0:136: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv --optimize
+Success:0:137: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv --remux --optimize
+Warn:5:138: wanted 59755104 got 59750037 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv
+Success:0:138: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv --unsafe
+Warn:5:139: wanted 59754726 got 59749659 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv
+Success:0:139: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-lzo.mkv --remux --unsafe
+Warn:5:140: wanted 59755661 got 59750594 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv
+Success:0:140: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv
+Warn:5:141: wanted 59754887 got 59749820 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv
+Success:0:141: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv --remux
+Success:0:142: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv --optimize
+Success:0:143: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv --remux --optimize
+Warn:5:144: wanted 59755110 got 59750043 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv
+Success:0:144: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv --unsafe
+Warn:5:145: wanted 59754721 got 59749654 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv
+Success:0:145: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\dts-bz2.mkv --remux --unsafe
+
+ERR30A: Audio Track #1 has a null sampling frequency
+Success:0:146: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\chrome_linux_x64_fail.webm
+
+ERR30A: Audio Track #1 has a null sampling frequency
+Success:0:147: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\chrome_linux_x64_fail.webm --remux
+
+ERR30A: Audio Track #1 has a null sampling frequency
+Success:0:148: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\chrome_linux_x64_fail.webm --remux --optimize
+
+ERR30A: Audio Track #1 has a null sampling frequency
+Success:0:149: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\chrome_linux_x64_fail.webm --remux --unsafe
+Success:0:150: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\A_Digital_Media_Primer_For_Geeks-360p.webm
+Success:0:151: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\A_Digital_Media_Primer_For_Geeks-360p.webm --remux
+Success:0:152: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\A_Digital_Media_Primer_For_Geeks-360p.webm --optimize
+Success:0:153: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\A_Digital_Media_Primer_For_Geeks-360p.webm --remux --optimize
+Success:0:154: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\A_Digital_Media_Primer_For_Geeks-360p.webm --unsafe
+Success:0:155: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\A_Digital_Media_Primer_For_Geeks-360p.webm --remux --unsafe
+Success:0:156: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\fake-side-by-side.webm
+Success:0:157: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\fake-side-by-side.webm --remux
+Success:0:158: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\fake-side-by-side.webm --optimize
+Success:0:159: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\fake-side-by-side.webm --unsafe
+Success:0:160: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\broken.mkv
+Success:0:161: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\broken.mkv --doctype 2 --remux
+Success:0:162: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\broken.mkv --optimize
+Success:0:163: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\broken.mkv --doctype 2 --remux --optimize
+Success:0:164: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\broken.mkv --unsafe
+Success:0:165: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\broken.mkv --doctype 2 --remux --unsafe
+Success:0:166: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm
+Success:0:167: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm --remux
+Warn:5:168: wanted 1006693334 got 1006693263 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm
+Success:0:168: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm --optimize
+Warn:5:169: wanted 1006693271 got 1006693200 size in C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm
+Success:0:169: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm --remux --optimize
+Success:0:170: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm --unsafe
+Success:0:171: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\guadec-2010-07-30-0900-1330.webm --remux --unsafe
+Success:0:172: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\damaged.mkv
+Success:0:173: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\damaged.mkv --remux
+Success:0:174: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\damaged.mkv --optimize
+Success:0:175: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\damaged.mkv --remux --optimize
+Success:0:176: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\damaged.mkv --unsafe
+Success:0:177: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\damaged.mkv --remux --unsafe
+Success:0:178: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\large.mkv
+Success:0:179: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\large.mkv --remux
+Success:0:180: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\large.mkv --remux --optimize
+Success:0:181: C:\Users\robux\Documents\Program\Matroska\foundation-source/mkclean/regression/samples\large.mkv --unsafe
+Loaded 'C:\Windows\System32\kernel.appcore.dll'.
+Loaded 'C:\Windows\System32\msvcrt.dll'.
+The program '[11016] mkcleanreg.exe' has exited with code 0 (0x0).
