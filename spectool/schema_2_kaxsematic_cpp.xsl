@@ -52,9 +52,13 @@
 #include "matroska/KaxCuesData.h"
 
 START_LIBMATROSKA_NAMESPACE
-<xsl:apply-templates select="ebml:element">
+<xsl:for-each select="ebml:element[not(starts-with(@path,'\EBML\'))]">
     <xsl:sort select="translate(@path, '\+', '\')" />
-</xsl:apply-templates>
+    <xsl:apply-templates select="."/>
+</xsl:for-each>
+<!-- <xsl:apply-templates select="ebml:element">
+    <xsl:sort select="translate(@path, '\+', '\')" />
+</xsl:apply-templates> -->
 END_LIBMATROSKA_NAMESPACE
 
 </xsl:template>
@@ -64,9 +68,26 @@ END_LIBMATROSKA_NAMESPACE
     </xsl:variable>
 <!-- <xsl:text>plainPath = </xsl:text><xsl:value-of select="$plainPath" /><xsl:text>&#10;</xsl:text> -->
     <!-- Ignore EBML extra constraints -->
-    <xsl:if test="not(starts-with(@path,'\EBML\'))">
-    <xsl:copy>
-        <xsl:if test="@minver and @minver!='1'">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
+    <!-- <xsl:if test="not(starts-with(@path,'\EBML\'))"> -->
+    <!-- <xsl:copy> -->
+<!-- <xsl:value-of select="position()"/><xsl:text> - </xsl:text><xsl:value-of select="$previousMinver"/>
+<xsl:text> - </xsl:text><xsl:value-of select="ebml:extension[@cppname][1]/@cppname"/>
+<xsl:text> - </xsl:text><xsl:value-of select="preceding-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx"/>
+<xsl:text>&#10;</xsl:text> -->
+        <xsl:if test="@minver &gt; 1 or ebml:extension[@divx='1']">
+            <xsl:variable name="previousMinver">
+                <xsl:choose>
+                    <!-- <xsl:when test="position()=1">0</xsl:when> -->
+                    <xsl:when test="preceding-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx=1">2</xsl:when>
+                    <xsl:when test="not(preceding-sibling::*[1]/@minver)">0</xsl:when>
+                    <xsl:otherwise><xsl:value-of select="preceding-sibling::*[1]/@minver"/></xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+<!-- <xsl:value-of select="position()"/><xsl:text> - </xsl:text><xsl:value-of select="$previousMinver"/><xsl:text>&#10;</xsl:text> -->
+            <xsl:if test="$previousMinver &lt; 2">
+                <xsl:text>#if MATROSKA_VERSION >= 2&#10;</xsl:text>
+            </xsl:if>
+        </xsl:if>
         <xsl:choose>
             <xsl:when test="@type='master'">
                 <xsl:text>&#10;DEFINE_START_SEMANTIC(Kax</xsl:text>
@@ -75,15 +96,22 @@ END_LIBMATROSKA_NAMESPACE
                     <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
                 </xsl:choose>
                 <xsl:text>)&#10;</xsl:text>
+                <xsl:variable name="masterMinVer">
+                    <xsl:value-of select="@minver" />
+                </xsl:variable>
+<!-- <xsl:value-of select="$masterMinVer" /><xsl:text>&#10;</xsl:text> -->
+
                 <xsl:if test="@recursive=1">
                     <xsl:call-template name="outputContextTableItem">
                         <xsl:with-param name="node" select="."/>
+                        <xsl:with-param name="inMinver" select="$masterMinVer"/>
                         <xsl:with-param name="asRecursive" select="1"/>
                     </xsl:call-template>
                 </xsl:if>
                 <xsl:for-each select="/ebml:EBMLSchema/ebml:element[translate(@path, '\+', '\') = concat(concat($plainPath, '\'), @name)]">
                     <xsl:call-template name="outputContextTableItem">
                         <xsl:with-param name="node" select="."/>
+                        <xsl:with-param name="inMinver" select="$masterMinVer"/>
                     </xsl:call-template>
                 </xsl:for-each>
                 <xsl:text>DEFINE_END_SEMANTIC(Kax</xsl:text>
@@ -166,7 +194,7 @@ END_LIBMATROSKA_NAMESPACE
                     <xsl:with-param name="node" select="."/>
                 </xsl:call-template>
                 <xsl:if test="@default and (number(@default)=number(@default))"><xsl:text>, </xsl:text><xsl:value-of select="@default" /></xsl:if>
-                <xsl:text>)&#10;&#10;</xsl:text>
+                <xsl:text>)&#10;</xsl:text>
                 
             </xsl:when>
             <xsl:when test="@type='integer'">
@@ -306,16 +334,68 @@ END_LIBMATROSKA_NAMESPACE
             <xsl:text>  return 0;&#10;</xsl:text>
             <xsl:text>}&#10;</xsl:text>
         </xsl:if>
-        <xsl:if test="@minver and @minver!='1'">#endif&#10;</xsl:if>
-    </xsl:copy>
-    </xsl:if>
+
+
+        <xsl:if test="@minver &gt; 1 or ebml:extension[@divx='1']">
+            <xsl:variable name="nextMinver">
+                <xsl:choose>
+                    <!-- <xsl:when test="position()=last()">0</xsl:when> -->
+                    <xsl:when test="following-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx=1">2</xsl:when>
+                    <xsl:when test="not(following-sibling::*[1]/@minver)">1</xsl:when>
+                    <xsl:otherwise><xsl:value-of select="following-sibling::*[1]/@minver"/></xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+<!-- <xsl:value-of select="$nextMinver"/> -->
+<!-- <xsl:text> - </xsl:text><xsl:value-of select="$isInVersion2"/> -->
+<xsl:text>current: </xsl:text><xsl:value-of select="@minver"/>
+<xsl:text> / next: </xsl:text><xsl:value-of select="$nextMinver"/>
+<xsl:text> (next name: </xsl:text><xsl:value-of select="following-sibling::*[1]/@name"/><xsl:text>)</xsl:text>
+<xsl:text> (next divx: </xsl:text><xsl:value-of select="following-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx"/><xsl:text>)</xsl:text>
+<xsl:text> / position: </xsl:text><xsl:value-of select="position()"/>
+<xsl:text>&#10;</xsl:text>
+            <xsl:if test="$nextMinver &lt; 2">
+                <xsl:text>#endif&#10;</xsl:text>
+            </xsl:if>
+        </xsl:if>
+    <!-- </xsl:copy> -->
+    <!-- </xsl:if> -->
   </xsl:template>
 
   <xsl:template name="outputContextTableItem">
     <xsl:param name="node"/>
     <xsl:param name="asRecursive"/>
+    <xsl:param name="inMinver"/>
 
-    <xsl:if test="$node/@minver and $node/@minver!='1'">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
+    <xsl:variable name="isInVersion2">
+        <xsl:choose>
+            <xsl:when test="$inMinver=''">1</xsl:when>
+            <xsl:otherwise><xsl:value-of select="number($inMinver)"/></xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+
+<!-- <xsl:value-of select="$inMinver"/>
+<xsl:text> - </xsl:text><xsl:value-of select="$isInVersion2"/>
+<xsl:text> - </xsl:text><xsl:value-of select="$node/@minver"/>
+<xsl:text> - </xsl:text><xsl:value-of select="preceding-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx"/>
+<xsl:text>&#10;</xsl:text> -->
+    <xsl:if test="$isInVersion2 &lt; 2 and ($node/@minver &gt; 1 or ebml:extension[@divx='1'])">
+        <xsl:variable name="previousMinver">
+            <xsl:choose>
+                <xsl:when test="position()=1">0</xsl:when>
+                <xsl:when test="preceding-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx=1">2</xsl:when>
+                <xsl:when test="not(preceding-sibling::*[1]/@minver)">0</xsl:when>
+                <xsl:otherwise><xsl:value-of select="preceding-sibling::*[1]/@minver"/></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+<!-- <xsl:value-of select="position()"/><xsl:text> - </xsl:text><xsl:value-of select="$previousMinver"/>
+<xsl:text> - </xsl:text><xsl:value-of select="ebml:extension[@cppname][1]/@cppname"/>
+<xsl:text> - </xsl:text><xsl:value-of select="preceding-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx"/>
+<xsl:text>&#10;</xsl:text> -->
+        <xsl:if test="$previousMinver &lt; 2">
+            <!-- <xsl:value-of select="preceding-sibling::*[1]/@name"/><xsl:text>&#10;</xsl:text> -->
+            <xsl:text>#if MATROSKA_VERSION >= 2&#10;</xsl:text>
+        </xsl:if>
+    </xsl:if>
     <xsl:text>DEFINE_SEMANTIC_ITEM(</xsl:text>
     <xsl:choose>
         <xsl:when test="$asRecursive=1"><xsl:text>false</xsl:text></xsl:when>
@@ -336,12 +416,24 @@ END_LIBMATROSKA_NAMESPACE
     <xsl:if test="$asRecursive=1"><xsl:text> // recursive</xsl:text></xsl:if>
     <xsl:if test="$node/@maxver='0'">
         <xsl:choose>
-            <xsl:when test="$node/@divx='1'"><xsl:text> // DivX specific</xsl:text></xsl:when>
+            <xsl:when test="ebml:extension[@divx='1']"><xsl:text> // DivX specific</xsl:text></xsl:when>
             <xsl:otherwise><xsl:text> // not supported</xsl:text></xsl:otherwise>
         </xsl:choose>
     </xsl:if>
     <xsl:text>&#10;</xsl:text>
-    <xsl:if test="$node/@minver and $node/@minver!='1'">#endif // MATROSKA_VERSION&#10;</xsl:if>
+    <xsl:if test="$isInVersion2 &lt; 2 and ($node/@minver &gt; 1 or ebml:extension[@divx='1'])">
+        <xsl:variable name="nextMinver">
+            <xsl:choose>
+                <xsl:when test="position()=last()">0</xsl:when>
+                <xsl:when test="following-sibling::*[1]/ebml:extension[@divx='1'][1]/@divx=1">2</xsl:when>
+                <xsl:when test="not(following-sibling::*[1]/@minver)">0</xsl:when>
+                <xsl:otherwise><xsl:value-of select="following-sibling::*[1]/@minver"/></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:if test="$nextMinver &lt; 2">
+            <xsl:text>#endif // MATROSKA_VERSION&#10;</xsl:text>
+        </xsl:if>
+    </xsl:if>
   </xsl:template>
 
 

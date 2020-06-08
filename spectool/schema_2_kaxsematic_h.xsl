@@ -68,8 +68,8 @@ END_LIBMATROSKA_NAMESPACE
   <xsl:template match="ebml:element">
     <!-- Ignore EBML extra constraints -->
     <xsl:if test="not(starts-with(@path,'\EBML\')) and @name!='Segment' and @name!='Cluster' and @name!='BlockGroup' and @name!='Block' and @name!='BlockVirtual' and @name!='ReferenceBlock' and @name!='SimpleBlock' and @name!='Cues' and @name!='CuePoint' and @name!='CueTrackPositions' and @name!='CueReference' and @name!='NextUID' and @name!='PrevUID' and @name!='SeekHead' and @name!='Seek' and @name!='TrackEntry'">
-    <xsl:copy>
-        <xsl:if test="@minver and @minver!='1'">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
+    <!-- <xsl:copy> -->
+        <xsl:if test="@minver &gt; 1">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
         <xsl:choose>
             <xsl:when test="@type='master'">
                 <xsl:text>DECLARE_MKX_MASTER(Kax</xsl:text>
@@ -122,9 +122,9 @@ END_LIBMATROSKA_NAMESPACE
             <xsl:text>;}&#10;</xsl:text>
         </xsl:if>
         <xsl:text>};&#10;</xsl:text>
-        <xsl:if test="@minver and @minver!='1'">#endif&#10;</xsl:if>
+        <xsl:if test="@minver &gt; 1">#endif&#10;</xsl:if>
         <xsl:text>&#10;</xsl:text>
-    </xsl:copy>
+    <!-- </xsl:copy> -->
     </xsl:if>
   </xsl:template>
   <xsl:template match="documentation">
