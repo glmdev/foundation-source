@@ -58,18 +58,26 @@
 using namespace LIBEBML_NAMESPACE;
 
 START_LIBMATROSKA_NAMESPACE
-<xsl:apply-templates select="ebml:element">
-    <xsl:sort select="translate(@path, '\+', '\')" />
-</xsl:apply-templates>
+<xsl:for-each select="ebml:element[not(starts-with(@path,'\EBML\'))]">
+    <!-- <xsl:sort select="translate(@path, '\+', '\')" /> -->
+    <xsl:apply-templates select="."/>
+</xsl:for-each>
 END_LIBMATROSKA_NAMESPACE
 
 #endif // LIBMATROSKA_SEMANTIC_H
 </xsl:template>
   <xsl:template match="ebml:element">
     <!-- Ignore EBML extra constraints -->
-    <xsl:if test="not(starts-with(@path,'\EBML\')) and @name!='Segment' and @name!='Cluster' and @name!='BlockGroup' and @name!='Block' and @name!='BlockVirtual' and @name!='ReferenceBlock' and @name!='SimpleBlock' and @name!='Cues' and @name!='CuePoint' and @name!='CueTrackPositions' and @name!='CueReference' and @name!='NextUID' and @name!='PrevUID' and @name!='SeekHead' and @name!='Seek' and @name!='TrackEntry'">
+    <xsl:if test="@name!='Segment' and @name!='Cluster' and @name!='BlockGroup' and @name!='Block' and @name!='BlockVirtual' and @name!='ReferenceBlock' and @name!='SimpleBlock' and @name!='Cues' and @name!='CuePoint' and @name!='CueTrackPositions' and @name!='CueReference' and @name!='NextUID' and @name!='PrevUID' and @name!='SeekHead' and @name!='Seek' and @name!='TrackEntry'">
     <!-- <xsl:copy> -->
-        <xsl:if test="@minver &gt; 1">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
+
+        <xsl:variable name="minVer">
+            <xsl:call-template name="get-min-ver">
+                <xsl:with-param name="node" select="."/>
+            </xsl:call-template>
+        </xsl:variable>
+
+        <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
         <xsl:choose>
             <xsl:when test="@type='master'">
                 <xsl:text>DECLARE_MKX_MASTER(Kax</xsl:text>
@@ -107,10 +115,10 @@ END_LIBMATROSKA_NAMESPACE
             <xsl:text>  KaxSegmentUID(EBML_DEF_CONS EBML_DEF_SEP EBML_EXTRA_PARAM);&#10;</xsl:text>
             <xsl:text>#endif&#10;</xsl:text>
         </xsl:if>
-        <xsl:if test="@maxver or @length">
+        <xsl:if test="(@maxver='0' and not(ebml:extension[@divx='1'])) or @length">
             <xsl:text>public:&#10;</xsl:text>
         </xsl:if>
-        <xsl:if test="@maxver">
+        <xsl:if test="@maxver='0' and not(ebml:extension[@divx='1'])">
             <xsl:text>  filepos_t RenderData(IOCallback &amp; output, bool bForceRender, bool bSaveDefault);&#10;</xsl:text>
         </xsl:if>
         <xsl:if test="@length">
@@ -122,11 +130,37 @@ END_LIBMATROSKA_NAMESPACE
             <xsl:text>;}&#10;</xsl:text>
         </xsl:if>
         <xsl:text>};&#10;</xsl:text>
-        <xsl:if test="@minver &gt; 1">#endif&#10;</xsl:if>
+        <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">#endif&#10;</xsl:if>
         <xsl:text>&#10;</xsl:text>
     <!-- </xsl:copy> -->
     </xsl:if>
   </xsl:template>
+
+  <xsl:template name="get-min-ver">
+    <xsl:param name="node"/>
+    <xsl:choose>
+        <xsl:when test="$node/@name='EncryptedBlock'">2</xsl:when>
+        <xsl:when test="$node/@name='BlockVirtual'">2</xsl:when>
+        <xsl:when test="$node/@name='ReferenceVirtual'">2</xsl:when>
+        <xsl:when test="$node/@name='FrameNumber'">2</xsl:when>
+        <xsl:when test="$node/@name='BlockAdditionID'">2</xsl:when>
+        <xsl:when test="$node/@name='Delay'">2</xsl:when>
+        <xsl:when test="$node/@name='SliceDuration'">2</xsl:when>
+        <xsl:when test="$node/@name='TrackOffset'">2</xsl:when>
+        <xsl:when test="$node/@name='CodecSettings'">2</xsl:when>
+        <xsl:when test="$node/@name='CodecInfoURL'">2</xsl:when>
+        <xsl:when test="$node/@name='CodecDownloadURL'">2</xsl:when>
+        <xsl:when test="$node/@name='OldStereoMode'">2</xsl:when>
+        <xsl:when test="$node/@name='GammaValue'">2</xsl:when>
+        <xsl:when test="$node/@name='FrameRate'">2</xsl:when>
+        <xsl:when test="$node/@name='ChannelPositions'">2</xsl:when>
+        <xsl:when test="$node/@name='CueRefCluster'">2</xsl:when>
+        <xsl:when test="$node/@name='CueRefNumber'">2</xsl:when>
+        <xsl:when test="$node/@name='CueRefCodecState'">2</xsl:when>
+        <xsl:otherwise><xsl:value-of select="$node/@minver" /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="documentation">
     <documentation>
         <xsl:attribute name="lang"><xsl:value-of select="@lang" /></xsl:attribute>
