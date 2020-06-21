@@ -160,6 +160,8 @@ EBML_DLL void EBML_ElementSetInfiniteSize(const ebml_element *Element, bool_t Se
 EBML_DLL bool_t EBML_ElementInfiniteForceSize(ebml_element *Element, filepos_t NewSize);
 EBML_DLL bool_t EBML_ElementIsDummy(const ebml_element *Element);
 
+EBML_DLL fourcc_t EBML_ContextClassID(const ebml_context *Context);
+
 EBML_DLL fourcc_t EBML_ElementClassID(const ebml_element *Element);
 EBML_DLL filepos_t EBML_ElementPosition(const ebml_element *Element);
 EBML_DLL filepos_t EBML_ElementPositionData(const ebml_element *Element);

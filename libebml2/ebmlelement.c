@@ -159,6 +159,11 @@ void EBML_ElementSetSizeLength(ebml_element *Element, uint8_t SizeLength)
     Element->SizeLength = SizeLength;
 }
 
+fourcc_t EBML_ContextClassID(const ebml_context *Context)
+{
+    return Context->Id;
+}
+
 bool_t EBML_ElementIsType(const ebml_element *Element, const ebml_context *Context)
 {
     return Element->Context->Id == Context->Id;
