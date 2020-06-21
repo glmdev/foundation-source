@@ -43,10 +43,11 @@
 #include "ebml/EbmlSubHead.h"
 #include "ebml/EbmlContexts.h"
 
-#include "ebml2_legacy_project.h"
+// #include "ebml2_legacy_project.h"
 #include "ebml/EbmlVersion.h"
 
 #include "ebml2/ebml.h"
+#include "ebml_internal.h"
 
 #define IOCALLBACK_STREAM_CLASS  FOURCC('I','O','C','B')
 
@@ -112,12 +113,12 @@ static err_t ReadData(ebml_element *Element, stream_io *Input, const ebml_parser
         assert(0);
     }
     DataSize = Result->ReadData(*Input->cpp,Scope);
-    if (DataSize==Element->DataSize)
+    if (DataSize==EBML_ElementDataSize(Element,1))
         return ERR_NONE;
     return ERR_INVALID_DATA;
 }
 
-filepos_t UpdateSize(ebml_element *Element, bool bWithDefault, bool bForceRender)
+filepos_t UpdateDataSize(ebml_element *Element, bool_t bWithDefault, bool_t bForceWithoutMandatory)
 {
     filepos_t Size;
     EbmlElement *Result=NULL;
@@ -125,7 +126,7 @@ filepos_t UpdateSize(ebml_element *Element, bool bWithDefault, bool bForceRender
     {
         assert(0);
     }
-    Size = Result->UpdateSize(bWithDefault!=0, bForceRender!=0);
+    Size = Result->UpdateSize(bWithDefault!=0, bForceWithoutMandatory!=0);
     return Size;
 }
 
@@ -158,7 +159,7 @@ META_END_CONTINUE(STREAM_CLASS)
 
 META_START_CONTINUE(EBML_BINARY_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -166,7 +167,7 @@ META_END_CONTINUE(EBML_BINARY_CLASS)
 
 META_START_CONTINUE(EBML_DATE_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -174,7 +175,7 @@ META_END_CONTINUE(EBML_DATE_CLASS)
 
 META_START_CONTINUE(EBML_INTEGER_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -182,7 +183,7 @@ META_END_CONTINUE(EBML_INTEGER_CLASS)
 
 META_START_CONTINUE(EBML_SINTEGER_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -190,7 +191,7 @@ META_END_CONTINUE(EBML_SINTEGER_CLASS)
 
 META_START_CONTINUE(EBML_FLOAT_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -198,7 +199,7 @@ META_END_CONTINUE(EBML_FLOAT_CLASS)
 
 META_START_CONTINUE(EBML_MASTER_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -206,7 +207,7 @@ META_END_CONTINUE(EBML_MASTER_CLASS)
 
 META_START_CONTINUE(EBML_STRING_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -214,7 +215,7 @@ META_END_CONTINUE(EBML_STRING_CLASS)
 
 META_START_CONTINUE(EBML_UNISTRING_LEGACY_CLASS)
 META_VMT(TYPE_FUNC,ebml_element_vmt,ReadData,ReadData)
-META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateSize,UpdateSize)
+META_VMT(TYPE_FUNC,ebml_element_vmt,UpdateDataSize,UpdateDataSize)
 #if defined(CONFIG_EBML_WRITING)
 META_VMT(TYPE_FUNC,ebml_element_vmt,RenderData,RenderData)
 #endif
@@ -367,7 +368,7 @@ EbmlElement::EbmlElement(const ebml_context * Context, ebml_element *WithNode)
 :Node(WithNode)
 {
     if (!WithNode)
-        Node = EBML_ElementCreate(&ccContext,&Context,0,this);
+        Node = EBML_ElementCreate(&ccContext,Context,0,this);
     if (!Node)
     {
         // TODO: throw some error
@@ -402,9 +403,9 @@ EbmlElement * EbmlElement::SkipData(EbmlStream & DataStream, const EbmlSemanticC
     return NULL;
 }
 
-filepos_t EbmlElement::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlElement::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return EBML_ElementUpdateSize(Node, bWithDefault, bForceRender);
+    return EBML_ElementUpdateSize(Node, bWithDefault, bForceWithoutMandatory);
 }
 
 bool EbmlElement::IsFiniteSize() const
@@ -420,7 +421,7 @@ assert(0);
 
 filepos_t EbmlElement::GetSize() const
 {
-    return Node->DataSize;
+    return EBML_ElementDataSize(Node,1);
 }
 
 bool EbmlElement::ValueIsSet() const
@@ -463,7 +464,7 @@ size_t EbmlElement::HeadSize() const
 {
     filepos_t Result = EBML_ElementFullSize(Node,1);
     if (Result != INVALID_FILEPOS_T)
-        Result -= Node->DataSize; 
+        Result -= EBML_ElementDataSize(Node,1); 
     return Result;
 }
 
@@ -514,7 +515,7 @@ void EbmlElement::Read(EbmlStream & inDataStream, const EbmlSemanticContext & Co
     ParserContext.EndPosition = Node->ElementPosition + Node->DataSize;
     ParserContext.UpContext = NULL;
 
-    err_t Res = EBML_ElementReadData(Node,inDataStream.I_O().GetStream(),&ParserContext,AllowDummyElt,ReadFully);
+    err_t Res = EBML_ElementReadData(Node,inDataStream.I_O().GetStream(),&ParserContext,AllowDummyElt,ReadFully,0);
 }
 
 const char* EbmlElement::DebugName() const
@@ -536,7 +537,7 @@ EbmlSemanticContext::EbmlSemanticContext(const ebml_context * _Context)
 :Context(_Context)
 ,Size(0)
 {
-    const ebml_semantic *s = Context.Semantic;
+    const ebml_semantic *s = Context->Semantic;
     while (s && s->eClass!=NULL)
     {
         ++Size;
@@ -547,17 +548,17 @@ EbmlSemanticContext::EbmlSemanticContext(const ebml_context * _Context)
 const EbmlSemantic & EbmlSemanticContext::GetSemantic(size_t i) const
 {
     assert(i < Size);
-    return Context.Semantic[i];
+    return Context->Semantic[i];
 }
 
 bool EbmlSemanticContext::operator!=(const EbmlSemanticContext & Elt) const
 {
-	return (Size != Elt.Size) || (Context.Id != Elt.Context.Id) || (Context.Semantic != Elt.Context.Semantic); // TODO: handle more
+	return (Size != Elt.Size) || (Context->Id != Elt.Context->Id) || (Context->Semantic != Elt.Context->Semantic); // TODO: handle more
 }
 
 const ebml_context * EbmlSemanticContext::GetContext() const
 {
-    return &Context;
+    return Context;
 }
 
 EbmlSemanticContext::~EbmlSemanticContext()
@@ -662,7 +663,7 @@ assert(0);
 /*****************
  * EbmlMaster
  ****************/
-EbmlMaster::EbmlMaster(struct ebml_context const &Context, ebml_element *WithNode)
+EbmlMaster::EbmlMaster(struct ebml_context const *Context, ebml_element *WithNode)
 :EbmlElement(Context, WithNode)
 {
 }
@@ -670,7 +671,7 @@ EbmlMaster::EbmlMaster(struct ebml_context const &Context, ebml_element *WithNod
 filepos_t EbmlMaster::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_MASTER_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_MASTER_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -685,9 +686,9 @@ filepos_t EbmlMaster::RenderData(IOCallback & output, bool bForceRender, bool bS
     return Rendered;
 }
 
-filepos_t EbmlMaster::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlMaster::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_MASTER_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_MASTER_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 EbmlMaster_itr EbmlMaster::begin() const
@@ -750,17 +751,17 @@ static int EbmlCmp(const ebml_element* Element, const ebml_element** a,const ebm
 
 void EbmlMaster::Sort()
 {
-    EBML_MasterSort(Node, (arraycmp)EbmlCmp, this);
+    EBML_MasterSort((ebml_master*)Node, (arraycmp)EbmlCmp, this);
 }
 
 void EbmlMaster::RemoveAll()
 {
-    EBML_MasterClear(Node);
+    EBML_MasterClear((ebml_master*)Node);
 }
 
 size_t EbmlMaster::ListSize() const
 {
-    return EBML_MasterCount(Node);
+    return EBML_MasterCount((ebml_master*)Node);
 }
 
 bool EbmlMaster::InsertElement(EbmlElement & element, size_t position)
@@ -771,12 +772,12 @@ assert(0);
 
 bool EbmlMaster::PushElement(EbmlElement & element)
 {
-    return EBML_MasterAppend(Node,element.GetNode())==ERR_NONE;
+    return EBML_MasterAppend((ebml_master*)Node,element.GetNode())==ERR_NONE;
 }
 
-EbmlElement *EbmlMaster::AddNewElt(const EbmlCallbacks & Kind)
+EbmlElement *EbmlMaster::AddNewElt(const ebml_context * Kind)
 {
-    ebml_element *i = EBML_MasterAddElt(Node,&Kind,0);
+    ebml_element *i = EBML_MasterAddElt((ebml_master*)Node, Kind,0);
     if (i)
     {
         EbmlElement *Result=NULL;
@@ -791,7 +792,7 @@ EbmlElement *EbmlMaster::AddNewElt(const EbmlCallbacks & Kind)
 
 EbmlElement *EbmlMaster::FindElt(const ebml_context * Kind) const
 {
-    ebml_element *i = EBML_MasterFindChild(Node,&Kind);
+    ebml_element *i = EBML_MasterFindChild((ebml_master*)Node, Kind);
     if (i)
     {
         EbmlElement *Result=NULL;
@@ -806,7 +807,7 @@ EbmlElement *EbmlMaster::FindElt(const ebml_context * Kind) const
 
 EbmlElement *EbmlMaster::FindFirstElt(const ebml_context * Kind) const
 {
-    ebml_element *i = EBML_MasterFindFirstElt(Node,&Kind,0,0);
+    ebml_element *i = EBML_MasterFindFirstElt((ebml_master*)Node, Kind,0,0);
     if (i)
     {
         EbmlElement *Result=NULL;
@@ -821,7 +822,7 @@ EbmlElement *EbmlMaster::FindFirstElt(const ebml_context * Kind) const
 
 EbmlElement *EbmlMaster::FindFirstElt(const ebml_context * Kind, const bool bCreateIfNull) const
 {
-    ebml_element *i = EBML_MasterFindFirstElt(Node,&Kind,bCreateIfNull,0);
+    ebml_element *i = EBML_MasterFindFirstElt((ebml_master*)Node, Kind,bCreateIfNull,0);
     if (i)
     {
         EbmlElement *Result=NULL;
@@ -842,7 +843,7 @@ assert(0);
 
 EbmlElement *EbmlMaster::FindNextElt(const EbmlElement & Past, const bool bCreateIfNull)
 {
-    ebml_element *i = EBML_MasterFindNextElt(Node,Past.GetNode(),bCreateIfNull,0);
+    ebml_element *i = EBML_MasterFindNextElt((ebml_master*)Node,Past.GetNode(),bCreateIfNull,0);
     if (i)
     {
         EbmlElement *Result=NULL;
@@ -937,7 +938,7 @@ binary* EbmlBinary::GetBuffer()
 filepos_t EbmlBinary::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_BINARY_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_BINARY_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -952,9 +953,9 @@ filepos_t EbmlBinary::RenderData(IOCallback & output, bool bForceRender, bool bS
     return Rendered;
 }
 
-filepos_t EbmlBinary::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlBinary::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_BINARY_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_BINARY_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 EbmlElement * EbmlBinary::Clone() const
@@ -970,7 +971,8 @@ assert(0);
 EbmlString::EbmlString(const ebml_context *ec, const char *DefaultValue, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
-    Node->bDefaultIsSet = 1;
+    // TODO set the default value via the PostCreate
+    // Node->bDefaultIsSet = 1;
 }
 
 EbmlString::EbmlString(const ebml_context *ec, ebml_element *WithNode)
@@ -982,7 +984,7 @@ filepos_t EbmlString::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
 //    err_t Res = EBML_ElementReadData(Node,input.GetStream(),NULL,0,ReadFully);
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_STRING_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_STRING_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -997,9 +999,9 @@ filepos_t EbmlString::RenderData(IOCallback & output, bool bForceRender, bool bS
     return Rendered;
 }
 
-filepos_t EbmlString::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlString::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_STRING_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_STRING_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 EbmlString & EbmlString::operator=(const std::string & Value)
@@ -1043,7 +1045,7 @@ EbmlUnicodeString & EbmlUnicodeString::operator=(const UTFstring &val)
 filepos_t EbmlUnicodeString::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_UNISTRING_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_UNISTRING_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -1058,9 +1060,9 @@ filepos_t EbmlUnicodeString::RenderData(IOCallback & output, bool bForceRender, 
     return Rendered;
 }
 
-filepos_t EbmlUnicodeString::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlUnicodeString::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_UNISTRING_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_UNISTRING_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 EbmlUnicodeString::operator const UTFstring() const
@@ -1157,13 +1159,14 @@ EbmlUInteger::EbmlUInteger(const ebml_context *ec, ebml_element *WithNode)
 EbmlUInteger::EbmlUInteger(const ebml_context *ec, unsigned int DefaultValue, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
-    Node->bDefaultIsSet = 1;
+    // TODO set the default value via the PostCreate
+    // Node->bDefaultIsSet = 1;
 }
 
 filepos_t EbmlUInteger::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_INTEGER_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_INTEGER_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -1178,9 +1181,9 @@ filepos_t EbmlUInteger::RenderData(IOCallback & output, bool bForceRender, bool 
     return Rendered;
 }
 
-filepos_t EbmlUInteger::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlUInteger::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_INTEGER_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_INTEGER_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 void EbmlUInteger::SetDefaultSize(filepos_t aDefaultSize)
@@ -1224,7 +1227,7 @@ bool EbmlUInteger::IsSmallerThan(const EbmlElement *Cmp) const
 filepos_t EbmlSInteger::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_SINTEGER_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_SINTEGER_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -1239,9 +1242,9 @@ filepos_t EbmlSInteger::RenderData(IOCallback & output, bool bForceRender, bool 
     return Rendered;
 }
 
-filepos_t EbmlSInteger::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlSInteger::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_SINTEGER_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_SINTEGER_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 void EbmlSInteger::SetDefaultSize(filepos_t aDefaultSize)
@@ -1285,7 +1288,8 @@ EbmlFloat::EbmlFloat(const ebml_context *ec, double DefaultValue, Precision prec
 :EbmlElement(ec, WithNode)
 {
     SetPrecision(prec);
-    Node->bDefaultIsSet = 1;
+    // TODO set the default value via the PostCreate
+    // Node->bDefaultIsSet = 1;
 }
 
 EbmlFloat::EbmlFloat(const ebml_context *ec, Precision prec, ebml_element *WithNode)
@@ -1297,7 +1301,7 @@ EbmlFloat::EbmlFloat(const ebml_context *ec, Precision prec, ebml_element *WithN
 filepos_t EbmlFloat::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_FLOAT_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_FLOAT_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -1312,9 +1316,9 @@ filepos_t EbmlFloat::RenderData(IOCallback & output, bool bForceRender, bool bSa
     return Rendered;
 }
 
-filepos_t EbmlFloat::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlFloat::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_FLOAT_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_FLOAT_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 EbmlFloat::operator double() const
@@ -1361,7 +1365,7 @@ assert(0);
 filepos_t EbmlDate::ReadData(IOCallback & input, ScopeMode ReadFully)
 {
     filepos_t Now = (filepos_t)input.getFilePointer();
-    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_DATE_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully);
+    err_t Res = INHERITED(Node,ebml_element_vmt,EBML_DATE_LEGACY_CLASS)->ReadData(Node,input.GetStream(),NULL,0,ReadFully,0);
     if (Res != ERR_NONE)
         return INVALID_FILEPOS_T;
     return (filepos_t)input.getFilePointer() - Now;
@@ -1376,9 +1380,9 @@ filepos_t EbmlDate::RenderData(IOCallback & output, bool bForceRender, bool bSav
     return Rendered;
 }
 
-filepos_t EbmlDate::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlDate::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_DATE_LEGACY_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_DATE_LEGACY_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 datetime_t EbmlDate::GetEpochDate() const
@@ -1426,9 +1430,9 @@ filepos_t EbmlVoid::RenderData(IOCallback & output, bool bForceRender, bool bSav
     return Rendered;
 }
 
-filepos_t EbmlVoid::UpdateSize(bool bWithDefault, bool bForceRender)
+filepos_t EbmlVoid::UpdateSize(bool bWithDefault, bool bForceWithoutMandatory)
 {
-    return INHERITED(Node,ebml_element_vmt,EBML_VOID_CLASS)->UpdateSize(Node,bWithDefault,bForceRender);
+    return INHERITED(Node,ebml_element_vmt,EBML_VOID_CLASS)->UpdateDataSize(Node,bWithDefault,bForceWithoutMandatory);
 }
 
 filepos_t EbmlVoid::ReplaceWith(EbmlElement & EltToReplaceWith, IOCallback & output, bool ComeBackAfterward, bool bWithDefault)
@@ -1438,7 +1442,7 @@ filepos_t EbmlVoid::ReplaceWith(EbmlElement & EltToReplaceWith, IOCallback & out
 
 void EbmlVoid::SetSize(filepos_t Size)
 {
-    EBML_VoidSetSize(Node,Size);
+    EBML_VoidSetFullSize(Node,Size);
 }
 
 
@@ -1488,7 +1492,7 @@ IOCallback & EbmlStream::I_O()
 
 EbmlElement * EbmlStream::FindNextID(const ebml_context * Context, filepos_t MaxDataSize)
 {
-    ebml_element *i = EBML_FindNextId(mIO.GetStream(),&Context,MaxDataSize);
+    ebml_element *i = EBML_FindNextId(mIO.GetStream(),Context,MaxDataSize);
     if (i)
     {
         EbmlElement *Result=NULL;
@@ -1504,7 +1508,7 @@ EbmlElement * EbmlStream::FindNextID(const ebml_context * Context, filepos_t Max
 EbmlElement * EbmlStream::FindNextElement(const ebml_context * Context, int & UpperLevel, filepos_t MaxDataSize, bool AllowDummyElt, size_t MaxLowerLevel)
 {
     ebml_parser_context pContext;
-    pContext.Context = &Context;
+    pContext.Context = Context;
     pContext.UpContext = NULL;
     pContext.EndPosition = INVALID_FILEPOS_T;
 
