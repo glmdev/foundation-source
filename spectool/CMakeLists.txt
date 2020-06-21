@@ -1,9 +1,6 @@
 add_executable("tabler" tabler.c)
 target_link_libraries("tabler" PUBLIC "corec_parser" )
 
-add_executable("data2lib2" data2lib2.c spec_element.c spec_element.h)
-target_link_libraries("data2lib2" PUBLIC "corec_parser")
-
 add_executable("data2lib" data2lib.c spec_element.c spec_element.h)
 target_link_libraries("data2lib" PUBLIC "corec_parser")
 
