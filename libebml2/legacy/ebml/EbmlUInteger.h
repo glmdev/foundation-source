@@ -35,8 +35,8 @@ namespace LIBEBML_NAMESPACE {
 
     class EbmlUInteger : public EbmlElement {
     public:
-        EbmlUInteger(const ebml_context &,unsigned int, ebml_element *WithNode = NULL);
-        EbmlUInteger(const ebml_context &, ebml_element *WithNode = NULL);
+        EbmlUInteger(const ebml_context *,unsigned int, ebml_element *WithNode = NULL);
+        EbmlUInteger(const ebml_context *, ebml_element *WithNode = NULL);
 		operator uint64_t() const;
         virtual EbmlElement * Clone() const;
         uint64_t operator =(uint64_t val);

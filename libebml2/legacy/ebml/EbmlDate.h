@@ -35,7 +35,7 @@ namespace LIBEBML_NAMESPACE {
 
     class EbmlDate : public EbmlElement {
     public:
-        EbmlDate(const ebml_context &ec, ebml_element *WithNode = NULL) :EbmlElement(ec, WithNode) {}
+        EbmlDate(const ebml_context *ec, ebml_element *WithNode = NULL) :EbmlElement(ec, WithNode) {}
         virtual EbmlElement * Clone() const;
         datetime_t GetEpochDate() const;
         /*!

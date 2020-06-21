@@ -363,7 +363,7 @@ err_t EbmlElement::Deleting(EbmlElement *p, nodeevt *Evt)
     return ERR_NONE;
 }
 
-EbmlElement::EbmlElement(const ebml_context & Context, ebml_element *WithNode)
+EbmlElement::EbmlElement(const ebml_context * Context, ebml_element *WithNode)
 :Node(WithNode)
 {
     if (!WithNode)
@@ -532,7 +532,7 @@ bool EbmlElement::IsSmallerThan(const EbmlElement *Cmp) const
 /*****************
  * EbmlSemanticContext
  ****************/
-EbmlSemanticContext::EbmlSemanticContext(const ebml_context & _Context)
+EbmlSemanticContext::EbmlSemanticContext(const ebml_context * _Context)
 :Context(_Context)
 ,Size(0)
 {
@@ -789,7 +789,7 @@ EbmlElement *EbmlMaster::AddNewElt(const EbmlCallbacks & Kind)
     return NULL;
 }
 
-EbmlElement *EbmlMaster::FindElt(const ebml_context & Kind) const
+EbmlElement *EbmlMaster::FindElt(const ebml_context * Kind) const
 {
     ebml_element *i = EBML_MasterFindChild(Node,&Kind);
     if (i)
@@ -804,7 +804,7 @@ EbmlElement *EbmlMaster::FindElt(const ebml_context & Kind) const
     return NULL;
 }
 
-EbmlElement *EbmlMaster::FindFirstElt(const ebml_context & Kind) const
+EbmlElement *EbmlMaster::FindFirstElt(const ebml_context * Kind) const
 {
     ebml_element *i = EBML_MasterFindFirstElt(Node,&Kind,0,0);
     if (i)
@@ -819,7 +819,7 @@ EbmlElement *EbmlMaster::FindFirstElt(const ebml_context & Kind) const
     return NULL;
 }
 
-EbmlElement *EbmlMaster::FindFirstElt(const ebml_context & Kind, const bool bCreateIfNull) const
+EbmlElement *EbmlMaster::FindFirstElt(const ebml_context * Kind, const bool bCreateIfNull) const
 {
     ebml_element *i = EBML_MasterFindFirstElt(Node,&Kind,bCreateIfNull,0);
     if (i)
@@ -967,13 +967,13 @@ assert(0);
 /*****************
  * EbmlString
  ****************/
-EbmlString::EbmlString(const ebml_context &ec, const char *DefaultValue, ebml_element *WithNode)
+EbmlString::EbmlString(const ebml_context *ec, const char *DefaultValue, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
     Node->bDefaultIsSet = 1;
 }
 
-EbmlString::EbmlString(const ebml_context &ec, ebml_element *WithNode)
+EbmlString::EbmlString(const ebml_context *ec, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
 }
@@ -1029,7 +1029,7 @@ assert(0);
 /*****************
  * EbmlUnicodeString
  ****************/
-EbmlUnicodeString::EbmlUnicodeString(const ebml_context &ec, ebml_element *WithNode)
+EbmlUnicodeString::EbmlUnicodeString(const ebml_context *ec, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
 }
@@ -1149,12 +1149,12 @@ size_t UTFstring::length() const
 /*****************
  * EbmlUInteger
  ****************/
-EbmlUInteger::EbmlUInteger(const ebml_context &ec, ebml_element *WithNode)
+EbmlUInteger::EbmlUInteger(const ebml_context *ec, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
 }
 
-EbmlUInteger::EbmlUInteger(const ebml_context &ec, unsigned int DefaultValue, ebml_element *WithNode)
+EbmlUInteger::EbmlUInteger(const ebml_context *ec, unsigned int DefaultValue, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
     Node->bDefaultIsSet = 1;
@@ -1281,14 +1281,14 @@ bool EbmlSInteger::IsSmallerThan(const EbmlElement *Cmp) const
 /*****************
  * EbmlFloat
  ****************/
-EbmlFloat::EbmlFloat(const ebml_context &ec, double DefaultValue, Precision prec, ebml_element *WithNode)
+EbmlFloat::EbmlFloat(const ebml_context *ec, double DefaultValue, Precision prec, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
     SetPrecision(prec);
     Node->bDefaultIsSet = 1;
 }
 
-EbmlFloat::EbmlFloat(const ebml_context &ec, Precision prec, ebml_element *WithNode)
+EbmlFloat::EbmlFloat(const ebml_context *ec, Precision prec, ebml_element *WithNode)
 :EbmlElement(ec, WithNode)
 {
     SetPrecision(prec);
@@ -1486,7 +1486,7 @@ IOCallback & EbmlStream::I_O()
     return mIO;
 }
 
-EbmlElement * EbmlStream::FindNextID(const ebml_context & Context, filepos_t MaxDataSize)
+EbmlElement * EbmlStream::FindNextID(const ebml_context * Context, filepos_t MaxDataSize)
 {
     ebml_element *i = EBML_FindNextId(mIO.GetStream(),&Context,MaxDataSize);
     if (i)
@@ -1501,7 +1501,7 @@ EbmlElement * EbmlStream::FindNextID(const ebml_context & Context, filepos_t Max
     return NULL;
 }
 
-EbmlElement * EbmlStream::FindNextElement(const ebml_context & Context, int & UpperLevel, filepos_t MaxDataSize, bool AllowDummyElt, size_t MaxLowerLevel)
+EbmlElement * EbmlStream::FindNextElement(const ebml_context * Context, int & UpperLevel, filepos_t MaxDataSize, bool AllowDummyElt, size_t MaxLowerLevel)
 {
     ebml_parser_context pContext;
     pContext.Context = &Context;

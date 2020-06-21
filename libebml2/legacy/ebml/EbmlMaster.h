@@ -58,13 +58,13 @@ namespace LIBEBML_NAMESPACE {
 
     class EbmlMaster : public EbmlElement {
     public:
-        EbmlMaster(const ebml_context &, ebml_element *WithNode = NULL);
-        EbmlElement *FindElt(const ebml_context & Kind) const;
-		EbmlElement *FindFirstElt(const ebml_context & Kind) const;
-		EbmlElement *FindFirstElt(const ebml_context & Kind, const bool bCreateIfNull) const;
+        EbmlMaster(const ebml_context *, ebml_element *WithNode = NULL);
+        EbmlElement *FindElt(const ebml_context * Kind) const;
+		EbmlElement *FindFirstElt(const ebml_context * Kind) const;
+		EbmlElement *FindFirstElt(const ebml_context * Kind, const bool bCreateIfNull) const;
 		EbmlElement *FindNextElt(const EbmlElement & Past) const;
 		EbmlElement *FindNextElt(const EbmlElement & Past, const bool bCreateIfNull);
-		EbmlElement *AddNewElt(const ebml_context & Kind);
+		EbmlElement *AddNewElt(const ebml_context * Kind);
 		bool InsertElement(EbmlElement & element, size_t position = 0);
 		bool PushElement(EbmlElement & element);
 

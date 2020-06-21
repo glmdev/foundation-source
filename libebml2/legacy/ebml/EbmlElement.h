@@ -74,9 +74,9 @@
     public: \
         operator const EbmlId (void) const { return EbmlId(EBML_Context##x.Id); } \
         virtual EbmlElement * Clone() const { return new x(*this); } \
-        virtual operator const ebml_context &() const { return EBML_Context##x; } \
+        virtual operator const ebml_context *() const { return EBML_Context##x; } \
         static const ebml_context EBML_Context##x; \
-        static const ebml_context & GetContext() { return EBML_Context##x; } \
+        static const ebml_context * GetContext() { return EBML_Context##x; } \
         static void PostCreate(ebml_element *p, const void *Cookie) { if (!Cookie) Cookie=new x(p); Node_Set(p,EBML_ELEMENT_OBJECT,&Cookie,sizeof(Cookie)); }
 
 #define DEFINE_xxx_CONTEXT(x,global) \
@@ -165,7 +165,7 @@
     x::x(ebml_element *WithNode) :EbmlDate(EBML_Context##x, WithNode)  {}
 
 #define EBML_DEF_SEP ,
-#define EBML_DEF_CONS           const ebml_context &ec
+#define EBML_DEF_CONS           const ebml_context *ec
 #define EBML_DEF_PARAM          ec
 #define EBML_DEF_BINARY_INIT    EbmlBinary(ec, WithNode)
 #define EBML_DEF_BINARY_CTX(x)  EBML_Context##x
@@ -179,7 +179,7 @@
 #define EBML_INFO(ref)             ref::EBML_Context##ref
 #define EBML_CLASS_SEMCONTEXT(ref) EBML_Context##ref
 #define EBML_CLASS_CALLBACK(ref)   ref::EBML_Context##ref
-#define EBML_CONTEXT(e)            static_cast<const ebml_context &>(*(e))
+#define EBML_CONTEXT(e)            static_cast<const ebml_context *>(*(e))
 #define EBML_NAME(e)               (e)->DebugName()
 
 #define EBML_INFO_ID(cb)      (cb).Id
@@ -212,7 +212,7 @@ namespace LIBEBML_NAMESPACE {
 
     class EbmlSemanticContext {
     public:
-        EbmlSemanticContext(const ebml_context &);
+        EbmlSemanticContext(const ebml_context *);
 		bool operator!=(const EbmlSemanticContext & Elt) const;
         ~EbmlSemanticContext();
 
@@ -223,7 +223,7 @@ namespace LIBEBML_NAMESPACE {
 
     private:
         size_t Size;
-        const ebml_context & Context;
+        const ebml_context * Context;
 //        ebml_parser_context *pContext;
     };
 
@@ -267,7 +267,7 @@ namespace LIBEBML_NAMESPACE {
         inline ebml_element *GetNode() { return Node; }
         inline const ebml_element *GetNode() const { return Node; }
 
-        virtual operator const ebml_context &() const = 0;
+        virtual operator const ebml_context *() const = 0;
 
 
         // virtual methods needed for the Core-C counterpart
@@ -275,7 +275,7 @@ namespace LIBEBML_NAMESPACE {
         virtual filepos_t RenderData(IOCallback & output, bool bForceRender, bool bSaveDefault = false) = 0;
         virtual filepos_t UpdateSize(bool bWithDefault = false, bool bForceRender = false) = 0; /// update the Size of the Data stored before rendering
     protected:
-        EbmlElement(const ebml_context &, ebml_element *WithNode = NULL);
+        EbmlElement(const ebml_context *, ebml_element *WithNode = NULL);
         ebml_element *Node;
         static err_t Deleting(EbmlElement *p, nodeevt *Evt);
     };
