@@ -35,7 +35,7 @@ namespace LIBEBML_NAMESPACE {
 
     class EbmlDate : public EbmlElement {
     public:
-        EbmlDate(const ebml_context &ec, ebml_element *WithNode = NULL) :EbmlElement(ec, WithNode) {}
+        EbmlDate(const ebml_context *ec, ebml_element *WithNode = NULL) :EbmlElement(ec, WithNode) {}
         virtual EbmlElement * Clone() const;
         datetime_t GetEpochDate() const;
         /*!
@@ -48,7 +48,7 @@ namespace LIBEBML_NAMESPACE {
         // virtual methods needed for the Core-C counterpart
         virtual filepos_t ReadData(IOCallback & input, ScopeMode ReadFully = SCOPE_ALL_DATA);
         virtual filepos_t RenderData(IOCallback & output, bool bForceRender, bool bSaveDefault = false);
-        virtual filepos_t UpdateSize(bool bWithDefault = false, bool bForceRender = false);
+        virtual filepos_t UpdateSize(bool bWithDefault = false, bool bForceWithoutMandatory = false);
     };
 
 };

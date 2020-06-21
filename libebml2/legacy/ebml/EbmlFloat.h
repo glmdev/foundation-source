@@ -40,8 +40,8 @@ namespace LIBEBML_NAMESPACE {
 			,FLOAT_64
 		};
 
-		EbmlFloat(const ebml_context &, Precision prec = FLOAT_32, ebml_element *WithNode = NULL);
-		EbmlFloat(const ebml_context &, double DefaultValue, Precision prec = FLOAT_32, ebml_element *WithNode = NULL);
+		EbmlFloat(const ebml_context *, Precision prec = FLOAT_32, ebml_element *WithNode = NULL);
+		EbmlFloat(const ebml_context *, double DefaultValue, Precision prec = FLOAT_32, ebml_element *WithNode = NULL);
         operator double() const;
 
         double operator =(double val);
@@ -54,7 +54,7 @@ namespace LIBEBML_NAMESPACE {
         // virtual methods needed for the Core-C counterpart
         virtual filepos_t ReadData(IOCallback & input, ScopeMode ReadFully = SCOPE_ALL_DATA);
         virtual filepos_t RenderData(IOCallback & output, bool bForceRender, bool bSaveDefault = false);
-        virtual filepos_t UpdateSize(bool bWithDefault = false, bool bForceRender = false);
+        virtual filepos_t UpdateSize(bool bWithDefault = false, bool bForceWithoutMandatory = false);
     };
 
 };
