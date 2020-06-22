@@ -82,9 +82,9 @@ END_LIBMATROSKA_NAMESPACE
             <xsl:with-param name="node" select="."/>
         </xsl:call-template>
     </xsl:variable>
-        <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
+        <!-- <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
             <xsl:text>#if MATROSKA_VERSION >= 2&#10;</xsl:text>
-        </xsl:if>
+        </xsl:if> -->
         <xsl:choose>
             <xsl:when test="@type='master'">
                 <xsl:text>&#10;DEFINE_START_SEMANTIC(Kax</xsl:text>
@@ -322,9 +322,9 @@ END_LIBMATROSKA_NAMESPACE
         </xsl:choose>
 
 
-        <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
+        <!-- <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
             <xsl:text>#endif&#10;</xsl:text>
-        </xsl:if>
+        </xsl:if> -->
     <!-- </xsl:copy> -->
     <!-- </xsl:if> -->
   </xsl:template>
@@ -340,9 +340,9 @@ END_LIBMATROSKA_NAMESPACE
         </xsl:call-template>
     </xsl:variable>
 
-    <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
+    <!-- <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
         <xsl:text>#if MATROSKA_VERSION >= 2&#10;</xsl:text>
-    </xsl:if>
+    </xsl:if> -->
     <xsl:text>DEFINE_SEMANTIC_ITEM(</xsl:text>
     <xsl:choose>
         <xsl:when test="$asRecursive=1"><xsl:text>false</xsl:text></xsl:when>
@@ -368,9 +368,9 @@ END_LIBMATROSKA_NAMESPACE
         </xsl:choose>
     </xsl:if>
     <xsl:text>&#10;</xsl:text>
-    <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
+    <!-- <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">
         <xsl:text>#endif // MATROSKA_VERSION&#10;</xsl:text>
-    </xsl:if>
+    </xsl:if> -->
   </xsl:template>
 
 

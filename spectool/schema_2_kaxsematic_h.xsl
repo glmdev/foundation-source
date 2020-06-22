@@ -77,7 +77,7 @@ END_LIBMATROSKA_NAMESPACE
             </xsl:call-template>
         </xsl:variable>
 
-        <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">#if MATROSKA_VERSION >= 2&#10;</xsl:if>
+        <!-- <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">#if MATROSKA_VERSION >= 2&#10;</xsl:if> -->
         <xsl:choose>
             <xsl:when test="@type='master'">
                 <xsl:text>DECLARE_MKX_MASTER(Kax</xsl:text>
@@ -130,7 +130,7 @@ END_LIBMATROSKA_NAMESPACE
             <xsl:text>;}&#10;</xsl:text>
         </xsl:if>
         <xsl:text>};&#10;</xsl:text>
-        <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">#endif&#10;</xsl:if>
+        <!-- <xsl:if test="$minVer &gt; 1 or ebml:extension[@divx='1']">#endif&#10;</xsl:if> -->
         <xsl:text>&#10;</xsl:text>
     <!-- </xsl:copy> -->
     </xsl:if>
