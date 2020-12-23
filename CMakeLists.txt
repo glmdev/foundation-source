@@ -6,7 +6,6 @@ option(BUILD_SHARED_LIBS "Build libraries as dynamic libraries" OFF)
 option(CONFIG_MATROSKA2 "Build libmatroska2" ON)
 
 add_subdirectory("corec")
-add_subdirectory("spectool")
 add_subdirectory("libebml2")
 if(CONFIG_MATROSKA2)
     add_subdirectory("mkvalidator")
